@@ -7,12 +7,27 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
+body { background: #f0f4f9; }
+.main-card { max-width: 700px; margin: 32px auto; padding: 0 8px; }
+.card-section { background: #fff; border-radius: 15px; box-shadow: 0 4px 24px rgba(102,126,234,0.08); padding: 28px 20px 20px 20px; margin-bottom: 28px; border: 1.5px solid #e1e8ed; }
+.section-title { text-align: center; font-size: 1.35rem; font-weight: 800; color: #2c3e50; margin: 0 0 24px 0; letter-spacing: 1px; }
+.section-title .icon { font-size: 1.5rem; margin-right: 6px; vertical-align: middle; }
+.buttons-section { display: flex; flex-direction: row; gap: 12px; justify-content: center; margin-top: 24px; flex-wrap: wrap; }
+.btn, .btn-fancy { width: 130px; min-width: 0; padding: 13px 0; border-radius: 8px; font-size: 1.08rem; font-weight: 900; background: linear-gradient(90deg, #1976d2 0%, #64b5f6 100%); color: #fff; border: none; box-shadow: 0 2px 8px #90caf955; transition: background 0.2s, color 0.2s; }
+.btn:hover, .btn-fancy:hover { background: linear-gradient(90deg, #64b5f6 0%, #1976d2 100%); color: #fff; }
+.form-group label { font-weight: 700; color: #1976d2; margin-bottom: 7px; }
+.form-group input, .form-group textarea, .form-group select { border: 2px solid #e1e8ed; border-radius: 8px; font-size: 1rem; padding: 12px 15px; background: #f8f9fa; margin-bottom: 10px; transition: border 0.2s; }
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: #1976d2; background: #fff; }
+.quote-preview { background: #fff; border-radius: 15px; box-shadow: 0 4px 24px rgba(102,126,234,0.08); padding: 28px 20px 20px 20px; margin-bottom: 28px; border: 1.5px solid #e1e8ed; position: relative; overflow: hidden; }
+.quote-preview h3 { color: #1976d2; font-size: 1.15rem; font-weight: 900; border-bottom: 2px solid #e1e8ed; padding-bottom: 8px; margin-bottom: 18px; text-align: center; }
+@media (max-width: 600px) { .main-card { max-width: 100%; } .card-section { padding: 14px 4px 10px 4px; } .buttons-section { flex-direction: column; gap: 10px; } .btn, .btn-fancy { width: 100%; } }
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   max-width: 100%;
   margin: 0;
-  padding: 8px;
-  background-color: #f0f4f9;
+  padding: 0;
+  background: linear-gradient(135deg, #f0f4f9 0%, #e8f4fd 100%);
   line-height: 1.4;
   min-height: 100vh;
 }
@@ -63,23 +78,6 @@ body {
   z-index: 1;
 }
 
-.header-subtitle {
-  font-size: 0.9rem;
-  color: #6c757d;
-  margin: 0;
-  font-weight: 500;
-  position: absolute;
-  bottom: 15px;
-  right: 15px;
-  z-index: 1;
-  background: rgba(255, 255, 255, 0.8);
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
 .header-icon {
   font-size: 5rem;
   margin-bottom: 15px;
@@ -100,44 +98,41 @@ body {
 }
 
 .quote-container {
-  max-width: 1000px;
-  margin: 20px auto;
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  margin: 30px auto;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
   overflow: hidden;
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid #e1e8ed;
 }
 
 .quote-section {
-  padding: 40px 30px;
+  padding: 32px 20px 24px 20px;
 }
 
-.form-section {
-  margin-bottom: 30px;
-  padding: 25px;
+.calculator-section, .form-section {
+  margin-bottom: 28px;
+  padding: 22px 18px 18px 18px;
   background: #f8f9fa;
   border-radius: 12px;
-  border-left: 4px solid #007bff;
+  border-left: 4px solid #667eea;
+  box-shadow: 0 2px 8px rgba(102,126,234,0.04);
 }
 
-.form-section h3 {
-  margin: 0 0 20px 0;
-  color: #007bff;
-  font-size: 1.2rem;
-}
-
-.form-group {
-  margin-bottom: 20px;
+.calculator-section h3, .form-section h3 {
+  margin: 0 0 18px 0;
+  color: #764ba2;
+  font-size: 1.1rem;
+  font-weight: 700;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 7px;
   font-weight: 600;
   color: #2c3e50;
-  font-size: 0.95rem;
+  font-size: 0.97rem;
 }
 
 .form-group input,
@@ -147,18 +142,18 @@ body {
   padding: 12px 15px;
   border: 2px solid #e1e8ed;
   border-radius: 8px;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
+  font-size: 1rem;
+  transition: all 0.3s;
   box-sizing: border-box;
-  background: white;
+  background: #fff;
 }
 
 .form-group input:focus,
 .form-group textarea:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  border-color: #764ba2;
+  box-shadow: 0 0 0 3px rgba(118,75,162,0.08);
 }
 
 .form-group textarea {
@@ -169,195 +164,110 @@ body {
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 18px;
 }
 
-.btn {
-  padding: 14px 24px;
-  border: none;
-  border-radius: 12px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-decoration: none;
-  display: inline-block;
-  margin-right: 10px;
-  margin-bottom: 10px;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-  color: white;
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
-}
-
-.btn-success {
-  background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
-  color: white;
-}
-
-.btn-success:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
-}
-
-.btn-secondary {
-  background: #6c757d;
-  color: white;
-}
-
-.btn-secondary:hover {
-  background: #5a6268;
-  transform: translateY(-2px);
-}
-
-/* 템플릿 선택 스타일 */
-.template-section {
-  margin-bottom: 30px;
-}
-
-.template-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
-  margin-top: 20px;
-}
-
-.template-card {
-  background: white;
-  border: 2px solid #e9ecef;
-  border-radius: 12px;
-  padding: 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.template-card:hover {
-  border-color: #667eea;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-}
-
-.template-card.active {
-  border-color: #667eea;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-}
-
-.template-preview {
-  text-align: center;
-  margin-bottom: 15px;
-  padding: 20px;
-  border-radius: 8px;
-  background: #f8f9fa;
-}
-
-.template-card.active .template-preview {
-  background: rgba(255,255,255,0.2);
-}
-
-.simple-preview {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-}
-
-.professional-preview {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-}
-
-.colorful-preview {
-  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
-}
-
-.template-info h4 {
-  margin: 0 0 8px 0;
-  font-size: 1.1rem;
-}
-
-.template-info p {
-  margin: 0;
-  font-size: 0.9rem;
-  color: #6c757d;
-}
-
-.template-card.active .template-info p {
-  color: rgba(255,255,255,0.8);
-}
-
-/* 계산 결과 연동 스타일 */
-.calculator-section {
-  background: white;
-  border-radius: 12px;
-  padding: 25px;
-  margin-bottom: 30px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-}
-
-.calc-results {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 15px;
-  margin: 20px 0;
-}
-
-.result-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  border-left: 4px solid #667eea;
-}
-
-.result-item.total {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  font-weight: bold;
-  font-size: 1.1rem;
-}
-
-.result-item label {
-  font-weight: 600;
-  color: #495057;
-}
-
-.result-item.total label {
-  color: white;
-}
-
-.result-item span {
-  font-weight: 500;
+@media (max-width: 600px) {
+  .quote-container {
+    margin: 8px;
+    border-radius: 12px;
+  }
+  .quote-section {
+    padding: 12px 4px 8px 4px;
+  }
+  .page-header {
+    margin-bottom: 10px;
+    padding: 18px 6px 12px 6px;
+    min-height: 90px;
+    border-radius: 12px;
+  }
+  .page-header .header-title {
+    font-size: 1.2rem;
+  }
+  .page-header .header-icon {
+    font-size: 2.2rem;
+  }
+  .calculator-section, .form-section {
+    padding: 10px 6px 8px 6px;
+    border-radius: 8px;
+  }
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
 }
 
 .buttons-section {
   display: flex;
-  gap: 15px;
-  margin-top: 30px;
+  flex-direction: row;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 24px;
   flex-wrap: wrap;
 }
 
+.btn {
+  padding: 12px 22px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  display: inline-block;
+  margin-right: 0;
+  margin-bottom: 0;
+  box-shadow: 0 2px 8px rgba(102,126,234,0.06);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  transform: translateY(-2px);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+  color: #fff;
+}
+
+.btn-success:hover {
+  background: linear-gradient(135deg, #1e7e34 0%, #28a745 100%);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: #e1e8ed;
+  color: #764ba2;
+  font-weight: 700;
+}
+
+.btn-secondary:hover {
+  background: #d1d8de;
+  color: #667eea;
+}
+
 .quote-preview {
-  margin-top: 30px;
-  padding: 25px;
-  background: white;
+  margin-top: 28px;
+  padding: 22px 16px;
+  background: #f8f9fa;
   border: 2px solid #e1e8ed;
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(102,126,234,0.04);
 }
 
 .quote-preview h3 {
-  margin: 0 0 20px 0;
-  color: #2c3e50;
-  font-size: 1.3rem;
+  margin: 0 0 18px 0;
+  color: #764ba2;
+  font-size: 1.1rem;
   text-align: center;
-  border-bottom: 2px solid #007bff;
-  padding-bottom: 10px;
+  border-bottom: 2px solid #e1e8ed;
+  padding-bottom: 8px;
 }
 
 .quote-header {
@@ -798,143 +708,256 @@ body {
     transform: scale(0.98);
   }
 }
+
+.calc-result-fancy {
+  background: linear-gradient(135deg, #e3f0ff 0%, #b2d8ff 100%);
+  border-radius: 22px;
+  box-shadow: 0 8px 32px 0 rgba(102,126,234,0.18), 0 1.5px 8px 0 rgba(102,126,234,0.10);
+  padding: 32px 24px 22px 24px;
+  margin-bottom: 32px;
+  border: 2.5px solid #90caf9;
+  position: relative;
+  overflow: hidden;
+}
+.calc-result-fancy-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 18px;
+  gap: 8px;
+}
+.calc-fancy-icon {
+  font-size: 2.2rem;
+  filter: drop-shadow(0 2px 8px #fff6);
+}
+.calc-fancy-title {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #1976d2;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 8px #fff8;
+}
+.calc-fancy-list {
+  background: rgba(255,255,255,0.92);
+  border-radius: 14px;
+  box-shadow: 0 2px 8px #b2d8ff44;
+  padding: 18px 12px 10px 12px;
+  margin-bottom: 18px;
+}
+.calc-fancy-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 0;
+  font-size: 1.08rem;
+  border-bottom: 1.5px dashed #90caf9;
+  transition: background 0.2s;
+}
+.calc-fancy-row:last-child { border-bottom: none; }
+.calc-fancy-row span {
+  color: #1976d2;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+.calc-fancy-row strong {
+  color: #2c3e50;
+  font-weight: 900;
+  font-size: 1.08rem;
+  letter-spacing: 0.5px;
+  transition: color 0.2s;
+}
+.calc-fancy-row.total {
+  background: linear-gradient(90deg, #b2d8ff 0%, #e3f0ff 100%);
+  border-radius: 8px;
+  margin-top: 8px;
+  font-size: 1.15rem;
+  box-shadow: 0 2px 8px #90caf933;
+}
+.calc-fancy-row.total strong {
+  color: #1976d2;
+  font-size: 1.18rem;
+  text-shadow: 0 2px 8px #fff8;
+}
+.btn-fancy {
+  background: linear-gradient(90deg, #1976d2 0%, #64b5f6 100%);
+  color: #fff;
+  font-weight: 900;
+  border-radius: 8px;
+  padding: 13px 0;
+  width: 100%;
+  font-size: 1.08rem;
+  box-shadow: 0 2px 8px #90caf955;
+  border: none;
+  margin-top: 8px;
+  transition: background 0.2s, color 0.2s;
+}
+.btn-fancy:hover {
+  background: linear-gradient(90deg, #64b5f6 0%, #1976d2 100%);
+  color: #fff;
+}
+
+/* 카드형 섹션 공통 */
+.card-section,
+.quote-preview {
+  max-width: 420px;
+  width: 100%;
+  margin: 0 auto 32px auto;
+  /* 기존 카드 스타일 유지 */
+}
+
+.btn, .btn-fancy, .btn-primary, .btn-secondary, a.btn.btn-secondary {
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto;
+  padding: 13px 0;
+  font-size: 0.98rem;
+  line-height: 1.25;
+  white-space: normal;
+  word-break: keep-all;
+  text-align: center;
+  font-weight: 500;
+  border-radius: 8px;
+  border: none;
+  box-shadow: 0 2px 8px #90caf955;
+  background: #0080ff;
+  color: #fff;
+  transition: none;
+}
+@media (max-width: 600px) {
+  .buttons-section {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .btn, .btn-fancy, .btn-primary, .btn-secondary, a.btn.btn-secondary {
+    width: 100%;
+    flex: none;
+    font-size: 1rem;
+  }
+}
+.btn:hover, .btn:focus, .btn:active,
+.btn-fancy:hover, .btn-fancy:focus, .btn-fancy:active,
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active,
+.btn-secondary:hover, .btn-secondary:focus, .btn-secondary:active,
+a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active {
+  background: #0080ff;
+  color: #fff;
+  outline: none;
+  box-shadow: 0 2px 8px #90caf955;
+}
+.btn:active, .btn-fancy:active, .btn-primary:active, .btn-secondary:active, a.btn.btn-secondary:active {
+  background: #0056b3;
+  color: #fff;
+}
+
+.form-group label {
+  font-weight: 700;
+  color: #1976d2;
+  margin-bottom: 7px;
+}
+.form-group input,
+.form-group textarea,
+.form-group select {
+  border: 2px solid #e1e8ed;
+  border-radius: 8px;
+  font-size: 1rem;
+  padding: 12px 15px;
+  background: #f8f9fa;
+  margin-bottom: 10px;
+  transition: border 0.2s;
+}
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: #1976d2;
+  background: #fff;
+}
+
+.quote-preview {
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: 0 8px 32px 0 rgba(102,126,234,0.08), 0 1.5px 8px 0 rgba(102,126,234,0.06);
+  padding: 32px 24px 22px 24px;
+  margin-bottom: 32px;
+  border: 2.5px solid #90caf9;
+  position: relative;
+  overflow: hidden;
+}
+.quote-preview h3 {
+  color: #1976d2;
+  font-size: 1.15rem;
+  font-weight: 900;
+  border-bottom: 2px solid #e1e8ed;
+  padding-bottom: 8px;
+  margin-bottom: 18px;
+  text-align: center;
+}
   </style>
 </head>
 <body>
-  <div class="quote-container">
-    <div class="page-header">
-      <span class="header-icon">📄</span>
-      <h1 class="header-title">견적서 생성</h1>
-      <p class="header-subtitle">템플릿을 선택하고 계산 결과를 연동하여 견적서를 생성하세요</p>
-    </div>
-
-    <div class="quote-section">
-          <!-- 템플릿 선택 섹션 -->
-    <div class="template-section">
-      <h3>🎨 견적서 템플릿 선택</h3>
-      <div class="template-grid">
-        <div class="template-card active" data-template="simple">
-          <div class="template-preview simple-preview">
-            <h4>심플</h4>
-            <p>깔끔하고 간단한 디자인</p>
-          </div>
-          <div class="template-info">
-            <h4>심플 템플릿</h4>
-            <p>기본적인 정보만 포함된 깔끔한 견적서</p>
-          </div>
-        </div>
-        <div class="template-card" data-template="professional">
-          <div class="template-preview professional-preview">
-            <h4>프로</h4>
-            <p>비즈니스용 고급 디자인</p>
-          </div>
-          <div class="template-info">
-            <h4>프로페셔널 템플릿</h4>
-            <p>상세한 정보와 전문적인 레이아웃</p>
-          </div>
-        </div>
-        <div class="template-card" data-template="colorful">
-          <div class="template-preview colorful-preview">
-            <h4>컬러</h4>
-            <p>생동감 있는 컬러 디자인</p>
-          </div>
-          <div class="template-info">
-            <h4>컬러풀 템플릿</h4>
-            <p>다채로운 색상과 현대적인 디자인</p>
-          </div>
-        </div>
+  <div class="main-card">
+    <div class="section-title"><span class="icon">📝</span> 견적서 만들기</div>
+    <div class="card-section">
+      <!-- 계산 결과 연동 카드 (calc-result-fancy 내용) -->
+      <div class="calc-result-fancy-header">
+        <span class="calc-fancy-icon">🧮</span>
+        <span class="calc-fancy-title">계산 결과 연동</span>
       </div>
-    </div>
-
-    <!-- 계산 결과 연동 섹션 -->
-    <div class="calculator-section">
-      <h3>🧮 계산 결과 연동</h3>
-      <div class="calc-results">
-        <div class="result-item">
-          <label>렌탈료:</label>
-          <span id="rentalFee">0원</span>
-        </div>
-        <div class="result-item">
-          <label>의무사용기간:</label>
-          <span id="usagePeriod">36개월</span>
-        </div>
-        <div class="result-item">
-          <label>제품군:</label>
-          <span id="productCategory">-</span>
-        </div>
-        <div class="result-item">
-          <label>모델명:</label>
-          <span id="productModel">-</span>
-        </div>
-        <div class="result-item">
-          <label>거래유형:</label>
-          <span id="transactionType">-</span>
-        </div>
-        <div class="result-item">
-          <label>수수료:</label>
-          <span id="commission">0원</span>
-        </div>
-        <div class="result-item total">
-          <label>총 금액:</label>
-          <span id="totalAmount">0원</span>
-        </div>
+      <div class="calc-fancy-list">
+        <div class="calc-fancy-row"><span>렌탈료</span><strong id="rentalFee">0원</strong></div>
+        <div class="calc-fancy-row"><span>의무사용기간</span><strong id="usagePeriod">36개월</strong></div>
+        <div class="calc-fancy-row"><span>제품군</span><strong id="productCategory">-</strong></div>
+        <div class="calc-fancy-row"><span>모델명</span><strong id="productModel">-</strong></div>
+        <div class="calc-fancy-row"><span>거래유형</span><strong id="transactionType">-</strong></div>
+        <div class="calc-fancy-row total"><span>총 금액</span><strong id="totalAmount">0원</strong></div>
       </div>
-      <button class="btn btn-secondary" onclick="loadCalculatorData()">계산기 데이터 불러오기</button>
+      <button class="btn btn-fancy" onclick="loadCalculatorData()">계산기 데이터 불러오기</button>
+      <div id="calcLoadMsg" style="display:none; margin-top:10px; font-weight:600;"></div>
     </div>
-
-    <div class="form-section">
+    <div class="card-section">
+      <!-- 견적서 정보 입력 카드 (form-section 내용) -->
       <h3>📋 견적서 정보 입력</h3>
-        
-        <div class="form-row">
-          <div class="form-group">
-            <label for="quoteNumber">견적서 번호</label>
-            <input type="text" id="quoteNumber" placeholder="견적서 번호를 입력하세요">
-          </div>
-          <div class="form-group">
-            <label for="quoteDate">견적일</label>
-            <input type="date" id="quoteDate">
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="customerName">고객명</label>
-            <input type="text" id="customerName" placeholder="고객명을 입력하세요">
-          </div>
-          <div class="form-group">
-            <label for="customerPhone">연락처</label>
-            <input type="tel" id="customerPhone" placeholder="연락처를 입력하세요">
-          </div>
-        </div>
-
+      <div class="form-row">
         <div class="form-group">
-          <label for="customerAddress">주소</label>
-          <input type="text" id="customerAddress" placeholder="고객 주소를 입력하세요">
+          <label for="quoteNumber">견적서 번호</label>
+          <input type="text" id="quoteNumber" placeholder="견적서 번호를 입력하세요">
         </div>
-
         <div class="form-group">
-          <label for="specialNotes">특이사항</label>
-          <textarea id="specialNotes" placeholder="특이사항이나 추가 요청사항을 입력하세요"></textarea>
+          <label for="quoteDate">견적일</label>
+          <input type="date" id="quoteDate">
         </div>
       </div>
-
+      <div class="form-row">
+        <div class="form-group">
+          <label for="customerName">고객명</label>
+          <input type="text" id="customerName" placeholder="고객명을 입력하세요">
+        </div>
+        <div class="form-group">
+          <label for="customerPhone">연락처</label>
+          <input type="tel" id="customerPhone" placeholder="연락처를 입력하세요">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="customerAddress">주소</label>
+        <input type="text" id="customerAddress" placeholder="고객 주소를 입력하세요">
+      </div>
+      <div class="form-group">
+        <label for="specialNotes">특이사항</label>
+        <textarea id="specialNotes" placeholder="특이사항이나 추가 요청사항을 입력하세요"></textarea>
+      </div>
       <div class="buttons-section">
-        <button class="btn btn-primary" onclick="generateQuote()">견적서 생성</button>
+        <button class="btn btn-primary" onclick="generateQuote()">견적서 만들기</button>
         <button class="btn btn-success" onclick="downloadPDF()">PDF 다운로드</button>
         <button class="btn btn-secondary" onclick="resetForm()">초기화</button>
         <a href="index.html" class="btn btn-secondary">메인 페이지로</a>
       </div>
-
-      <div class="quote-preview" id="quotePreview">
-        <h3>견적서 미리보기</h3>
-        <div id="quoteContent">
-          <p style="text-align: center; color: #6c757d; font-style: italic;">견적서 정보를 입력하고 "견적서 생성" 버튼을 클릭하세요.</p>
-        </div>
+    </div>
+    <div class="card-section quote-preview" id="quotePreview">
+      <h3>견적서 미리보기</h3>
+      <div id="quoteContent">
+        <p style="text-align: center; color: #6c757d; font-style: italic;">견적서 정보를 입력하고 "견적서 만들기" 버튼을 클릭하세요.</p>
       </div>
-
-      <div class="back-link">
-        <a href="index.html">← 메인 페이지로 돌아가기</a>
-      </div>
+    </div>
+    <div class="back-link">
+      <a href="index.html">← 메인 페이지로 돌아가기</a>
     </div>
   </div>
 
@@ -946,8 +969,7 @@ body {
       customerName: '',
       customerPhone: '',
       customerAddress: '',
-      specialNotes: '',
-      template: 'simple'
+      specialNotes: ''
     };
 
     // 페이지 로드 시 현재 날짜 설정
@@ -959,65 +981,69 @@ body {
       const quoteNumber = 'QT-' + new Date().getFullYear() + String(new Date().getMonth() + 1).padStart(2, '0') + String(new Date().getDate()).padStart(2, '0') + '-' + String(Math.floor(Math.random() * 1000)).padStart(3, '0');
       document.getElementById('quoteNumber').value = quoteNumber;
       
-      // 템플릿 선택 기능 초기화
-      initializeTemplateSelection();
+
     });
 
-    // 템플릿 선택 기능
-    function initializeTemplateSelection() {
-      const templateCards = document.querySelectorAll('.template-card');
-      
-      templateCards.forEach(card => {
-        card.addEventListener('click', function() {
-          // 모든 카드에서 active 클래스 제거
-          templateCards.forEach(c => c.classList.remove('active'));
-          
-          // 클릭된 카드에 active 클래스 추가
-          this.classList.add('active');
-          
-          // 선택된 템플릿 저장
-          quoteData.template = this.dataset.template;
-          
-          // 견적서 미리보기 업데이트
-          updateQuotePreview();
-        });
-      });
-    }
+
 
     // 계산기 데이터 불러오기
     function loadCalculatorData() {
       // localStorage에서 계산 결과 가져오기
       const calculatorData = JSON.parse(localStorage.getItem('calculatorResult') || '{}');
+      const msgDiv = document.getElementById('calcLoadMsg');
+      
+      console.log('불러온 계산기 데이터:', calculatorData);
       
       if (calculatorData.fee) {
         document.getElementById('rentalFee').textContent = calculatorData.fee.toLocaleString() + '원';
+      } else {
+        document.getElementById('rentalFee').textContent = '0원';
       }
       
       if (calculatorData.period) {
         document.getElementById('usagePeriod').textContent = calculatorData.period + '개월';
+      } else {
+        document.getElementById('usagePeriod').textContent = '36개월';
       }
       
       if (calculatorData.category) {
         document.getElementById('productCategory').textContent = calculatorData.category;
+      } else {
+        document.getElementById('productCategory').textContent = '-';
       }
       
       if (calculatorData.model) {
         document.getElementById('productModel').textContent = calculatorData.model;
+      } else {
+        document.getElementById('productModel').textContent = '-';
       }
       
       if (calculatorData.type) {
         document.getElementById('transactionType').textContent = calculatorData.type;
+      } else {
+        document.getElementById('transactionType').textContent = '-';
       }
       
-      if (calculatorData.commission) {
-        document.getElementById('commission').textContent = calculatorData.commission.toLocaleString() + '원';
+      if (calculatorData.fee) {
+        document.getElementById('totalAmount').textContent = calculatorData.fee.toLocaleString() + '원';
+      } else {
+        document.getElementById('totalAmount').textContent = '0원';
       }
       
-      if (calculatorData.total) {
-        document.getElementById('totalAmount').textContent = calculatorData.total.toLocaleString() + '원';
+      // 데이터가 있는지 확인
+      if (Object.keys(calculatorData).length > 0 && calculatorData.fee) {
+        // alert('계산기 데이터를 성공적으로 불러왔습니다!');
+        msgDiv.textContent = '계산기 데이터를 성공적으로 불러왔습니다.';
+        msgDiv.style.display = 'block';
+        msgDiv.style.color = '#28a745';
+        setTimeout(function(){ msgDiv.style.display = 'none'; }, 3000);
+      } else {
+        // alert('저장된 계산 결과가 없습니다. 먼저 메인 페이지에서 계산을 완료해주세요.');
+        msgDiv.textContent = '저장된 계산 결과가 없습니다. 먼저 메인 페이지에서 계산을 완료해주세요.';
+        msgDiv.style.display = 'block';
+        msgDiv.style.color = '#dc3545';
+        setTimeout(function(){ msgDiv.style.display = 'none'; }, 3000);
       }
-      
-      alert('계산기 데이터를 성공적으로 불러왔습니다!');
     }
 
     // 견적서 생성
@@ -1033,6 +1059,10 @@ body {
         alert('고객명과 연락처는 필수 입력 항목입니다.');
         return;
       }
+
+      // 계산기 데이터 가져오기
+      const calculatorData = JSON.parse(localStorage.getItem('calculatorResult') || '{}');
+      const hasCalculatorData = Object.keys(calculatorData).length > 0 && calculatorData.fee;
 
       const quoteContent = `
         <div class="quote-header">
@@ -1072,45 +1102,30 @@ body {
                 <th>상품명</th>
                 <th>모델</th>
                 <th>렌탈료</th>
-                <th>수량</th>
+                <th>의무사용기간</th>
+                <th>거래유형</th>
                 <th>소계</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>정수기</td>
-                <td>쿠쿠 정수기 (모델명)</td>
-                <td>₩50,000/월</td>
-                <td>1</td>
-                <td>₩50,000</td>
-              </tr>
-              <tr>
-                <td>공기청정기</td>
-                <td>쿠쿠 공기청정기 (모델명)</td>
-                <td>₩30,000/월</td>
-                <td>1</td>
-                <td>₩30,000</td>
+                <td>${hasCalculatorData ? calculatorData.category : '쿠쿠 제품'}</td>
+                <td>${hasCalculatorData ? calculatorData.model : '-'}</td>
+                <td>${hasCalculatorData ? calculatorData.fee.toLocaleString() + '원' : '0원'}</td>
+                <td>${hasCalculatorData ? calculatorData.period + '개월' : '36개월'}</td>
+                <td>${hasCalculatorData ? calculatorData.type : '-'}</td>
+                <td>${hasCalculatorData ? calculatorData.fee.toLocaleString() + '원' : '0원'}</td>
               </tr>
             </tbody>
           </table>
         </div>
 
+
+
         <div class="total-section">
-          <div class="total-row">
-            <span>월 렌탈료 합계:</span>
-            <span>₩80,000</span>
-          </div>
-          <div class="total-row">
-            <span>설치비:</span>
-            <span>₩20,000</span>
-          </div>
-          <div class="total-row">
-            <span>부가세 (10%):</span>
-            <span>₩10,000</span>
-          </div>
           <div class="total-row final">
             <span>총 견적 금액:</span>
-            <span>₩110,000</span>
+            <span>${hasCalculatorData ? calculatorData.fee.toLocaleString() + '원' : '0원'}</span>
           </div>
         </div>
 

@@ -1919,7 +1919,25 @@ button:active {
         <hr>
         <p>✅ 총 수수료금액: <strong>${totalCommission.toLocaleString()} 원</strong></p>
         ${debugMsg}  
-      `; 
+      `;
+
+      // 계산 결과를 localStorage에 저장 (견적서 연동용)
+      const calculatorResult = {
+        fee: fee,
+        period: adjustedPeriod,
+        category: category,
+        model: model,
+        type: type,
+        commission: totalCommission,
+        total: fee + totalCommission,
+        baseRate: baseRate,
+        extraRate: extraRate,
+        baseCommission: Math.round(baseCommission),
+        extraCommission: Math.round(extraCommission)
+      };
+      
+      localStorage.setItem('calculatorResult', JSON.stringify(calculatorResult));
+      console.log('계산 결과가 localStorage에 저장되었습니다:', calculatorResult); 
     }
 
     function resetCalculator() {
