@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>간단한 아이콘 생성기</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .icon-preview {
+            margin: 20px 0;
+            text-align: center;
+        }
+        canvas {
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 10px;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 간단한 PWA 아이콘 생성기</h1>
+        <p>쿠쿠 수수료계산기 앱을 위한 기본 아이콘을 생성합니다.</p>
+        
+        <button onclick="generateAllIcons()">모든 아이콘 생성 및 다운로드</button>
+        
+        <div class="icon-preview" id="iconPreview">
+            <!-- 아이콘 미리보기가 여기에 표시됩니다 -->
+        </div>
+    </div>
+
+    <script>
+        const iconSizes = [
+            { size: 72, name: 'icon-72x72.png' },
+            { size: 96, name: 'icon-96x96.png' },
+            { size: 128, name: 'icon-128x128.png' },
+            { size: 144, name: 'icon-144x144.png' },
+            { size: 152, name: 'icon-152x152.png' },
+            { size: 192, name: 'icon-192x192.png' },
+            { size: 384, name: 'icon-384x384.png' },
+            { size: 512, name: 'icon-512x512.png' }
+        ];
+
+        function createIcon(size, filename) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = size;
+            canvas.height = size;
+            
+            // 배경 그라데이션
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(1, '#764ba2');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // 원형 배경
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size/2 - 10, 0, 2 * Math.PI);
+            ctx.fillStyle = 'rgba(255,255,255,0.2)';
+            ctx.fill();
+            
+            // 텍스트
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            const fontSize = size * 0.25;
+            ctx.font = `bold ${fontSize}px Arial`;
+            ctx.fillText('쿠쿠', size/2, size/2 - fontSize/3);
+            
+            ctx.font = `${fontSize * 0.5}px Arial`;
+            ctx.fillText('계산기', size/2, size/2 + fontSize/3);
+            
+            return canvas;
+        }
+
+        function downloadCanvas(canvas, filename) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function generateAllIcons() {
+            // 미리보기 생성
+            const preview = document.getElementById('iconPreview');
+            preview.innerHTML = '';
+            
+            iconSizes.forEach(icon => {
+                const canvas = createIcon(icon.size, icon.name);
+                preview.appendChild(canvas);
+                
+                // 다운로드
+                setTimeout(() => {
+                    downloadCanvas(canvas, icon.name);
+                }, 100);
+            });
+            
+            setTimeout(() => {
+                alert('모든 아이콘이 다운로드되었습니다!\n\n다음 단계:\n1. 다운로드된 아이콘들을 "icons" 폴더에 저장하세요\n2. GitHub Desktop에서 업로드하세요');
+            }, 1000);
+        }
+
+        // 페이지 로드 시 미리보기 생성
+        window.addEventListener('load', function() {
+            const preview = document.getElementById('iconPreview');
+            
+            // 192x192 아이콘만 미리보기로 표시
+            const canvas = createIcon(192, 'icon-192x192.png');
+            preview.appendChild(canvas);
+        });
+    </script>
+</body>
+</html> 

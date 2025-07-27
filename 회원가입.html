@@ -97,6 +97,35 @@ body {
   50% { transform: translateY(-10px); }
 }
 
+/* 타이핑 효과 애니메이션 */
+@keyframes typewriter {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes blink {
+  0%, 50% {
+    border-color: transparent;
+  }
+  51%, 100% {
+    border-color: #667eea;
+  }
+}
+
+.typewriter {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 3px solid #667eea;
+  animation: 
+    typewriter 2s steps(6, end),
+    blink 0.75s step-end infinite;
+}
+
 .signup-container {
   max-width: 500px;
   margin: 0 auto;
@@ -316,9 +345,8 @@ body {
 <body>
   <div class="signup-container">
     <div class="page-header">
-      <span class="header-icon">CUCKOO</span>
+      <span class="header-icon typewriter">CUCKOO</span>
       <h1 class="header-title">회원가입</h1>
-      <p class="header-subtitle">by-Incheon Won</p>
     </div>
 
     <form id="signupForm" onsubmit="handleSignup(event)">
@@ -426,6 +454,7 @@ body {
       // 자동 로그인 처리
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('username', data.username);
+      localStorage.setItem('userName', data.name); // 사용자 이름 저장
       
       // 성공 메시지 표시
       document.getElementById('successMessage').style.display = 'block';

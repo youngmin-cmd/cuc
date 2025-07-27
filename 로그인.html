@@ -97,6 +97,35 @@ body {
   50% { transform: translateY(-10px); }
 }
 
+/* 타이핑 효과 애니메이션 */
+@keyframes typewriter {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes blink {
+  0%, 50% {
+    border-color: transparent;
+  }
+  51%, 100% {
+    border-color: #667eea;
+  }
+}
+
+.typewriter {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 3px solid #667eea;
+  animation: 
+    typewriter 2s steps(6, end),
+    blink 0.75s step-end infinite;
+}
+
 .login-container {
   max-width: 400px;
   margin: 0 auto;
@@ -332,9 +361,8 @@ body {
 <body>
   <div class="login-container">
     <div class="page-header">
-      <span class="header-icon">CUCKOO</span>
-      <h1 class="header-title">로그인</h1>
-      <p class="header-subtitle">by-Incheon Won</p>
+      <span class="header-icon typewriter">CUCKOO</span>
+      <h1 class="header-title" style="color: #8B0000;">로그인</h1>
     </div>
 
     <form id="loginForm" onsubmit="handleLogin(event)">
@@ -365,12 +393,7 @@ body {
       <div class="success-message" id="successMessage">로그인 성공!</div>
     </form>
 
-    <div class="demo-credentials">
-      <h4>🧪 데모 계정</h4>
-      <p><strong>아이디:</strong> demo</p>
-      <p><strong>비밀번호:</strong> demo123!</p>
-      <p style="font-size: 0.8rem; color: #6c757d;">데모 계정으로 로그인하여 기능을 테스트해보세요.</p>
-    </div>
+
 
     <div class="signup-link">
       계정이 없으신가요? <a href="회원가입.html">회원가입하기</a>
@@ -389,15 +412,17 @@ body {
       data.username = data.username.trim();
       data.password = data.password.trim();
       
-      // 데모 계정 확인
-      if (data.username === 'demo' && data.password === 'demo123!') {
+      // 관리자 계정 확인
+      if (data.username === 'cuckoo' && data.password === '0823') {
         // 성공 메시지 표시
         document.getElementById('successMessage').style.display = 'block';
         document.getElementById('errorMessage').style.display = 'none';
         
-        // 로그인 상태 저장
+        // 로그인 상태 저장 (관리자 권한)
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('username', data.username);
+        localStorage.setItem('userName', '관리자'); // 관리자 이름 설정
+        localStorage.setItem('isAdmin', 'true');
         
         // 2초 후 메인 페이지로 이동
         setTimeout(() => {
@@ -419,9 +444,11 @@ body {
         document.getElementById('successMessage').style.display = 'block';
         document.getElementById('errorMessage').style.display = 'none';
         
-        // 로그인 상태 저장
+        // 로그인 상태 저장 (일반 사용자)
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('username', data.username);
+        localStorage.setItem('userName', user.name); // 사용자 이름 저장
+        localStorage.setItem('isAdmin', 'false');
         
         // 2초 후 메인 페이지로 이동
         setTimeout(() => {

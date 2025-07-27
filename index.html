@@ -1013,20 +1013,18 @@ button:active {
     <div class="input-section">
       <div class="page-header">
         <span class="header-icon">CUCKOO</span>
-        <p class="header-subtitle">by-Incheon Won</p>
         <div class="user-info" style="position: absolute; top: 15px; left: 15px; z-index: 1;">
           <span id="userDisplay" style="background: rgba(255, 255, 255, 0.9); padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; color: #6c757d;"></span>
         </div>
         
         <div class="logout-button" style="position: absolute; top: 15px; right: 15px; z-index: 1;">
-          <button id="loginButton" onclick="goToLogin()" style="background: rgba(40, 167, 69, 0.9); color: white; border: none; padding: 8px 16px; border-radius: 12px; font-size: 0.8rem; cursor: pointer; height: 36px; line-height: 20px; display: none;">로그인</button>
           <button id="logoutButton" onclick="logout()" style="background: rgba(220, 53, 69, 0.9); color: white; border: none; padding: 8px 16px; border-radius: 12px; font-size: 0.8rem; cursor: pointer; height: 36px; line-height: 20px;">로그아웃</button>
         </div>
         
         <div class="user-controls" style="position: absolute; bottom: 15px; left: 15px; z-index: 1; display: flex; gap: 12px;">
           <a href="내정보관리.html" style="background: rgba(40, 167, 69, 0.9); color: white; text-decoration: none; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" title="내정보관리">내정보</a>
           <a href="견적서생성.html" style="background: rgba(255, 193, 7, 0.9); color: white; text-decoration: none; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" title="견적서생성">견적서</a>
-          <a href="관리자페이지.html" style="background: rgba(0, 123, 255, 0.9); color: white; text-decoration: none; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" title="관리자페이지">관리자</a>
+          <a id="adminButton" href="관리자페이지.html" style="background: rgba(0, 123, 255, 0.9); color: white; text-decoration: none; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" title="관리자페이지">관리자</a>
         </div>
       </div>
       
@@ -1572,41 +1570,46 @@ button:active {
     function checkLoginStatus() {
       const isLoggedIn = localStorage.getItem('isLoggedIn');
       const username = localStorage.getItem('username');
+      const userName = localStorage.getItem('userName');
+      
+      if (isLoggedIn !== 'true') {
+        // 로그인되지 않은 경우 로그인 페이지로 리다이렉트
+        window.location.href = '로그인.html';
+        return;
+      }
       
       // 사용자 정보 표시
       const userDisplay = document.getElementById('userDisplay');
       if (userDisplay) {
-        if (isLoggedIn === 'true' && username) {
-          userDisplay.textContent = `${username}님 환영합니다`;
-        } else {
-          userDisplay.textContent = '게스트님 환영합니다';
-        }
+        userDisplay.textContent = `${userName}님 환영합니다`;
       }
       
-      // 로그인/로그아웃 버튼 표시
-      const loginButton = document.getElementById('loginButton');
+      // 로그아웃 버튼 표시
       const logoutButton = document.getElementById('logoutButton');
+      if (logoutButton) {
+        logoutButton.style.display = 'inline-block';
+      }
       
-      if (loginButton && logoutButton) {
-        if (isLoggedIn === 'true') {
-          loginButton.style.display = 'none';
-          logoutButton.style.display = 'inline-block';
+      // 관리자 권한 확인
+      const isAdmin = localStorage.getItem('isAdmin');
+      const adminButton = document.getElementById('adminButton');
+      if (adminButton) {
+        if (isAdmin === 'true') {
+          adminButton.style.display = 'flex';
         } else {
-          loginButton.style.display = 'inline-block';
-          logoutButton.style.display = 'none';
+          adminButton.style.display = 'none';
         }
       }
     }
     
-    // 로그인 페이지로 이동
-    function goToLogin() {
-      window.location.href = '로그인.html';
-    }
+
     
     // 로그아웃 함수
     function logout() {
       localStorage.removeItem('isLoggedIn');
       localStorage.removeItem('username');
+      localStorage.removeItem('userName');
+      localStorage.removeItem('isAdmin');
       window.location.href = '로그인.html';
     }
     

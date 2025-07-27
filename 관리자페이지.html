@@ -356,7 +356,6 @@ body {
     <div class="page-header">
       <span class="header-icon">👨‍💼</span>
       <h1 class="header-title">관리자 페이지</h1>
-      <p class="header-subtitle">by-Incheon Won</p>
     </div>
 
     <div class="admin-section">
@@ -415,8 +414,21 @@ body {
   </div>
 
   <script>
+    // 관리자 권한 확인
+    function checkAdminPermission() {
+      const isAdmin = localStorage.getItem('isAdmin');
+      if (isAdmin !== 'true') {
+        alert('관리자 권한이 필요합니다.');
+        window.location.href = 'index.html';
+        return false;
+      }
+      return true;
+    }
+    
     // 페이지 로드 시 데이터 로드
     window.addEventListener('load', function() {
+      if (!checkAdminPermission()) return;
+      
       loadUsers();
       updateStats();
     });
