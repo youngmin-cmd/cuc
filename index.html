@@ -1019,7 +1019,8 @@ button:active {
         </div>
         
         <div class="logout-button" style="position: absolute; top: 15px; right: 15px; z-index: 1;">
-          <button onclick="logout()" style="background: rgba(220, 53, 69, 0.9); color: white; border: none; padding: 8px 16px; border-radius: 12px; font-size: 0.8rem; cursor: pointer; height: 36px; line-height: 20px;">로그아웃</button>
+          <button id="loginButton" onclick="goToLogin()" style="background: rgba(40, 167, 69, 0.9); color: white; border: none; padding: 8px 16px; border-radius: 12px; font-size: 0.8rem; cursor: pointer; height: 36px; line-height: 20px; display: none;">로그인</button>
+          <button id="logoutButton" onclick="logout()" style="background: rgba(220, 53, 69, 0.9); color: white; border: none; padding: 8px 16px; border-radius: 12px; font-size: 0.8rem; cursor: pointer; height: 36px; line-height: 20px;">로그아웃</button>
         </div>
         
         <div class="user-controls" style="position: absolute; bottom: 15px; left: 15px; z-index: 1; display: flex; gap: 12px;">
@@ -1572,17 +1573,34 @@ button:active {
       const isLoggedIn = localStorage.getItem('isLoggedIn');
       const username = localStorage.getItem('username');
       
-      if (isLoggedIn !== 'true') {
-        // 로그인되지 않은 경우 로그인 페이지로 리다이렉트
-        window.location.href = '로그인.html';
-        return;
-      }
-      
       // 사용자 정보 표시
       const userDisplay = document.getElementById('userDisplay');
       if (userDisplay) {
-        userDisplay.textContent = `${username}님 환영합니다`;
+        if (isLoggedIn === 'true' && username) {
+          userDisplay.textContent = `${username}님 환영합니다`;
+        } else {
+          userDisplay.textContent = '게스트님 환영합니다';
+        }
       }
+      
+      // 로그인/로그아웃 버튼 표시
+      const loginButton = document.getElementById('loginButton');
+      const logoutButton = document.getElementById('logoutButton');
+      
+      if (loginButton && logoutButton) {
+        if (isLoggedIn === 'true') {
+          loginButton.style.display = 'none';
+          logoutButton.style.display = 'inline-block';
+        } else {
+          loginButton.style.display = 'inline-block';
+          logoutButton.style.display = 'none';
+        }
+      }
+    }
+    
+    // 로그인 페이지로 이동
+    function goToLogin() {
+      window.location.href = '로그인.html';
     }
     
     // 로그아웃 함수
