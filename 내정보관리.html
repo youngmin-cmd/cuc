@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>쿠쿠 수수료계산기 - 내정보관리</title>
+  <style>
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  max-width: 100%;
+  margin: 0;
+  padding: 8px;
+  background-color: #f0f4f9;
+  line-height: 1.4;
+  min-height: 100vh;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 25px;
+  padding: 30px 20px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 15px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.page-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transform: rotate(45deg);
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+.header-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 1px;
+  position: relative;
+  z-index: 1;
+}
+
+.header-subtitle {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin: 0;
+  font-weight: 500;
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.header-icon {
+  font-size: 5rem;
+  margin-bottom: 15px;
+  display: block;
+  animation: float 3s ease-in-out infinite;
+  font-weight: 800;
+  color: #007bff;
+  letter-spacing: 2px;
+  text-shadow: none;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  -webkit-text-stroke: none;
+  margin-top: 0;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.profile-container {
+  max-width: 600px;
+  margin: 20px auto;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.profile-section {
+  padding: 40px 30px;
+}
+
+.user-info-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: linear-gradient(135deg, #e8f4fd 0%, #d1ecf1 100%);
+  border-radius: 12px;
+  border-left: 4px solid #007bff;
+}
+
+.user-info-header h3 {
+  margin: 0 0 10px 0;
+  color: #007bff;
+  font-size: 1.3rem;
+}
+
+.user-info-header p {
+  margin: 0;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.form-group {
+  margin-bottom: 25px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.95rem;
+}
+
+.required {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 15px 18px;
+  border: 2px solid #e1e8ed;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  background: #f8f9fa;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #007bff;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.form-group input::placeholder {
+  color: #adb5bd;
+  font-size: 0.9rem;
+}
+
+.form-group input:disabled {
+  background: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+.btn {
+  padding: 14px 24px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #5a6268;
+  transform: translateY(-2px);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+}
+
+.btn-danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(220, 53, 69, 0.3);
+}
+
+.buttons-section {
+  display: flex;
+  gap: 15px;
+  margin-top: 30px;
+  flex-wrap: wrap;
+}
+
+.info-section {
+  background: #e8f4fd;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+  border-left: 4px solid #007bff;
+}
+
+.info-section h4 {
+  margin: 0 0 10px 0;
+  color: #007bff;
+  font-size: 1.1rem;
+}
+
+.info-section p {
+  margin: 0;
+  color: #495057;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 0.85rem;
+  margin-top: 5px;
+  display: none;
+  padding: 8px 12px;
+  background: #f8d7da;
+  border-radius: 6px;
+  border-left: 3px solid #dc3545;
+}
+
+.success-message {
+  color: #28a745;
+  font-size: 0.85rem;
+  margin-top: 5px;
+  display: none;
+  padding: 8px 12px;
+  background: #d4edda;
+  border-radius: 6px;
+  border-left: 3px solid #28a745;
+}
+
+.back-link {
+  text-align: center;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e1e8ed;
+}
+
+.back-link a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.back-link a:hover {
+  text-decoration: underline;
+}
+
+/* 반응형 레이아웃 */
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+  
+  .profile-container {
+    margin: 10px;
+  }
+  
+  .profile-section {
+    padding: 20px 15px;
+  }
+  
+  .page-header {
+    margin-bottom: 20px;
+    padding: 20px 15px;
+  }
+  
+  .header-title {
+    font-size: 1.5rem;
+  }
+  
+  .header-icon {
+    font-size: 4rem;
+  }
+  
+  .buttons-section {
+    flex-direction: column;
+  }
+  
+  .btn {
+    width: 100%;
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-container {
+    margin: 5px;
+  }
+  
+  .profile-section {
+    padding: 15px 10px;
+  }
+  
+  .page-header {
+    padding: 15px 10px;
+  }
+  
+  .header-title {
+    font-size: 1.3rem;
+  }
+  
+  .header-icon {
+    font-size: 3.5rem;
+  }
+  
+  .form-group input {
+    padding: 14px 12px;
+    font-size: 16px;
+  }
+}
+  </style>
+</head>
+<body>
+  <div class="profile-container">
+    <div class="page-header">
+      <span class="header-icon">👤</span>
+      <h1 class="header-title">내정보관리</h1>
+      <p class="header-subtitle">by-Incheon Won</p>
+    </div>
+
+    <div class="profile-section">
+      <div class="user-info-header">
+        <h3>📋 내 정보</h3>
+        <p>회원 정보를 확인하고 수정할 수 있습니다.</p>
+      </div>
+
+      <div class="info-section">
+        <h4>⚠️ 주의사항</h4>
+        <p>아이디는 변경할 수 없습니다. 비밀번호 변경 시에는 새로운 비밀번호를 입력해주세요.</p>
+      </div>
+
+      <form id="profileForm" onsubmit="handleUpdateProfile(event)">
+        <div class="form-group">
+          <label for="username">아이디</label>
+          <input type="text" id="username" name="username" disabled>
+        </div>
+
+        <div class="form-group">
+          <label for="name">이름 <span class="required">*</span></label>
+          <input type="text" id="name" name="name" required placeholder="이름을 입력하세요">
+        </div>
+
+        <div class="form-group">
+          <label for="phone">휴대폰 번호 <span class="required">*</span></label>
+          <input type="tel" id="phone" name="phone" required placeholder="010-1234-5678">
+        </div>
+
+        <div class="form-group">
+          <label for="region">총국 <span class="required">*</span></label>
+          <input type="text" id="region" name="region" required placeholder="총국을 입력하세요">
+        </div>
+
+        <div class="form-group">
+          <label for="position">지국 <span class="required">*</span></label>
+          <input type="text" id="position" name="position" required placeholder="지국을 입력하세요">
+        </div>
+
+        <div class="form-group">
+          <label for="newPassword">새 비밀번호</label>
+          <input type="password" id="newPassword" name="newPassword" placeholder="변경하려면 새 비밀번호를 입력하세요">
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">새 비밀번호 확인</label>
+          <input type="password" id="confirmPassword" name="confirmPassword" placeholder="새 비밀번호를 다시 입력하세요">
+        </div>
+
+        <div class="buttons-section">
+          <button type="submit" class="btn btn-primary">정보 수정</button>
+          <button type="button" class="btn btn-secondary" onclick="resetForm()">초기화</button>
+          <button type="button" class="btn btn-danger" onclick="deleteAccount()">회원탈퇴</button>
+        </div>
+        
+        <div class="error-message" id="errorMessage">오류가 발생했습니다.</div>
+        <div class="success-message" id="successMessage">정보가 성공적으로 수정되었습니다!</div>
+      </form>
+
+      <div class="back-link">
+        <a href="쿠쿠 2507 수수료계산기 (정수기 이미지 추가).html">← 메인 페이지로 돌아가기</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentUser = null;
+
+    // 페이지 로드 시 사용자 정보 로드
+    window.addEventListener('load', function() {
+      loadUserInfo();
+    });
+
+    // 사용자 정보 로드
+    function loadUserInfo() {
+      const currentUsername = localStorage.getItem('username');
+      if (!currentUsername) {
+        alert('로그인이 필요합니다.');
+        window.location.href = '로그인.html';
+        return;
+      }
+
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      currentUser = users.find(user => user.username === currentUsername);
+      
+      if (!currentUser) {
+        alert('사용자 정보를 찾을 수 없습니다.');
+        window.location.href = '로그인.html';
+        return;
+      }
+
+      // 폼에 현재 정보 채우기
+      document.getElementById('username').value = currentUser.username;
+      document.getElementById('name').value = currentUser.name;
+      document.getElementById('phone').value = currentUser.phone;
+      document.getElementById('region').value = currentUser.region;
+      document.getElementById('position').value = currentUser.position;
+    }
+
+    // 프로필 업데이트
+    function handleUpdateProfile(event) {
+      event.preventDefault();
+      
+      const formData = new FormData(event.target);
+      const data = Object.fromEntries(formData);
+      
+      // 새 비밀번호 확인
+      if (data.newPassword && data.newPassword !== data.confirmPassword) {
+        document.getElementById('errorMessage').textContent = '새 비밀번호가 일치하지 않습니다.';
+        document.getElementById('errorMessage').style.display = 'block';
+        document.getElementById('successMessage').style.display = 'none';
+        return;
+      }
+
+      // 비밀번호 유효성 검사 (새 비밀번호가 있는 경우)
+      if (data.newPassword && data.newPassword.length < 4) {
+        document.getElementById('errorMessage').textContent = '비밀번호는 4자 이상이어야 합니다.';
+        document.getElementById('errorMessage').style.display = 'block';
+        document.getElementById('successMessage').style.display = 'none';
+        return;
+      }
+
+      // 사용자 목록 업데이트
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const userIndex = users.findIndex(user => user.username === currentUser.username);
+      
+      if (userIndex === -1) {
+        document.getElementById('errorMessage').textContent = '사용자 정보를 찾을 수 없습니다.';
+        document.getElementById('errorMessage').style.display = 'block';
+        document.getElementById('successMessage').style.display = 'none';
+        return;
+      }
+
+      // 정보 업데이트
+      users[userIndex] = {
+        ...users[userIndex],
+        name: data.name,
+        phone: data.phone,
+        region: data.region,
+        position: data.position
+      };
+
+      // 새 비밀번호가 있는 경우 업데이트
+      if (data.newPassword) {
+        users[userIndex].password = data.newPassword;
+      }
+
+      localStorage.setItem('users', JSON.stringify(users));
+      currentUser = users[userIndex];
+
+      // 성공 메시지 표시
+      document.getElementById('successMessage').style.display = 'block';
+      document.getElementById('errorMessage').style.display = 'none';
+      
+      // 새 비밀번호 필드 초기화
+      document.getElementById('newPassword').value = '';
+      document.getElementById('confirmPassword').value = '';
+
+      // 3초 후 메시지 숨기기
+      setTimeout(() => {
+        document.getElementById('successMessage').style.display = 'none';
+      }, 3000);
+    }
+
+    // 폼 초기화
+    function resetForm() {
+      if (confirm('입력한 내용을 모두 초기화하시겠습니까?')) {
+        loadUserInfo();
+        document.getElementById('newPassword').value = '';
+        document.getElementById('confirmPassword').value = '';
+        document.getElementById('errorMessage').style.display = 'none';
+        document.getElementById('successMessage').style.display = 'none';
+      }
+    }
+
+    // 회원탈퇴
+    function deleteAccount() {
+      if (confirm('정말로 회원탈퇴를 하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) {
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        const updatedUsers = users.filter(user => user.username !== currentUser.username);
+        localStorage.setItem('users', JSON.stringify(updatedUsers));
+        
+        // 로그인 상태 제거
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('username');
+        
+        alert('회원탈퇴가 완료되었습니다.');
+        window.location.href = '로그인.html';
+      }
+    }
+  </script>
+</body>
+</html> 
