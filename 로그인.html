@@ -385,6 +385,10 @@ body {
       const formData = new FormData(event.target);
       const data = Object.fromEntries(formData);
       
+      // 공백 제거
+      data.username = data.username.trim();
+      data.password = data.password.trim();
+      
       // 데모 계정 확인
       if (data.username === 'demo' && data.password === 'demo123!') {
         // 성공 메시지 표시
@@ -397,7 +401,31 @@ body {
         
         // 2초 후 메인 페이지로 이동
         setTimeout(() => {
-          window.location.href = '쿠쿠 2507 수수료계산기 (정수기 이미지 추가).html';
+          window.location.href = 'index.html';
+        }, 2000);
+        return;
+      }
+      
+      // 회원가입한 사용자 확인
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      console.log('저장된 사용자들:', users);
+      console.log('입력한 정보:', data);
+      
+      const user = users.find(u => u.username === data.username && u.password === data.password);
+      console.log('찾은 사용자:', user);
+      
+      if (user) {
+        // 성공 메시지 표시
+        document.getElementById('successMessage').style.display = 'block';
+        document.getElementById('errorMessage').style.display = 'none';
+        
+        // 로그인 상태 저장
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('username', data.username);
+        
+        // 2초 후 메인 페이지로 이동
+        setTimeout(() => {
+          window.location.href = 'index.html';
         }, 2000);
       } else {
         // 실패 메시지 표시
@@ -411,7 +439,7 @@ body {
       const isLoggedIn = localStorage.getItem('isLoggedIn');
       if (isLoggedIn === 'true') {
         // 이미 로그인된 경우 메인 페이지로 리다이렉트
-        window.location.href = '쿠쿠 2507 수수료계산기 (정수기 이미지 추가).html';
+        window.location.href = 'index.html';
       }
     });
   </script>

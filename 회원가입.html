@@ -393,6 +393,11 @@ body {
       const formData = new FormData(event.target);
       const data = Object.fromEntries(formData);
       
+      // 공백 제거
+      data.username = data.username.trim();
+      data.password = data.password.trim();
+      data.confirmPassword = data.confirmPassword.trim();
+      
       // 유효성 검사
       if (!validateForm(data)) {
         return;
@@ -414,12 +419,20 @@ body {
       existingUsers.push(data);
       localStorage.setItem('users', JSON.stringify(existingUsers));
       
+      // 디버깅: 저장된 사용자 확인
+      console.log('회원가입 완료! 저장된 사용자:', data);
+      console.log('전체 사용자 목록:', JSON.parse(localStorage.getItem('users') || '[]'));
+      
+      // 자동 로그인 처리
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('username', data.username);
+      
       // 성공 메시지 표시
       document.getElementById('successMessage').style.display = 'block';
       
       // 3초 후 메인 페이지로 이동
       setTimeout(() => {
-        window.location.href = '쿠쿠 2507 수수료계산기 (정수기 이미지 추가).html';
+        window.location.href = 'index.html';
       }, 3000);
     }
     
