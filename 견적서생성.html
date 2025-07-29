@@ -1263,8 +1263,8 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
           
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 16px; margin-bottom: 24px;">
             <button onclick="shareViaKakao()" style="padding: 16px; background: #FEE500; color: #000; border: none; border-radius: 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px;">
-              <span style="font-size: 24px;">💬</span>
-              <span style="font-size: 0.9rem; font-weight: 600;">카카오톡</span>
+              <span style="font-size: 24px;">📸</span>
+              <span style="font-size: 0.9rem; font-weight: 600;">카카오톡<br>(이미지)</span>
             </button>
             
             <button onclick="shareViaSMS()" style="padding: 16px; background: #007AFF; color: white; border: none; border-radius: 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px;">
@@ -1356,40 +1356,199 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
       }
     }
 
-    // 카카오톡 공유
+    // 카카오톡 공유 (이미지 캡처 방식)
     function shareViaKakao() {
       try {
         // 견적서 데이터를 로컬 스토리지에 저장
         localStorage.setItem('sharedQuoteData', JSON.stringify(sharedQuoteData));
         
-        // 공유 URL 생성 (절대 경로 사용)
-        const currentUrl = window.location.href;
-        const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
-        const shareUrl = `${baseUrl}견적서보기.html?id=${sharedQuoteData.number}`;
-        
-        // 공유할 텍스트 생성
-        const shareText = `견적서가 도착했습니다!\n\n견적번호: ${sharedQuoteData.number}\n고객명: ${sharedQuoteData.customerName}\n\n견적서 확인: ${shareUrl}`;
-        
-        // Web Share API 시도 (모바일에서만 작동)
-        if (navigator.share && /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-          navigator.share({
-            title: `견적서 - ${sharedQuoteData.customerName}`,
-            text: shareText,
-            url: shareUrl
-          }).catch(() => {
-            // Web Share API 실패 시 대체 방법
-            fallbackKakaoShare(shareText, shareUrl);
-          });
-        } else {
-          // 데스크톱에서는 대체 방법 사용
-          fallbackKakaoShare(shareText, shareUrl);
-        }
+        // 견적서 이미지 캡처
+        captureQuoteAsImage().then(imageDataUrl => {
+          // 모바일에서 카카오톡 공유
+          if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            shareImageToKakao(imageDataUrl);
+          } else {
+            // 데스크톱에서는 이미지 다운로드 후 수동 공유 안내
+            downloadImageForSharing(imageDataUrl);
+          }
+        }).catch(error => {
+          console.error('이미지 캡처 실패:', error);
+          // 이미지 캡처 실패 시 기존 텍스트 공유 방식으로 폴백
+          fallbackTextShare();
+        });
         
         closeShareModal();
       } catch (error) {
         console.error('카카오톡 공유 오류:', error);
-        fallbackKakaoShare(`견적서가 도착했습니다!\n\n견적번호: ${sharedQuoteData.number}\n고객명: ${sharedQuoteData.customerName}`, shareUrl);
+        fallbackTextShare();
       }
+    }
+    
+    // 견적서를 이미지로 캡처
+    function captureQuoteAsImage() {
+      return new Promise((resolve, reject) => {
+        const quoteContent = document.getElementById('quoteContent');
+        
+        // 캡처 중 로딩 표시
+        showCaptureLoading();
+        
+        html2canvas(quoteContent, {
+          scale: 2, // 고해상도
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: '#ffffff',
+          width: quoteContent.scrollWidth,
+          height: quoteContent.scrollHeight
+        }).then(canvas => {
+          hideCaptureLoading();
+          const imageDataUrl = canvas.toDataURL('image/png', 0.9);
+          resolve(imageDataUrl);
+        }).catch(error => {
+          hideCaptureLoading();
+          reject(error);
+        });
+      });
+    }
+    
+    // 모바일에서 카카오톡으로 이미지 공유
+    function shareImageToKakao(imageDataUrl) {
+      // 이미지를 Blob으로 변환
+      fetch(imageDataUrl)
+        .then(res => res.blob())
+        .then(blob => {
+          const file = new File([blob], `견적서_${sharedQuoteData.number}.png`, { type: 'image/png' });
+          
+          // 개인화된 공유 메시지 생성
+          const shareMessage = createPersonalizedMessage();
+          
+          // Web Share API로 이미지 공유
+          if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            navigator.share({
+              title: `${sharedQuoteData.customerName}님 견적서`,
+              text: shareMessage,
+              files: [file]
+            }).catch(() => {
+              // Web Share API 실패 시 카카오톡 앱으로 이동
+              openKakaoAppWithImage(imageDataUrl);
+            });
+          } else {
+            // Web Share API가 파일을 지원하지 않는 경우
+            openKakaoAppWithImage(imageDataUrl);
+          }
+        })
+        .catch(error => {
+          console.error('이미지 공유 실패:', error);
+          fallbackTextShare();
+        });
+    }
+    
+    // 카카오톡 앱으로 이미지와 함께 이동
+    function openKakaoAppWithImage(imageDataUrl) {
+      // 개인화된 공유 메시지 생성
+      const shareMessage = createPersonalizedMessage();
+      
+      // 카카오톡 앱으로 이동 (이미지는 별도로 첨부 필요)
+      const kakaoUrl = `kakaotalk://send?text=${encodeURIComponent(shareMessage)}`;
+      
+      // 앱이 설치되어 있는지 확인
+      const checkApp = setTimeout(() => {
+        // 앱이 없으면 웹으로 이동
+        window.open('https://www.kakaocorp.com/service/KakaoTalk', '_blank');
+      }, 2000);
+      
+      window.location.href = kakaoUrl;
+      clearTimeout(checkApp);
+      
+      // 이미지 다운로드 안내
+      setTimeout(() => {
+        alert('견적서 이미지가 다운로드되었습니다.\n카카오톡에서 이미지를 첨부하여 공유하세요.');
+      }, 1000);
+    }
+    
+    // 데스크톱에서 이미지 다운로드
+    function downloadImageForSharing(imageDataUrl) {
+      const link = document.createElement('a');
+      link.download = `견적서_${sharedQuoteData.number}.png`;
+      link.href = imageDataUrl;
+      link.click();
+      
+      alert('견적서 이미지가 다운로드되었습니다!\n\n카카오톡에서 이미지를 첨부하여 공유하세요.');
+    }
+    
+    // 텍스트 공유 폴백
+    function fallbackTextShare() {
+      const currentUrl = window.location.href;
+      const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
+      const shareUrl = `${baseUrl}견적서보기.html?id=${sharedQuoteData.number}`;
+      
+      // 개인화된 공유 메시지 생성 (링크 포함)
+      const shareMessage = createPersonalizedMessage(shareUrl);
+      
+      fallbackKakaoShare(shareMessage, shareUrl);
+    }
+    
+    // 캡처 로딩 표시
+    function showCaptureLoading() {
+      const loading = document.createElement('div');
+      loading.id = 'captureLoading';
+      loading.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1002;
+      `;
+      loading.innerHTML = `
+        <div style="background: white; border-radius: 12px; padding: 24px; text-align: center;">
+          <div style="margin-bottom: 16px;">📸</div>
+          <div>견적서 이미지 생성 중...</div>
+        </div>
+      `;
+      document.body.appendChild(loading);
+    }
+    
+    // 캡처 로딩 숨기기
+    function hideCaptureLoading() {
+      const loading = document.getElementById('captureLoading');
+      if (loading) {
+        loading.remove();
+      }
+    }
+    
+    // 개인화된 공유 메시지 생성
+    function createPersonalizedMessage(includeUrl = false) {
+      const customerName = sharedQuoteData.customerName;
+      const quoteNumber = sharedQuoteData.number;
+      
+      // 기본 메시지
+      let message = `${customerName}님 견적서입니다! 📋\n\n`;
+      
+      // 견적 정보 추가
+      message += `견적번호: ${quoteNumber}\n`;
+      message += `고객명: ${customerName}\n`;
+      
+      // 링크 포함 여부에 따라 추가
+      if (includeUrl) {
+        message += `\n견적서 확인: ${includeUrl}`;
+      }
+      
+      // 추가 멘트 (랜덤하게 선택)
+      const additionalMessages = [
+        '\n\n빠른 시일 내에 검토 후 연락드리겠습니다! 🙏',
+        '\n\n궁금한 점이 있으시면 언제든 연락주세요! 💬',
+        '\n\n고객님의 만족을 위해 최선을 다하겠습니다! ✨',
+        '\n\n신속하고 정확한 견적을 제공해드리겠습니다! 🚀'
+      ];
+      
+      const randomMessage = additionalMessages[Math.floor(Math.random() * additionalMessages.length)];
+      message += randomMessage;
+      
+      return message;
     }
     
     // 카카오톡 공유 대체 방법
@@ -1425,8 +1584,8 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
         const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
         const shareUrl = `${baseUrl}견적서보기.html?id=${sharedQuoteData.number}`;
         
-        // 문자 메시지 내용
-        const message = `견적서가 도착했습니다!\n\n견적번호: ${sharedQuoteData.number}\n고객명: ${sharedQuoteData.customerName}\n\n견적서 확인: ${shareUrl}`;
+        // 개인화된 문자 메시지 생성
+        const message = createPersonalizedMessage(shareUrl);
         
         // 모바일에서만 SMS 앱 실행
         if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
