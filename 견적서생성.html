@@ -12,7 +12,7 @@
 
   <style>
 body { background: #f0f4f9; }
-.main-card { max-width: 700px; margin: 32px auto; padding: 0 8px; }
+.main-card { max-width: 900px; margin: 32px auto; padding: 0 8px; }
 .card-section { background: #fff; border-radius: 15px; box-shadow: 0 4px 24px rgba(102,126,234,0.08); padding: 28px 20px 20px 20px; margin-bottom: 28px; border: 1.5px solid #e1e8ed; }
 .section-title { text-align: center; font-size: 1.35rem; font-weight: 800; color: #2c3e50; margin: 0 0 24px 0; letter-spacing: 1px; }
 .section-title .icon { font-size: 1.5rem; margin-right: 6px; vertical-align: middle; }
@@ -22,7 +22,7 @@ body { background: #f0f4f9; }
 .form-group label { font-weight: 700; color: #1976d2; margin-bottom: 7px; }
 .form-group input, .form-group textarea, .form-group select { border: 2px solid #e1e8ed; border-radius: 8px; font-size: 1rem; padding: 12px 15px; background: #f8f9fa; margin-bottom: 10px; transition: border 0.2s; }
 .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: #1976d2; background: #fff; }
-.quote-preview { background: #fff; border-radius: 15px; box-shadow: 0 4px 24px rgba(102,126,234,0.08); padding: 28px 20px 20px 20px; margin-bottom: 28px; border: 1.5px solid #e1e8ed; position: relative; overflow: hidden; }
+.quote-preview { background: #fff; border-radius: 15px; box-shadow: 0 4px 24px rgba(102,126,234,0.08); padding: 28px 20px 20px 20px; margin-bottom: 28px; border: 1.5px solid #e1e8ed; position: relative; overflow: hidden; width: 100%; max-width: 100%; box-sizing: border-box; }
 .quote-preview h3 { color: #1976d2; font-size: 1.15rem; font-weight: 900; border-bottom: 2px solid #e1e8ed; padding-bottom: 8px; margin-bottom: 18px; text-align: center; }
 @media (max-width: 600px) { .main-card { max-width: 100%; } .card-section { padding: 14px 4px 10px 4px; } .buttons-section { flex-direction: column; gap: 10px; } .btn, .btn-fancy { width: 100%; } }
 
@@ -973,6 +973,8 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
   padding: 24px;
   background: #fff;
   box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
 }
   </style>
 </head>
@@ -1890,10 +1892,10 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
               </thead>
               <tbody>
                 <tr style="background: #fff;">
-                  <td style="padding: 14px 12px; text-align: left; font-size: 0.95rem; color: #495057; border-bottom: 1px solid #e1e8ed;">${hasCalculatorData && calculatorData.category ? calculatorData.category : (productName || '쿠쿠 제품')}</td>
-                  <td style="padding: 14px 12px; text-align: left; font-size: 0.95rem; color: #495057; border-bottom: 1px solid #e1e8ed;">${hasCalculatorData && calculatorData.model ? calculatorData.model : (productModel || '-')}</td>
-                  <td style="padding: 14px 12px; text-align: left; font-size: 0.95rem; color: #495057; border-bottom: 1px solid #e1e8ed;">${hasCalculatorData ? calculatorData.fee.toLocaleString() + '원' : '0원'}</td>
-                  <td style="padding: 14px 12px; text-align: left; font-size: 0.95rem; color: #495057; border-bottom: 1px solid #e1e8ed;">${hasCalculatorData ? calculatorData.period + '개월' : '36개월'}</td>
+                  <td style="padding: 14px 12px; text-align: left; font-size: 0.95rem; color: #495057;">${hasCalculatorData && calculatorData.category ? calculatorData.category : (productName || '쿠쿠 제품')}</td>
+                  <td style="padding: 14px 12px; text-align: left; font-size: 0.95rem; color: #495057;">${hasCalculatorData && calculatorData.model ? calculatorData.model : (productModel || '-')}</td>
+                  <td style="padding: 14px 12px; text-align: left; font-size: 0.95rem; color: #495057;">${hasCalculatorData ? calculatorData.fee.toLocaleString() + '원' : '0원'}</td>
+                  <td style="padding: 14px 12px; text-align: left; font-size: 0.95rem; color: #495057;">${hasCalculatorData ? calculatorData.period + '개월' : '36개월'}</td>
                 </tr>
               </tbody>
             </table>
