@@ -1296,8 +1296,8 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
         // 견적서 데이터를 로컬 스토리지에 저장
         localStorage.setItem('sharedQuoteData', JSON.stringify(sharedQuoteData));
         
-        // 공유 URL 생성
-        const shareUrl = `${window.location.origin}/견적서보기.html?id=${sharedQuoteData.number}`;
+        // 공유 URL 생성 (상대 경로 사용)
+        const shareUrl = `견적서보기.html?id=${sharedQuoteData.number}`;
         
         // 카카오톡 공유 (Web Share API 사용)
         if (navigator.share) {
@@ -1325,8 +1325,8 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
         // 견적서 데이터를 로컬 스토리지에 저장
         localStorage.setItem('sharedQuoteData', JSON.stringify(sharedQuoteData));
         
-        // 공유 URL 생성
-        const shareUrl = `${window.location.origin}/견적서보기.html?id=${sharedQuoteData.number}`;
+        // 공유 URL 생성 (상대 경로 사용)
+        const shareUrl = `견적서보기.html?id=${sharedQuoteData.number}`;
         
         // 문자 메시지 내용
         const message = `견적서가 도착했습니다.\n\n견적번호: ${sharedQuoteData.number}\n고객명: ${sharedQuoteData.customerName}\n\n견적서 확인: ${shareUrl}`;
@@ -1348,8 +1348,8 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
         // 견적서 데이터를 로컬 스토리지에 저장
         localStorage.setItem('sharedQuoteData', JSON.stringify(sharedQuoteData));
         
-        // 공유 URL 생성
-        const shareUrl = `${window.location.origin}/견적서보기.html?id=${sharedQuoteData.number}`;
+        // 공유 URL 생성 (상대 경로 사용)
+        const shareUrl = `견적서보기.html?id=${sharedQuoteData.number}`;
         
         // 이메일 제목과 내용
         const subject = `견적서 - ${sharedQuoteData.customerName}`;
@@ -1372,8 +1372,8 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
         // 견적서 데이터를 로컬 스토리지에 저장
         localStorage.setItem('sharedQuoteData', JSON.stringify(sharedQuoteData));
         
-        // 공유 URL 생성
-        const shareUrl = `${window.location.origin}/견적서보기.html?id=${sharedQuoteData.number}`;
+        // 공유 URL 생성 (상대 경로 사용)
+        const shareUrl = `견적서보기.html?id=${sharedQuoteData.number}`;
         
         // 클립보드에 복사
         if (navigator.clipboard) {
@@ -1587,15 +1587,14 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
           <div style="display: flex; gap: 20px;">
             <div style="flex: 1;">
               <h4 style="margin: 0 0 12px 0; color: #2c3e50; font-size: 1.1rem; font-weight: 700;">상품 이미지</h4>
-              <div id="productImageContainer" style="width: 100%; height: 120px; background: #fff; border: 1px solid #dee2e6; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #6c757d; font-size: 0.9rem; overflow: hidden; cursor: pointer;" onclick="selectProductImage()">
+              <div id="productImageContainer" style="width: 100%; height: 120px; background: #fff; border: 1px solid #dee2e6; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #6c757d; font-size: 0.9rem; overflow: hidden; cursor: pointer; box-sizing: border-box;" onclick="selectProductImage()">
                 <span id="productImageText">이미지를 선택하세요</span>
               </div>
-              <p style="margin: 8px 0 0 0; font-size: 0.8rem; color: #6c757d; text-align: center;">클릭하여 이미지 선택</p>
             </div>
             <div style="flex: 1;">
               <h4 style="margin: 0 0 12px 0; color: #2c3e50; font-size: 1.1rem; font-weight: 700;">특이사항</h4>
-              <div style="background: #fff; border: 1px solid #dee2e6; border-radius: 6px; padding: 15px; height: 120px; color: #495057; font-size: 0.95rem; line-height: 1.5; overflow-y: auto;">
-                ${specialNotes || '특이사항이 없습니다.'}
+              <div style="width: 100%; height: 120px; background: #fff; border: 1px solid #dee2e6; border-radius: 6px; padding: 15px; color: #495057; font-size: 0.95rem; line-height: 1.5; overflow-y: auto; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
+                <span style="font-size: 0.85rem; color: #6c757d;">${specialNotes || '특이사항이 없습니다.'}</span>
               </div>
             </div>
           </div>
