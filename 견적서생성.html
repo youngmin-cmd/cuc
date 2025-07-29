@@ -6,6 +6,7 @@
   <title>쿠쿠 수수료계산기 - 견적서 생성</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
   <style>
 body { background: #f0f4f9; }
 .main-card { max-width: 700px; margin: 32px auto; padding: 0 8px; }
@@ -1026,6 +1027,22 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
         <label for="specialNotes">특이사항</label>
         <textarea id="specialNotes" placeholder="특이사항이나 추가 요청사항을 입력하세요"></textarea>
       </div>
+      
+      <h3 style="margin-top: 24px; margin-bottom: 18px; color: #1976d2; font-size: 1.1rem; font-weight: 700;">🏢 판매인 정보</h3>
+      <div class="form-group">
+        <label for="sellerName">이름</label>
+        <input type="text" id="sellerName" placeholder="판매인 이름을 입력하세요" value="홍길동">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="sellerPhone">전화번호</label>
+          <input type="text" id="sellerPhone" placeholder="판매인 전화번호를 입력하세요" value="02-1234-5678">
+        </div>
+        <div class="form-group">
+          <label for="sellerEmail">이메일</label>
+          <input type="email" id="sellerEmail" placeholder="판매인 이메일을 입력하세요" value="info@cuckoo.co.kr">
+        </div>
+      </div>
       <div class="buttons-section">
         <button class="btn btn-primary" onclick="generateQuote()">견적서 만들기</button>
         <button class="btn btn-success" onclick="downloadPDF()">PDF 다운로드</button>
@@ -1054,13 +1071,16 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
       specialNotes: ''
     };
 
+    // 선택된 상품 이미지 URL
+    let selectedProductImage = null;
+
     // 페이지 로드 시 현재 날짜 설정
     window.addEventListener('load', function() {
       const today = new Date().toISOString().split('T')[0];
       document.getElementById('quoteDate').value = today;
       
       // 견적서 번호 자동 생성
-      const quoteNumber = 'QT-' + new Date().getFullYear() + String(new Date().getMonth() + 1).padStart(2, '0') + String(new Date().getDate()).padStart(2, '0') + '-' + String(Math.floor(Math.random() * 1000)).padStart(3, '0');
+      const quoteNumber = 'QT-' + String(Math.floor(Math.random() * 9999)).padStart(4, '0');
       document.getElementById('quoteNumber').value = quoteNumber;
       
       // 입력 필드에 실시간 업데이트 이벤트 리스너 추가
@@ -1069,9 +1089,40 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
 
 
 
+    // 상품 이미지 선택 함수
+    function selectProductImage() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            selectedProductImage = e.target.result;
+            updateProductImageDisplay();
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+      input.click();
+    }
+
+    // 상품 이미지 표시 업데이트
+    function updateProductImageDisplay() {
+      const imageContainer = document.getElementById('productImageContainer');
+      if (!imageContainer) return;
+      
+      if (selectedProductImage) {
+        imageContainer.innerHTML = `<img src="${selectedProductImage}" alt="상품 이미지" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">`;
+      } else {
+        imageContainer.innerHTML = '<span id="productImageText">이미지를 선택하세요</span>';
+      }
+    }
+
     // 실시간 미리보기 설정
     function setupRealTimePreview() {
-      const inputs = ['customerName', 'productName', 'productModelInput', 'specialNotes'];
+      const inputs = ['customerName', 'productName', 'productModelInput', 'specialNotes', 'sellerName', 'sellerPhone', 'sellerEmail'];
       inputs.forEach(id => {
         const element = document.getElementById(id);
         if (element) {
@@ -1093,6 +1144,8 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
         }, 300);
       }
     }
+
+
 
     // 계산기 데이터 불러오기
     function loadCalculatorData() {
@@ -1181,77 +1234,91 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
       console.log('최종 표시될 상품명:', hasCalculatorData && calculatorData.category ? calculatorData.category : (productName || '쿠쿠 제품'));
       console.log('최종 표시될 모델명:', hasCalculatorData && calculatorData.model ? calculatorData.model : (productModel || '-'));
 
+      const sellerName = document.getElementById('sellerName').value;
+      const sellerPhone = document.getElementById('sellerPhone').value;
+      const sellerEmail = document.getElementById('sellerEmail').value;
+
       const quoteContent = `
-        <div class="quote-header">
-          <div class="company-info">
-            <h2>쿠쿠 렌탈 서비스</h2>
-            <p>주소: 서울특별시 강남구 테헤란로 123</p>
-            <p>전화: 02-1234-5678</p>
-            <p>이메일: info@cuckoo.co.kr</p>
+        <div style="text-align: center; margin-bottom: 20px;">
+          <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjQwIiB2aWV3Qm94PSIwIDAgMTIwIDQwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjZmZmIi8+Cjx0ZXh0IHg9IjYwIiB5PSIyNSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzE5NzZkMiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkNVQ0tPTzwvdGV4dD4KPC9zdmc+" alt="CUCKOO" style="height: 100px; width: auto;">
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; margin-bottom: 24px;">
+          <div style="flex: 1;">
+            <h4 style="margin: 0 0 12px 0; color: #2c3e50; font-size: 1.1rem; font-weight: 700;">견적서</h4>
+            <p style="margin: 6px 0; font-size: 0.95rem; color: #495057;"><strong>견적번호:</strong> ${quoteNumber}</p>
+            <p style="margin: 6px 0; font-size: 0.95rem; color: #495057;"><strong>견적일:</strong> ${formatDate(quoteDate)}</p>
+            <p style="margin: 6px 0; font-size: 0.95rem; color: #495057;"><strong>유효기간:</strong> 30일</p>
           </div>
-          <div class="quote-info">
-            <h4>견적서</h4>
-            <p><strong>견적번호:</strong> ${quoteNumber}</p>
-            <p><strong>견적일:</strong> ${formatDate(quoteDate)}</p>
-            <p><strong>유효기간:</strong> 30일</p>
+          <div style="flex: 1; text-align: left;">
+            <h4 style="margin: 0 0 12px 0; color: #2c3e50; font-size: 1.1rem; font-weight: 700;">판매인</h4>
+            <p style="margin: 6px 0; font-size: 0.95rem; color: #495057;"><strong>이름:</strong> ${sellerName}</p>
+            <p style="margin: 6px 0; font-size: 0.95rem; color: #495057;"><strong>전화:</strong> ${sellerPhone}</p>
+            <p style="margin: 6px 0; font-size: 0.95rem; color: #495057;"><strong>이메일:</strong> ${sellerEmail}</p>
           </div>
         </div>
 
-        <div class="customer-info">
-          <h4>고객 정보</h4>
-          <div class="customer-details">
-            <div>
-              <p><strong>고객명:</strong> ${customerName}</p>
-              <p><strong>견적일:</strong> ${formatDate(quoteDate)}</p>
-            </div>
-          </div>
+        <div style="margin-bottom: 24px;">
+          <p style="margin: 6px 0; font-size: 0.95rem; color: #495057;"><strong>고객명:</strong> ${customerName}</p>
         </div>
 
-        <div class="products-section">
-          <h4>렌탈 상품</h4>
-          <table class="products-table">
-            <thead>
-              <tr>
-                <th>상품명</th>
-                <th>모델</th>
-                <th>렌탈료</th>
-                <th>의무사용기간</th>
-                <th>거래유형</th>
-                <th>소계</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>${hasCalculatorData && calculatorData.category ? calculatorData.category : (productName || '쿠쿠 제품')}</td>
-                <td>${hasCalculatorData && calculatorData.model ? calculatorData.model : (productModel || '-')}</td>
-                <td>${hasCalculatorData ? calculatorData.fee.toLocaleString() + '원' : '0원'}</td>
-                <td>${hasCalculatorData ? calculatorData.period + '개월' : '36개월'}</td>
-                <td>${hasCalculatorData ? calculatorData.type : '-'}</td>
-                <td>${hasCalculatorData ? calculatorData.fee.toLocaleString() + '원' : '0원'}</td>
-              </tr>
-            </tbody>
-          </table>
+        <div style="margin-bottom: 24px;">
+          <h4 style="margin: 0 0 14px 0; color: #2c3e50; font-size: 1.1rem; font-weight: 700;">렌탈 상품</h4>
+                      <table style="width: 100%; border-collapse: collapse; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+              <thead>
+                <tr style="background: #1976d2;">
+                  <th style="padding: 14px 12px; text-align: left; font-weight: 700; color: #fff; font-size: 0.95rem; letter-spacing: 0.5px;">상품명</th>
+                  <th style="padding: 14px 12px; text-align: left; font-weight: 700; color: #fff; font-size: 0.95rem; letter-spacing: 0.5px;">모델</th>
+                  <th style="padding: 14px 12px; text-align: left; font-weight: 700; color: #fff; font-size: 0.95rem; letter-spacing: 0.5px;">렌탈료</th>
+                  <th style="padding: 14px 12px; text-align: left; font-weight: 700; color: #fff; font-size: 0.95rem; letter-spacing: 0.5px;">의무사용기간</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="background: #fff;">
+                  <td style="padding: 14px 12px; text-align: left; font-size: 0.95rem; color: #495057; border-bottom: 1px solid #e1e8ed;">${hasCalculatorData && calculatorData.category ? calculatorData.category : (productName || '쿠쿠 제품')}</td>
+                  <td style="padding: 14px 12px; text-align: left; font-size: 0.95rem; color: #495057; border-bottom: 1px solid #e1e8ed;">${hasCalculatorData && calculatorData.model ? calculatorData.model : (productModel || '-')}</td>
+                  <td style="padding: 14px 12px; text-align: left; font-size: 0.95rem; color: #495057; border-bottom: 1px solid #e1e8ed;">${hasCalculatorData ? calculatorData.fee.toLocaleString() + '원' : '0원'}</td>
+                  <td style="padding: 14px 12px; text-align: left; font-size: 0.95rem; color: #495057; border-bottom: 1px solid #e1e8ed;">${hasCalculatorData ? calculatorData.period + '개월' : '36개월'}</td>
+                </tr>
+              </tbody>
+            </table>
         </div>
 
 
 
-        <div class="total-section">
-          <div class="total-row final">
+        <div style="text-align: right; margin-top: 24px; padding-top: 24px; border-top: 2px solid #e1e8ed;">
+          <div style="display: flex; justify-content: space-between; margin: 12px 0; font-size: 1.3rem; font-weight: 800; color: #1976d2; border-top: 2px solid #1976d2; padding-top: 12px; margin-top: 18px;">
             <span>총 견적 금액:</span>
             <span>${hasCalculatorData ? calculatorData.fee.toLocaleString() + '원' : '0원'}</span>
           </div>
         </div>
 
-        ${specialNotes ? `
-        <div class="terms-section">
-          <h4>특이사항</h4>
-          <p>${specialNotes}</p>
+        <div style="margin-top: 24px; padding: 20px; background: #f8f9fa; border: 2px solid #e1e8ed; border-radius: 8px;">
+          <div style="display: flex; gap: 20px;">
+            <div style="flex: 1;">
+              <h4 style="margin: 0 0 12px 0; color: #2c3e50; font-size: 1.1rem; font-weight: 700;">상품 이미지</h4>
+              <div id="productImageContainer" style="width: 100%; height: 120px; background: #fff; border: 1px solid #dee2e6; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #6c757d; font-size: 0.9rem; overflow: hidden; cursor: pointer;" onclick="selectProductImage()">
+                <span id="productImageText">이미지를 선택하세요</span>
+              </div>
+              <p style="margin: 8px 0 0 0; font-size: 0.8rem; color: #6c757d; text-align: center;">클릭하여 이미지 선택</p>
+            </div>
+            <div style="flex: 1;">
+              <h4 style="margin: 0 0 12px 0; color: #2c3e50; font-size: 1.1rem; font-weight: 700;">특이사항</h4>
+              <div style="background: #fff; border: 1px solid #dee2e6; border-radius: 6px; padding: 15px; height: 120px; color: #495057; font-size: 0.95rem; line-height: 1.5; overflow-y: auto;">
+                ${specialNotes || '특이사항이 없습니다.'}
+              </div>
+            </div>
+          </div>
         </div>
-        ` : ''}
+
+
 
       `;
 
       document.getElementById('quoteContent').innerHTML = quoteContent;
+      
+      // 상품 이미지 표시 업데이트
+      updateProductImageDisplay();
     }
 
     // 날짜 포맷팅
@@ -1299,11 +1366,19 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
         document.getElementById('productModelInput').value = '';
         document.getElementById('specialNotes').value = '';
         
+        // 판매인 정보 초기화
+        document.getElementById('sellerName').value = '홍길동';
+        document.getElementById('sellerPhone').value = '02-1234-5678';
+        document.getElementById('sellerEmail').value = 'info@cuckoo.co.kr';
+        
+        // 상품 이미지 초기화
+        selectedProductImage = null;
+        
         // 견적서 번호와 날짜는 다시 생성
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('quoteDate').value = today;
         
-        const quoteNumber = 'QT-' + new Date().getFullYear() + String(new Date().getMonth() + 1).padStart(2, '0') + String(new Date().getDate()).padStart(2, '0') + '-' + String(Math.floor(Math.random() * 1000)).padStart(3, '0');
+        const quoteNumber = 'QT-' + String(Math.floor(Math.random() * 9999)).padStart(4, '0');
         document.getElementById('quoteNumber').value = quoteNumber;
         
         document.getElementById('quoteContent').innerHTML = '<p style="text-align: center; color: #6c757d; font-style: italic;">견적서 정보를 입력하고 "견적서 생성" 버튼을 클릭하세요.</p>';
