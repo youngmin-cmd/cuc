@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>견적서 보기</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(135deg, #f0f4f9 0%, #e8f4fd 100%);
+      line-height: 1.4;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+      overflow: hidden;
+      border: 1px solid #e1e8ed;
+    }
+
+    .header {
+      text-align: center;
+      padding: 30px 20px;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      border-bottom: 1px solid #e1e8ed;
+    }
+
+    .header h1 {
+      margin: 0;
+      color: #2c3e50;
+      font-size: 1.8rem;
+      font-weight: 800;
+    }
+
+    .quote-content {
+      padding: 32px 20px;
+    }
+
+    .quote-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid #e1e8ed;
+    }
+
+    .company-info {
+      flex: 1;
+    }
+
+    .company-info h2 {
+      margin: 0 0 12px 0;
+      color: #1976d2;
+      font-size: 1.6rem;
+      font-weight: 800;
+    }
+
+    .company-info p {
+      margin: 6px 0;
+      color: #6c757d;
+      font-size: 0.95rem;
+    }
+
+    .quote-info {
+      text-align: right;
+    }
+
+    .quote-info h4 {
+      margin: 0 0 12px 0;
+      color: #2c3e50;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .quote-info p {
+      margin: 6px 0;
+      color: #6c757d;
+      font-size: 0.95rem;
+    }
+
+    .customer-info {
+      margin-bottom: 24px;
+      padding: 18px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border-left: 3px solid #1976d2;
+    }
+
+    .customer-info h4 {
+      margin: 0 0 18px 0;
+      color: #2c3e50;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .customer-details p {
+      margin: 6px 0;
+      font-size: 0.95rem;
+      color: #495057;
+    }
+
+    .customer-details strong {
+      color: #1976d2;
+      font-weight: 600;
+    }
+
+    .products-section {
+      margin-bottom: 24px;
+    }
+
+    .products-section h4 {
+      margin: 0 0 14px 0;
+      color: #2c3e50;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .products-table {
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .products-table th {
+      background: #1976d2;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 14px 12px;
+      text-align: left;
+    }
+
+    .products-table td {
+      padding: 14px 12px;
+      font-size: 0.95rem;
+      color: #495057;
+      background: #fff;
+      border-bottom: 1px solid #e1e8ed;
+    }
+
+    .total-section {
+      text-align: right;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 2px solid #e1e8ed;
+    }
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 12px 0;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #1976d2;
+      border-top: 2px solid #1976d2;
+      padding-top: 12px;
+      margin-top: 18px;
+    }
+
+    .product-image-section {
+      margin-top: 24px;
+      padding: 20px;
+      background: #f8f9fa;
+      border: 2px solid #e1e8ed;
+      border-radius: 8px;
+    }
+
+    .product-image-section h4 {
+      margin: 0 0 12px 0;
+      color: #2c3e50;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .image-container {
+      display: flex;
+      gap: 20px;
+    }
+
+    .image-box {
+      flex: 1;
+    }
+
+    .image-box h5 {
+      margin: 0 0 8px 0;
+      color: #2c3e50;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .image-display {
+      width: 100%;
+      height: 120px;
+      background: #fff;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .image-display img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+
+    .notes-box {
+      flex: 2;
+    }
+
+    .notes-box h5 {
+      margin: 0 0 8px 0;
+      color: #2c3e50;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .notes-display {
+      background: #fff;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      padding: 15px;
+      height: 120px;
+      color: #495057;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      overflow-y: auto;
+    }
+
+    .actions {
+      text-align: center;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid #e1e8ed;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin: 0 8px;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: #e1e8ed;
+      color: #764ba2;
+    }
+
+    .error-message {
+      text-align: center;
+      padding: 40px 20px;
+      color: #6c757d;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px 20px;
+      color: #6c757d;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+      
+      .container {
+        border-radius: 12px;
+      }
+      
+      .header {
+        padding: 20px 15px;
+      }
+      
+      .header h1 {
+        font-size: 1.4rem;
+      }
+      
+      .quote-content {
+        padding: 20px 15px;
+      }
+      
+      .quote-header {
+        flex-direction: column;
+        gap: 18px;
+      }
+      
+      .company-info h2 {
+        font-size: 1.4rem;
+      }
+      
+      .image-container {
+        flex-direction: column;
+        gap: 16px;
+      }
+      
+      .btn {
+        display: block;
+        width: 100%;
+        margin: 8px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>견적서 보기</h1>
+    </div>
+    
+    <div class="quote-content" id="quoteContent">
+      <div class="loading">
+        <p>견적서를 불러오는 중...</p>
+      </div>
+    </div>
+    
+    <div class="actions" id="actions" style="display: none;">
+      <button class="btn btn-primary" onclick="downloadPDF()">PDF 다운로드</button>
+      <a href="견적서생성.html" class="btn btn-secondary">새 견적서 만들기</a>
+    </div>
+  </div>
+
+  <script>
+    // URL에서 견적서 ID 가져오기
+    function getQuoteId() {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get('id');
+    }
+
+    // 견적서 데이터 로드
+    function loadQuoteData() {
+      const quoteId = getQuoteId();
+      
+      if (!quoteId) {
+        showError('견적서 ID가 없습니다.');
+        return;
+      }
+
+      // 로컬 스토리지에서 견적서 데이터 가져오기
+      const sharedData = localStorage.getItem('sharedQuoteData');
+      
+      if (!sharedData) {
+        showError('견적서 데이터를 찾을 수 없습니다.');
+        return;
+      }
+
+      try {
+        const quoteData = JSON.parse(sharedData);
+        
+        // ID가 일치하는지 확인
+        if (quoteData.number !== quoteId) {
+          showError('견적서를 찾을 수 없습니다.');
+          return;
+        }
+
+        displayQuote(quoteData);
+      } catch (error) {
+        console.error('견적서 데이터 파싱 오류:', error);
+        showError('견적서 데이터를 불러오는데 실패했습니다.');
+      }
+    }
+
+    // 견적서 표시
+    function displayQuote(data) {
+      const quoteContent = document.getElementById('quoteContent');
+      
+      quoteContent.innerHTML = `
+        <div style="text-align: center; margin-bottom: 20px;">
+          <h2 style="color: #1976d2; font-size: 2rem; font-weight: 800; margin: 0 0 10px 0; letter-spacing: 2px;">CUCKOO</h2>
+          <hr style="border: none; height: 2px; background: #1976d2; margin: 0;">
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; margin-bottom: 24px;">
+          <div style="flex: 1;">
+            <h4 style="margin: 0 0 12px 0; color: #2c3e50; font-size: 1.1rem; font-weight: 700;">견적서</h4>
+            <p style="margin: 6px 0; font-size: 0.95rem; color: #495057;"><strong>견적번호:</strong> ${data.number}</p>
+            <p style="margin: 6px 0; font-size: 0.95rem; color: #495057;"><strong>견적일:</strong> ${formatDate(data.date)}</p>
+            <p style="margin: 6px 0; font-size: 0.95rem; color: #495057;"><strong>유효기간:</strong> 30일</p>
+          </div>
+          <div style="flex: 1; text-align: left;">
+            <h4 style="margin: 0 0 12px 0; color: #2c3e50; font-size: 1.1rem; font-weight: 700;">판매인</h4>
+            <p style="margin: 6px 0; font-size: 0.95rem; color: #495057;"><strong>이름:</strong> ${data.sellerName}</p>
+            <p style="margin: 6px 0; font-size: 0.95rem; color: #495057;"><strong>전화:</strong> ${data.sellerPhone}</p>
+            <p style="margin: 6px 0; font-size: 0.95rem; color: #495057;"><strong>이메일:</strong> ${data.sellerEmail}</p>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 24px;">
+          <p style="margin: 6px 0; font-size: 0.95rem; color: #495057;"><strong>고객명:</strong> ${data.customerName}</p>
+        </div>
+
+        <div style="margin-bottom: 24px;">
+          <h4 style="margin: 0 0 14px 0; color: #2c3e50; font-size: 1.1rem; font-weight: 700;">렌탈 상품</h4>
+          <table class="products-table">
+            <thead>
+              <tr>
+                <th>상품명</th>
+                <th>모델</th>
+                <th>렌탈료</th>
+                <th>의무사용기간</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>${data.calculatorData && data.calculatorData.category ? data.calculatorData.category : (data.productName || '쿠쿠 제품')}</td>
+                <td>${data.calculatorData && data.calculatorData.model ? data.calculatorData.model : (data.productModel || '-')}</td>
+                <td>${data.calculatorData ? data.calculatorData.fee.toLocaleString() + '원' : '0원'}</td>
+                <td>${data.calculatorData ? data.calculatorData.period + '개월' : '36개월'}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="text-align: right; margin-top: 24px; padding-top: 24px; border-top: 2px solid #e1e8ed;">
+          <div style="display: flex; justify-content: space-between; margin: 12px 0; font-size: 1.3rem; font-weight: 800; color: #1976d2; border-top: 2px solid #1976d2; padding-top: 12px; margin-top: 18px;">
+            <span>총 견적 금액:</span>
+            <span>${data.calculatorData ? data.calculatorData.fee.toLocaleString() + '원' : '0원'}</span>
+          </div>
+        </div>
+
+        ${data.productImage || data.specialNotes ? `
+        <div class="product-image-section">
+          <div class="image-container">
+            ${data.productImage ? `
+            <div class="image-box">
+              <h5>상품 이미지</h5>
+              <div class="image-display">
+                <img src="${data.productImage}" alt="상품 이미지">
+              </div>
+            </div>
+            ` : ''}
+            ${data.specialNotes ? `
+            <div class="notes-box">
+              <h5>특이사항</h5>
+              <div class="notes-display">
+                ${data.specialNotes}
+              </div>
+            </div>
+            ` : ''}
+          </div>
+        </div>
+        ` : ''}
+      `;
+
+      // 액션 버튼 표시
+      document.getElementById('actions').style.display = 'block';
+    }
+
+    // 날짜 포맷팅
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.getFullYear() + '년 ' + String(date.getMonth() + 1).padStart(2, '0') + '월 ' + String(date.getDate()).padStart(2, '0') + '일';
+    }
+
+    // 에러 메시지 표시
+    function showError(message) {
+      const quoteContent = document.getElementById('quoteContent');
+      quoteContent.innerHTML = `
+        <div class="error-message">
+          <h3>오류</h3>
+          <p>${message}</p>
+          <a href="견적서생성.html" class="btn btn-primary" style="margin-top: 20px;">새 견적서 만들기</a>
+        </div>
+      `;
+    }
+
+    // PDF 다운로드
+    function downloadPDF() {
+      const quoteContent = document.getElementById('quoteContent');
+      
+      html2canvas(quoteContent, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true
+      }).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
+        const pageWidth = 210;
+        const pageHeight = 297;
+        const pxPerMm = canvas.width / pageWidth;
+        let imgWidth = pageWidth;
+        let imgHeight = canvas.height / pxPerMm;
+        
+        if (imgHeight > pageHeight) {
+          imgHeight = pageHeight;
+          imgWidth = canvas.width / (canvas.height / pageHeight);
+        }
+        
+        const x = (pageWidth - imgWidth) / 2;
+        const y = (pageHeight - imgHeight) / 2;
+        
+        pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
+        
+        const quoteId = getQuoteId();
+        pdf.save(`견적서_${quoteId}.pdf`);
+      });
+    }
+
+    // 페이지 로드 시 견적서 데이터 로드
+    window.addEventListener('load', loadQuoteData);
+  </script>
+</body>
+</html> 

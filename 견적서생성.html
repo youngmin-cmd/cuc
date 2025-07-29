@@ -6,6 +6,9 @@
   <title>쿠쿠 수수료계산기 - 견적서 생성</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+  <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
 
   <style>
 body { background: #f0f4f9; }
@@ -1043,11 +1046,15 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
           <input type="email" id="sellerEmail" placeholder="판매인 이메일을 입력하세요" value="info@cuckoo.co.kr">
         </div>
       </div>
-      <div class="buttons-section">
-        <button class="btn btn-primary" onclick="generateQuote()">견적서 만들기</button>
-        <button class="btn btn-success" onclick="downloadPDF()">PDF 다운로드</button>
-        <button class="btn btn-secondary" onclick="resetForm()">초기화</button>
-      </div>
+              <div class="buttons-section">
+          <button class="btn btn-primary" onclick="generateQuote()">견적서 만들기</button>
+          <button class="btn btn-success" onclick="downloadPDF()">PDF 다운로드</button>
+          <button class="btn btn-secondary" onclick="resetForm()">초기화</button>
+        </div>
+        
+        <div class="buttons-section" id="shareButtons" style="display: none;">
+          <button class="btn btn-primary" onclick="shareQuote()">📱 견적서 공유하기</button>
+        </div>
     </div>
     <div class="card-section quote-preview" id="quotePreview">
       <h3>견적서 미리보기</h3>
@@ -1073,6 +1080,10 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
 
     // 선택된 상품 이미지 URL
     let selectedProductImage = null;
+    let cropper = null;
+    
+    // 공유용 견적서 데이터
+    let sharedQuoteData = null;
 
     // 페이지 로드 시 현재 날짜 설정
     window.addEventListener('load', function() {
@@ -1100,12 +1111,301 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
           const reader = new FileReader();
           reader.onload = function(e) {
             selectedProductImage = e.target.result;
-            updateProductImageDisplay();
+            showImageEditor();
           };
           reader.readAsDataURL(file);
         }
       };
       input.click();
+    }
+
+    // 이미지 편집기 표시
+    function showImageEditor() {
+      // 편집기 모달 생성
+      const modal = document.createElement('div');
+      modal.id = 'imageEditorModal';
+      modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      `;
+
+      modal.innerHTML = `
+        <div style="background: white; border-radius: 12px; padding: 20px; max-width: 90%; max-height: 90%; overflow: auto;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="margin: 0; color: #2c3e50;">이미지 편집</h3>
+            <button onclick="closeImageEditor()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #6c757d;">&times;</button>
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <div id="cropperContainer" style="max-height: 400px; overflow: hidden;">
+              <img id="cropperImage" src="${selectedProductImage}" style="max-width: 100%; max-height: 400px;">
+            </div>
+          </div>
+          
+          <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+            <button onclick="rotateImage(-90)" style="padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">↶ 왼쪽 회전</button>
+            <button onclick="rotateImage(90)" style="padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">오른쪽 회전 ↷</button>
+            <button onclick="resetImage()" style="padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">초기화</button>
+          </div>
+          
+          <div style="display: flex; gap: 10px; justify-content: center;">
+            <button onclick="closeImageEditor()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">취소</button>
+            <button onclick="applyImageEdit()" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">적용</button>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(modal);
+
+      // Cropper 초기화
+      const image = document.getElementById('cropperImage');
+      cropper = new Cropper(image, {
+        aspectRatio: 5/4, // 150x120 비율
+        viewMode: 2,
+        dragMode: 'move',
+        autoCropArea: 1,
+        restore: false,
+        guides: true,
+        center: true,
+        highlight: false,
+        cropBoxMovable: true,
+        cropBoxResizable: true,
+        toggleDragModeOnDblclick: false,
+      });
+    }
+
+    // 이미지 회전
+    function rotateImage(degree) {
+      if (cropper) {
+        cropper.rotate(degree);
+      }
+    }
+
+    // 이미지 초기화
+    function resetImage() {
+      if (cropper) {
+        cropper.reset();
+      }
+    }
+
+    // 이미지 편집 적용
+    function applyImageEdit() {
+      if (cropper) {
+        const canvas = cropper.getCroppedCanvas({
+          width: 300,
+          height: 240,
+        });
+        
+        selectedProductImage = canvas.toDataURL('image/jpeg', 0.8);
+        updateProductImageDisplay();
+        closeImageEditor();
+      }
+    }
+
+    // 이미지 편집기 닫기
+    function closeImageEditor() {
+      const modal = document.getElementById('imageEditorModal');
+      if (modal) {
+        modal.remove();
+      }
+      if (cropper) {
+        cropper.destroy();
+        cropper = null;
+      }
+    }
+
+    // 견적서 공유 함수
+    function shareQuote() {
+      if (!sharedQuoteData) {
+        alert('먼저 견적서를 생성해주세요.');
+        return;
+      }
+
+      // 공유 모달 표시
+      showShareModal();
+    }
+
+    // 공유 모달 표시
+    function showShareModal() {
+      const modal = document.createElement('div');
+      modal.id = 'shareModal';
+      modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      `;
+
+      modal.innerHTML = `
+        <div style="background: white; border-radius: 12px; padding: 24px; max-width: 90%; max-height: 90%; overflow: auto;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <h3 style="margin: 0; color: #2c3e50;">견적서 공유하기</h3>
+            <button onclick="closeShareModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #6c757d;">&times;</button>
+          </div>
+          
+          <div style="margin-bottom: 24px;">
+            <p style="margin: 0 0 16px 0; color: #495057; font-size: 1rem;">견적서를 공유할 방법을 선택하세요:</p>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 16px; margin-bottom: 24px;">
+            <button onclick="shareViaKakao()" style="padding: 16px; background: #FEE500; color: #000; border: none; border-radius: 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+              <span style="font-size: 24px;">💬</span>
+              <span style="font-size: 0.9rem; font-weight: 600;">카카오톡</span>
+            </button>
+            
+            <button onclick="shareViaSMS()" style="padding: 16px; background: #007AFF; color: white; border: none; border-radius: 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+              <span style="font-size: 24px;">📱</span>
+              <span style="font-size: 0.9rem; font-weight: 600;">문자</span>
+            </button>
+            
+            <button onclick="shareViaEmail()" style="padding: 16px; background: #EA4335; color: white; border: none; border-radius: 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+              <span style="font-size: 24px;">📧</span>
+              <span style="font-size: 0.9rem; font-weight: 600;">이메일</span>
+            </button>
+            
+            <button onclick="copyToClipboard()" style="padding: 16px; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+              <span style="font-size: 24px;">📋</span>
+              <span style="font-size: 0.9rem; font-weight: 600;">링크 복사</span>
+            </button>
+          </div>
+          
+          <div style="display: flex; gap: 10px; justify-content: center;">
+            <button onclick="closeShareModal()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">닫기</button>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(modal);
+    }
+
+    // 공유 모달 닫기
+    function closeShareModal() {
+      const modal = document.getElementById('shareModal');
+      if (modal) {
+        modal.remove();
+      }
+    }
+
+    // 카카오톡 공유
+    function shareViaKakao() {
+      try {
+        // 견적서 데이터를 로컬 스토리지에 저장
+        localStorage.setItem('sharedQuoteData', JSON.stringify(sharedQuoteData));
+        
+        // 공유 URL 생성
+        const shareUrl = `${window.location.origin}/견적서보기.html?id=${sharedQuoteData.number}`;
+        
+        // 카카오톡 공유 (Web Share API 사용)
+        if (navigator.share) {
+          navigator.share({
+            title: `견적서 - ${sharedQuoteData.customerName}`,
+            text: `견적번호: ${sharedQuoteData.number}\n고객명: ${sharedQuoteData.customerName}`,
+            url: shareUrl
+          });
+        } else {
+          // Web Share API가 지원되지 않는 경우 카카오톡 앱으로 이동
+          const kakaoUrl = `https://story.kakao.com/share?url=${encodeURIComponent(shareUrl)}`;
+          window.open(kakaoUrl, '_blank');
+        }
+        
+        closeShareModal();
+      } catch (error) {
+        console.error('카카오톡 공유 오류:', error);
+        alert('카카오톡 공유에 실패했습니다.');
+      }
+    }
+
+    // 문자 공유
+    function shareViaSMS() {
+      try {
+        // 견적서 데이터를 로컬 스토리지에 저장
+        localStorage.setItem('sharedQuoteData', JSON.stringify(sharedQuoteData));
+        
+        // 공유 URL 생성
+        const shareUrl = `${window.location.origin}/견적서보기.html?id=${sharedQuoteData.number}`;
+        
+        // 문자 메시지 내용
+        const message = `견적서가 도착했습니다.\n\n견적번호: ${sharedQuoteData.number}\n고객명: ${sharedQuoteData.customerName}\n\n견적서 확인: ${shareUrl}`;
+        
+        // SMS 앱으로 이동
+        const smsUrl = `sms:?body=${encodeURIComponent(message)}`;
+        window.open(smsUrl);
+        
+        closeShareModal();
+      } catch (error) {
+        console.error('문자 공유 오류:', error);
+        alert('문자 공유에 실패했습니다.');
+      }
+    }
+
+    // 이메일 공유
+    function shareViaEmail() {
+      try {
+        // 견적서 데이터를 로컬 스토리지에 저장
+        localStorage.setItem('sharedQuoteData', JSON.stringify(sharedQuoteData));
+        
+        // 공유 URL 생성
+        const shareUrl = `${window.location.origin}/견적서보기.html?id=${sharedQuoteData.number}`;
+        
+        // 이메일 제목과 내용
+        const subject = `견적서 - ${sharedQuoteData.customerName}`;
+        const body = `안녕하세요,\n\n견적서를 확인해주세요.\n\n견적번호: ${sharedQuoteData.number}\n고객명: ${sharedQuoteData.customerName}\n견적일: ${formatDate(sharedQuoteData.date)}\n\n견적서 확인: ${shareUrl}\n\n감사합니다.`;
+        
+        // 이메일 앱으로 이동
+        const emailUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        window.open(emailUrl);
+        
+        closeShareModal();
+      } catch (error) {
+        console.error('이메일 공유 오류:', error);
+        alert('이메일 공유에 실패했습니다.');
+      }
+    }
+
+    // 클립보드에 링크 복사
+    function copyToClipboard() {
+      try {
+        // 견적서 데이터를 로컬 스토리지에 저장
+        localStorage.setItem('sharedQuoteData', JSON.stringify(sharedQuoteData));
+        
+        // 공유 URL 생성
+        const shareUrl = `${window.location.origin}/견적서보기.html?id=${sharedQuoteData.number}`;
+        
+        // 클립보드에 복사
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(shareUrl).then(() => {
+            alert('견적서 링크가 클립보드에 복사되었습니다!');
+          });
+        } else {
+          // 구형 브라우저 지원
+          const textArea = document.createElement('textarea');
+          textArea.value = shareUrl;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          alert('견적서 링크가 클립보드에 복사되었습니다!');
+        }
+        
+        closeShareModal();
+      } catch (error) {
+        console.error('클립보드 복사 오류:', error);
+        alert('클립보드 복사에 실패했습니다.');
+      }
     }
 
     // 상품 이미지 표시 업데이트
@@ -1319,6 +1619,24 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
       
       // 상품 이미지 표시 업데이트
       updateProductImageDisplay();
+      
+      // 공유 버튼 표시
+      document.getElementById('shareButtons').style.display = 'flex';
+      
+      // 공유용 데이터 저장
+      sharedQuoteData = {
+        number: quoteNumber,
+        date: quoteDate,
+        customerName: customerName,
+        productName: productName,
+        productModel: productModel,
+        specialNotes: specialNotes,
+        sellerName: sellerName,
+        sellerPhone: sellerPhone,
+        sellerEmail: sellerEmail,
+        calculatorData: hasCalculatorData ? calculatorData : null,
+        productImage: selectedProductImage
+      };
     }
 
     // 날짜 포맷팅
@@ -1373,6 +1691,14 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
         
         // 상품 이미지 초기화
         selectedProductImage = null;
+        if (cropper) {
+          cropper.destroy();
+          cropper = null;
+        }
+        
+        // 공유 데이터 초기화
+        sharedQuoteData = null;
+        document.getElementById('shareButtons').style.display = 'none';
         
         // 견적서 번호와 날짜는 다시 생성
         const today = new Date().toISOString().split('T')[0];
