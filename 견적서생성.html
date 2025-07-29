@@ -1392,21 +1392,70 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
         // 캡처 중 로딩 표시
         showCaptureLoading();
         
-        html2canvas(quoteContent, {
-          scale: 2, // 고해상도
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: '#ffffff',
-          width: quoteContent.scrollWidth,
-          height: quoteContent.scrollHeight
-        }).then(canvas => {
-          hideCaptureLoading();
-          const imageDataUrl = canvas.toDataURL('image/png', 0.9);
-          resolve(imageDataUrl);
-        }).catch(error => {
-          hideCaptureLoading();
-          reject(error);
-        });
+        // 임시 캡처용 컨테이너 생성
+        const tempContainer = document.createElement('div');
+        tempContainer.style.cssText = `
+          position: fixed;
+          top: -9999px;
+          left: -9999px;
+          width: auto;
+          height: auto;
+          overflow: visible;
+          background: white;
+          z-index: -1;
+        `;
+        
+        // 견적서 내용을 임시 컨테이너에 복사
+        const clonedContent = quoteContent.cloneNode(true);
+        clonedContent.style.cssText = `
+          width: auto;
+          height: auto;
+          overflow: visible;
+          max-height: none;
+          position: relative;
+          top: 0;
+          left: 0;
+          margin: 0;
+          padding: 20px;
+          background: white;
+          box-shadow: none;
+          border: 1px solid #dee2e6;
+        `;
+        
+        tempContainer.appendChild(clonedContent);
+        document.body.appendChild(tempContainer);
+        
+        // 약간의 지연을 두어 DOM이 완전히 렌더링되도록 함
+        setTimeout(() => {
+          html2canvas(clonedContent, {
+            scale: 2, // 고해상도
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: '#ffffff',
+            width: clonedContent.scrollWidth,
+            height: clonedContent.scrollHeight,
+            scrollX: 0,
+            scrollY: 0,
+            windowWidth: clonedContent.scrollWidth,
+            windowHeight: clonedContent.scrollHeight,
+            foreignObjectRendering: true,
+            removeContainer: true,
+            logging: false
+          }).then(canvas => {
+            // 임시 컨테이너 제거
+            document.body.removeChild(tempContainer);
+            
+            hideCaptureLoading();
+            const imageDataUrl = canvas.toDataURL('image/png', 0.9);
+            resolve(imageDataUrl);
+          }).catch(error => {
+            // 임시 컨테이너 제거
+            document.body.removeChild(tempContainer);
+            
+            hideCaptureLoading();
+            reject(error);
+          });
+        }, 200);
       });
     }
     
