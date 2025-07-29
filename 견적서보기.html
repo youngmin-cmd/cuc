@@ -424,10 +424,10 @@
             </thead>
             <tbody>
               <tr>
-                <td>${data.calculatorData && data.calculatorData.category ? data.calculatorData.category : (data.productName || '쿠쿠 제품')}</td>
-                <td>${data.calculatorData && data.calculatorData.model ? data.calculatorData.model : (data.productModel || '-')}</td>
-                <td>${data.calculatorData ? data.calculatorData.fee.toLocaleString() + '원' : '0원'}</td>
-                <td>${data.calculatorData ? data.calculatorData.period + '개월' : '36개월'}</td>
+                <td style="border-bottom: none;">${data.calculatorData && data.calculatorData.category ? data.calculatorData.category : (data.productName || '쿠쿠 제품')}</td>
+                <td style="border-bottom: none;">${data.calculatorData && data.calculatorData.model ? data.calculatorData.model : (data.productModel || '-')}</td>
+                <td style="border-bottom: none;">${data.calculatorData ? data.calculatorData.fee.toLocaleString() + '원' : '0원'}</td>
+                <td style="border-bottom: none;">${data.calculatorData ? data.calculatorData.period + '개월' : '36개월'}</td>
               </tr>
             </tbody>
           </table>
