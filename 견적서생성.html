@@ -1362,8 +1362,10 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
         // 견적서 데이터를 로컬 스토리지에 저장
         localStorage.setItem('sharedQuoteData', JSON.stringify(sharedQuoteData));
         
-        // 견적서 이미지 캡처
+        // 견적서 이미지 캡처 시도
         captureQuoteAsImage().then(imageDataUrl => {
+          console.log('이미지 캡처 성공:', imageDataUrl.substring(0, 100) + '...');
+          
           // 모바일에서 카카오톡 공유
           if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
             shareImageToKakao(imageDataUrl);
@@ -1373,6 +1375,7 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
           }
         }).catch(error => {
           console.error('이미지 캡처 실패:', error);
+          alert('이미지 캡처에 실패했습니다. 텍스트로 공유합니다.');
           // 이미지 캡처 실패 시 기존 텍스트 공유 방식으로 폴백
           fallbackTextShare();
         });
@@ -1380,11 +1383,12 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
         closeShareModal();
       } catch (error) {
         console.error('카카오톡 공유 오류:', error);
+        alert('공유 중 오류가 발생했습니다. 텍스트로 공유합니다.');
         fallbackTextShare();
       }
     }
     
-    // 견적서를 이미지로 캡처 (한 화면 최적화)
+        // 견적서를 이미지로 캡처 (간단한 방법)
     function captureQuoteAsImage() {
       return new Promise((resolve, reject) => {
         const quoteContent = document.getElementById('quoteContent');
@@ -1392,112 +1396,46 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
         // 캡처 중 로딩 표시
         showCaptureLoading();
         
-        // 견적서를 한 화면에 맞게 조정
-        const originalStyle = quoteContent.style.cssText;
-        quoteContent.style.cssText = `
-          max-width: 800px !important;
-          margin: 0 auto !important;
-          padding: 16px !important;
-          background: white !important;
-          font-size: 14px !important;
-          line-height: 1.4 !important;
-          overflow: visible !important;
-        `;
-        
-        // 내부 요소들의 크기 조정
-        const elements = quoteContent.querySelectorAll('*');
-        elements.forEach(el => {
-          const style = window.getComputedStyle(el);
-          if (style.fontSize && parseFloat(style.fontSize) > 16) {
-            el.style.fontSize = '14px';
-          }
-          if (style.padding && parseFloat(style.padding) > 20) {
-            el.style.padding = '12px';
-          }
-          if (style.margin && parseFloat(style.margin) > 20) {
-            el.style.margin = '8px 0';
-          }
-        });
-        
-        // 테이블 크기 조정
-        const tables = quoteContent.querySelectorAll('table');
-        tables.forEach(table => {
-          table.style.fontSize = '12px';
-          const cells = table.querySelectorAll('th, td');
-          cells.forEach(cell => {
-            cell.style.padding = '8px 6px';
-          });
-        });
-        
-        // 이미지 크기 조정
-        const images = quoteContent.querySelectorAll('img');
-        images.forEach(img => {
-          if (img.style.height && parseFloat(img.style.height) > 60) {
-            img.style.height = '60px';
-          }
-        });
-        
-        // 상품 이미지와 특이사항 박스 크기 조정
-        const imageBoxes = quoteContent.querySelectorAll('#productImageContainer, div[style*="height: 100px"]');
-        imageBoxes.forEach(box => {
-          if (box.id === 'productImageContainer') {
-            box.style.height = '90px'; // 상품 이미지는 더 크게
-          } else {
-            box.style.height = '70px'; // 특이사항은 작게
-          }
-        });
-        
+        // 간단한 캡처 시도
         html2canvas(quoteContent, {
-          scale: 2, // 고해상도로 다시 설정
+          scale: 1.5,
           useCORS: true,
           allowTaint: true,
           backgroundColor: '#ffffff',
-          width: quoteContent.scrollWidth,
-          height: quoteContent.scrollHeight, // 실제 높이 사용
-          scrollX: 0,
-          scrollY: 0,
-          windowWidth: quoteContent.scrollWidth,
-          windowHeight: quoteContent.scrollHeight,
-          logging: false, // 로그 비활성화로 성능 향상
-          removeContainer: true, // 임시 컨테이너 제거
-          foreignObjectRendering: true, // 외부 객체 렌더링 활성화
-          imageTimeout: 0 // 이미지 로딩 타임아웃 비활성화
+          logging: false,
+          removeContainer: true,
+          foreignObjectRendering: false, // 간단한 렌더링 사용
+          imageTimeout: 5000
         }).then(canvas => {
-          // 원래 스타일 복원
-          quoteContent.style.cssText = originalStyle;
-          
-          // 캔버스 크기 조정 (너무 크면 리사이즈)
-          let finalCanvas = canvas;
-          const maxWidth = 1600; // 최대 너비
-          const maxHeight = 2000; // 최대 높이
-          
-          if (canvas.width > maxWidth || canvas.height > maxHeight) {
-            const ratio = Math.min(maxWidth / canvas.width, maxHeight / canvas.height);
-            const newWidth = Math.floor(canvas.width * ratio);
-            const newHeight = Math.floor(canvas.height * ratio);
-            
-            const resizedCanvas = document.createElement('canvas');
-            resizedCanvas.width = newWidth;
-            resizedCanvas.height = newHeight;
-            const ctx = resizedCanvas.getContext('2d');
-            
-            // 고품질 리사이징
-            ctx.imageSmoothingEnabled = true;
-            ctx.imageSmoothingQuality = 'high';
-            ctx.drawImage(canvas, 0, 0, newWidth, newHeight);
-            
-            finalCanvas = resizedCanvas;
-          }
-          
           hideCaptureLoading();
-          const imageDataUrl = finalCanvas.toDataURL('image/png', 0.9);
+          const imageDataUrl = canvas.toDataURL('image/png', 0.8);
           resolve(imageDataUrl);
         }).catch(error => {
-          // 원래 스타일 복원
-          quoteContent.style.cssText = originalStyle;
-          
           hideCaptureLoading();
-          reject(error);
+          console.error('간단한 캡처 실패:', error);
+          
+          // 더 간단한 방법으로 재시도
+          try {
+            const simpleCanvas = document.createElement('canvas');
+            const ctx = simpleCanvas.getContext('2d');
+            simpleCanvas.width = quoteContent.offsetWidth;
+            simpleCanvas.height = quoteContent.offsetHeight;
+            
+            // 흰색 배경
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, simpleCanvas.width, simpleCanvas.height);
+            
+            // 텍스트만 그리기
+            ctx.fillStyle = '#000000';
+            ctx.font = '14px Arial';
+            ctx.fillText('견적서 이미지 생성에 실패했습니다.', 10, 30);
+            ctx.fillText('텍스트로 공유해주세요.', 10, 50);
+            
+            const fallbackImageDataUrl = simpleCanvas.toDataURL('image/png');
+            resolve(fallbackImageDataUrl);
+          } catch (fallbackError) {
+            reject(fallbackError);
+          }
         });
       });
     }
@@ -1736,12 +1674,9 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
       if (!imageContainer) return;
       
       if (selectedProductImage) {
-        imageContainer.innerHTML = `
-          <img src="${selectedProductImage}" alt="상품 이미지" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">
-          <div style="position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.7); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; cursor: pointer;" onclick="event.stopPropagation(); selectProductImage()">변경</div>
-        `;
+        imageContainer.innerHTML = `<img src="${selectedProductImage}" alt="상품 이미지" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">`;
       } else {
-        imageContainer.innerHTML = '<span id="productImageText">📷 클릭하여 이미지 선택</span>';
+        imageContainer.innerHTML = '<span id="productImageText">이미지를 선택하세요</span>';
       }
     }
 
@@ -1923,9 +1858,8 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
           <div style="display: flex; gap: 8px;">
             <div style="flex: 1.2;">
               <h4 style="margin: 0 0 4px 0; color: #2c3e50; font-size: 0.9rem; font-weight: 700;">상품 이미지</h4>
-              <div id="productImageContainer" style="width: 100%; height: 100px; background: #fff; border: 1px solid #dee2e6; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #6c757d; font-size: 0.8rem; overflow: hidden; cursor: pointer; box-sizing: border-box; position: relative;" onclick="selectProductImage()">
-                ${selectedProductImage ? `<img src="${selectedProductImage}" alt="상품 이미지" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">` : '<span id="productImageText">📷 클릭하여 이미지 선택</span>'}
-                ${selectedProductImage ? '<div style="position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.7); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; cursor: pointer;" onclick="event.stopPropagation(); selectProductImage()">변경</div>' : ''}
+              <div id="productImageContainer" style="width: 100%; height: 100px; background: #fff; border: 1px solid #dee2e6; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #6c757d; font-size: 0.8rem; overflow: hidden; cursor: pointer; box-sizing: border-box;" onclick="selectProductImage()">
+                <span id="productImageText">이미지를 선택하세요</span>
               </div>
             </div>
             <div style="flex: 0.8;">
