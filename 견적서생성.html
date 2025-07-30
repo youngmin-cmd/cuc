@@ -1359,11 +1359,21 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
     // 카카오톡 공유 (이미지 캡처 방식)
     function shareViaKakao() {
       try {
+        console.log('카카오톡 공유 시작');
+        
+        // 견적서가 생성되었는지 확인
+        if (!sharedQuoteData) {
+          alert('먼저 견적서를 생성해주세요.');
+          return;
+        }
+        
         // 견적서 데이터를 로컬 스토리지에 저장
         localStorage.setItem('sharedQuoteData', JSON.stringify(sharedQuoteData));
         
         // 견적서 이미지 캡처
         captureQuoteAsImage().then(imageDataUrl => {
+          console.log('이미지 캡처 성공, 공유 시작');
+          
           // 모바일에서 카카오톡 공유
           if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
             shareImageToKakao(imageDataUrl);
@@ -1373,6 +1383,7 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
           }
         }).catch(error => {
           console.error('이미지 캡처 실패:', error);
+          alert('이미지 캡처에 실패했습니다. 텍스트 공유를 시도합니다.');
           // 이미지 캡처 실패 시 기존 텍스트 공유 방식으로 폴백
           fallbackTextShare();
         });
@@ -1380,6 +1391,7 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
         closeShareModal();
       } catch (error) {
         console.error('카카오톡 공유 오류:', error);
+        alert('공유 중 오류가 발생했습니다. 텍스트 공유를 시도합니다.');
         fallbackTextShare();
       }
     }
@@ -1389,82 +1401,129 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
       return new Promise((resolve, reject) => {
         const quoteContent = document.getElementById('quoteContent');
         
+        // 견적서가 비어있는지 확인
+        if (!quoteContent || quoteContent.innerHTML.includes('견적서 정보를 입력하고')) {
+          reject(new Error('견적서가 생성되지 않았습니다.'));
+          return;
+        }
+        
         // 캡처 중 로딩 표시
         showCaptureLoading();
         
-        // 임시 캡처용 컨테이너 생성
-        const tempContainer = document.createElement('div');
-        tempContainer.style.cssText = `
-          position: fixed;
-          top: -9999px;
-          left: -9999px;
-          width: auto;
-          height: auto;
-          overflow: visible;
-          background: white;
-          z-index: -1;
-        `;
+        // 원본 요소의 스타일 백업
+        const originalStyles = {
+          overflow: quoteContent.style.overflow,
+          maxHeight: quoteContent.style.maxHeight,
+          height: quoteContent.style.height,
+          position: quoteContent.style.position,
+          top: quoteContent.style.top,
+          left: quoteContent.style.left,
+          zIndex: quoteContent.style.zIndex
+        };
         
-        // 견적서 내용을 임시 컨테이너에 복사
-        const clonedContent = quoteContent.cloneNode(true);
-        clonedContent.style.cssText = `
-          width: auto;
-          height: auto;
-          overflow: visible;
-          max-height: none;
-          position: relative;
-          top: 0;
-          left: 0;
-          margin: 0;
-          padding: 20px;
-          background: white;
-          box-shadow: none;
-          border: 1px solid #dee2e6;
-        `;
+        // 캡처를 위한 스타일 임시 변경
+        quoteContent.style.overflow = 'visible';
+        quoteContent.style.maxHeight = 'none';
+        quoteContent.style.height = 'auto';
+        quoteContent.style.position = 'relative';
+        quoteContent.style.top = '0';
+        quoteContent.style.left = '0';
+        quoteContent.style.zIndex = '9999';
         
-        tempContainer.appendChild(clonedContent);
-        document.body.appendChild(tempContainer);
-        
-        // 약간의 지연을 두어 DOM이 완전히 렌더링되도록 함
+        // 약간의 지연을 두어 스타일 변경이 적용되도록 함
         setTimeout(() => {
-          html2canvas(clonedContent, {
+          html2canvas(quoteContent, {
             scale: 2, // 고해상도
             useCORS: true,
             allowTaint: true,
             backgroundColor: '#ffffff',
-            width: clonedContent.scrollWidth,
-            height: clonedContent.scrollHeight,
+            width: quoteContent.scrollWidth,
+            height: quoteContent.scrollHeight,
             scrollX: 0,
             scrollY: 0,
-            windowWidth: clonedContent.scrollWidth,
-            windowHeight: clonedContent.scrollHeight,
+            windowWidth: quoteContent.scrollWidth,
+            windowHeight: quoteContent.scrollHeight,
             foreignObjectRendering: true,
             removeContainer: true,
-            logging: false
+            logging: true, // 디버깅을 위해 로깅 활성화
+            onclone: function(clonedDoc) {
+              // 클론된 문서에서도 스타일 적용
+              const clonedElement = clonedDoc.getElementById('quoteContent');
+              if (clonedElement) {
+                clonedElement.style.overflow = 'visible';
+                clonedElement.style.maxHeight = 'none';
+                clonedElement.style.height = 'auto';
+                clonedElement.style.position = 'relative';
+                clonedElement.style.top = '0';
+                clonedElement.style.left = '0';
+                clonedElement.style.zIndex = '9999';
+              }
+            }
           }).then(canvas => {
-            // 임시 컨테이너 제거
-            document.body.removeChild(tempContainer);
+            // 원래 스타일 복원
+            quoteContent.style.overflow = originalStyles.overflow;
+            quoteContent.style.maxHeight = originalStyles.maxHeight;
+            quoteContent.style.height = originalStyles.height;
+            quoteContent.style.position = originalStyles.position;
+            quoteContent.style.top = originalStyles.top;
+            quoteContent.style.left = originalStyles.left;
+            quoteContent.style.zIndex = originalStyles.zIndex;
             
             hideCaptureLoading();
+            
+            // 캔버스가 유효한지 확인
+            if (canvas.width === 0 || canvas.height === 0) {
+              reject(new Error('캔버스 크기가 0입니다.'));
+              return;
+            }
+            
             const imageDataUrl = canvas.toDataURL('image/png', 0.9);
+            console.log('이미지 캡처 성공:', imageDataUrl.substring(0, 100) + '...');
             resolve(imageDataUrl);
           }).catch(error => {
-            // 임시 컨테이너 제거
-            document.body.removeChild(tempContainer);
+            // 원래 스타일 복원
+            quoteContent.style.overflow = originalStyles.overflow;
+            quoteContent.style.maxHeight = originalStyles.maxHeight;
+            quoteContent.style.height = originalStyles.height;
+            quoteContent.style.position = originalStyles.position;
+            quoteContent.style.top = originalStyles.top;
+            quoteContent.style.left = originalStyles.left;
+            quoteContent.style.zIndex = originalStyles.zIndex;
             
             hideCaptureLoading();
+            console.error('이미지 캡처 실패:', error);
             reject(error);
           });
-        }, 200);
+        }, 300);
       });
     }
     
     // 모바일에서 카카오톡으로 이미지 공유
     function shareImageToKakao(imageDataUrl) {
+      console.log('이미지 공유 시작:', imageDataUrl.substring(0, 100) + '...');
+      
+      // 이미지 데이터 URL이 유효한지 확인
+      if (!imageDataUrl || imageDataUrl === 'data:,') {
+        console.error('유효하지 않은 이미지 데이터');
+        fallbackTextShare();
+        return;
+      }
+      
       // 이미지를 Blob으로 변환
       fetch(imageDataUrl)
-        .then(res => res.blob())
+        .then(res => {
+          if (!res.ok) {
+            throw new Error('이미지 fetch 실패');
+          }
+          return res.blob();
+        })
         .then(blob => {
+          console.log('Blob 생성 성공:', blob.size, 'bytes');
+          
+          if (blob.size === 0) {
+            throw new Error('빈 이미지 Blob');
+          }
+          
           const file = new File([blob], `견적서_${sharedQuoteData.number}.png`, { type: 'image/png' });
           
           // 개인화된 공유 메시지 생성
@@ -1472,15 +1531,18 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
           
           // Web Share API로 이미지 공유
           if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            console.log('Web Share API 사용');
             navigator.share({
               title: `${sharedQuoteData.customerName}님 견적서`,
               text: shareMessage,
               files: [file]
-            }).catch(() => {
+            }).catch((error) => {
+              console.error('Web Share API 실패:', error);
               // Web Share API 실패 시 카카오톡 앱으로 이동
               openKakaoAppWithImage(imageDataUrl);
             });
           } else {
+            console.log('Web Share API 미지원, 카카오톡 앱으로 이동');
             // Web Share API가 파일을 지원하지 않는 경우
             openKakaoAppWithImage(imageDataUrl);
           }
@@ -1516,12 +1578,31 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
     
     // 데스크톱에서 이미지 다운로드
     function downloadImageForSharing(imageDataUrl) {
-      const link = document.createElement('a');
-      link.download = `견적서_${sharedQuoteData.number}.png`;
-      link.href = imageDataUrl;
-      link.click();
+      console.log('이미지 다운로드 시작:', imageDataUrl.substring(0, 100) + '...');
       
-      alert('견적서 이미지가 다운로드되었습니다!\n\n카카오톡에서 이미지를 첨부하여 공유하세요.');
+      // 이미지 데이터 URL이 유효한지 확인
+      if (!imageDataUrl || imageDataUrl === 'data:,') {
+        console.error('유효하지 않은 이미지 데이터');
+        alert('이미지 생성에 실패했습니다. 텍스트 공유를 시도해주세요.');
+        fallbackTextShare();
+        return;
+      }
+      
+      try {
+        const link = document.createElement('a');
+        link.download = `견적서_${sharedQuoteData.number}.png`;
+        link.href = imageDataUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        console.log('이미지 다운로드 완료');
+        alert('견적서 이미지가 다운로드되었습니다!\n\n카카오톡에서 이미지를 첨부하여 공유하세요.');
+      } catch (error) {
+        console.error('이미지 다운로드 실패:', error);
+        alert('이미지 다운로드에 실패했습니다. 텍스트 공유를 시도해주세요.');
+        fallbackTextShare();
+      }
     }
     
     // 텍스트 공유 폴백
