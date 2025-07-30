@@ -1736,9 +1736,12 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
       if (!imageContainer) return;
       
       if (selectedProductImage) {
-        imageContainer.innerHTML = `<img src="${selectedProductImage}" alt="상품 이미지" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">`;
+        imageContainer.innerHTML = `
+          <img src="${selectedProductImage}" alt="상품 이미지" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">
+          <div style="position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.7); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; cursor: pointer;" onclick="event.stopPropagation(); selectProductImage()">변경</div>
+        `;
       } else {
-        imageContainer.innerHTML = '<span id="productImageText">이미지를 선택하세요</span>';
+        imageContainer.innerHTML = '<span id="productImageText">📷 클릭하여 이미지 선택</span>';
       }
     }
 
@@ -1920,8 +1923,9 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
           <div style="display: flex; gap: 8px;">
             <div style="flex: 1.2;">
               <h4 style="margin: 0 0 4px 0; color: #2c3e50; font-size: 0.9rem; font-weight: 700;">상품 이미지</h4>
-              <div id="productImageContainer" style="width: 100%; height: 100px; background: #fff; border: 1px solid #dee2e6; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #6c757d; font-size: 0.8rem; overflow: hidden; cursor: pointer; box-sizing: border-box;" onclick="selectProductImage()">
-                <span id="productImageText">이미지를 선택하세요</span>
+              <div id="productImageContainer" style="width: 100%; height: 100px; background: #fff; border: 1px solid #dee2e6; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #6c757d; font-size: 0.8rem; overflow: hidden; cursor: pointer; box-sizing: border-box; position: relative;" onclick="selectProductImage()">
+                ${selectedProductImage ? `<img src="${selectedProductImage}" alt="상품 이미지" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">` : '<span id="productImageText">📷 클릭하여 이미지 선택</span>'}
+                ${selectedProductImage ? '<div style="position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.7); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; cursor: pointer;" onclick="event.stopPropagation(); selectProductImage()">변경</div>' : ''}
               </div>
             </div>
             <div style="flex: 0.8;">
