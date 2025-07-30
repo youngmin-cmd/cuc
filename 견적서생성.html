@@ -1027,8 +1027,8 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
         </div>
       </div>
       <div class="form-group">
-        <label for="specialNotes">특이사항</label>
-        <textarea id="specialNotes" placeholder="특이사항이나 추가 요청사항을 입력하세요"></textarea>
+               <label for="specialNotes">제품설명 및 혜택</label>
+       <textarea id="specialNotes" placeholder="제품설명 및 혜택을 입력하세요"></textarea>
       </div>
       
       <h3 style="margin-top: 24px; margin-bottom: 18px; color: #1976d2; font-size: 1.1rem; font-weight: 700;">🏢 판매인 정보</h3>
@@ -1801,7 +1801,7 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
       const quoteContent = `
         <div style="border: 2px solid #1976d2; border-radius: 8px; padding: 12px; background: #ffffff; box-shadow: 0 4px 12px rgba(25, 118, 210, 0.1);">
           <div style="text-align: center; margin-bottom: 8px;">
-            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjQwIiB2aWV3Qm94PSIwIDAgMTIwIDQwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjZmZmIi8+Cjx0ZXh0IHg9IjYwIiB5PSIyNSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzE5NzZkMiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkNVQ0tPTzwvdGV4dD4KPC9zdmc+" alt="CUCKOO" style="height: 40px; width: auto;">
+            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjQwIiB2aWV3Qm94PSIwIDAgMTIwIDQwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjZmZmIi8+Cjx0ZXh0IHg9IjYwIiB5PSIyNSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzE5NzZkMiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkNVQ0tPTzwvdGV4dD4KPC9zdmc+" alt="CUCKOO" style="height: 80px; width: auto;">
           </div>
         
         <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
@@ -1820,7 +1820,9 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
         </div>
 
         <div style="margin-bottom: 8px;">
-          <p style="margin: 2px 0; font-size: 0.8rem; color: #495057;"><strong>고객명:</strong> ${customerName} 님</p>
+          <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 8px; margin: 4px 0;">
+            <p style="margin: 2px 0; font-size: 0.8rem; color: #495057;"><strong>고객명:</strong> ${customerName} 님</p>
+          </div>
         </div>
 
         <div style="margin-bottom: 16px;">
@@ -1855,20 +1857,20 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
         </div>
 
         <div style="margin-top: 8px; padding: 8px; background: #f8f9fa; border: 2px solid #e1e8ed; border-radius: 8px;">
-          <div style="display: flex; gap: 8px;">
-            <div style="flex: 1.2;">
-              <h4 style="margin: 0 0 4px 0; color: #2c3e50; font-size: 0.9rem; font-weight: 700;">상품 이미지</h4>
-              <div id="productImageContainer" style="width: 100%; height: 100px; background: #fff; border: 1px solid #dee2e6; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #6c757d; font-size: 0.8rem; overflow: hidden; cursor: pointer; box-sizing: border-box;" onclick="selectProductImage()">
-                <span id="productImageText">이미지를 선택하세요</span>
-              </div>
-            </div>
-            <div style="flex: 0.8;">
-              <h4 style="margin: 0 0 4px 0; color: #2c3e50; font-size: 0.9rem; font-weight: 700;">특이사항</h4>
-              <div style="width: 100%; height: 100px; background: #fff; border: 1px solid #dee2e6; border-radius: 6px; padding: 6px; color: #495057; font-size: 0.75rem; line-height: 1.2; overflow-y: auto; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
-                <span style="font-size: 0.7rem; color: #6c757d;">${specialNotes || '특이사항이 없습니다.'}</span>
-              </div>
-            </div>
-          </div>
+                     <div style="display: flex; gap: 8px;">
+             <div style="flex: 1;">
+               <h4 style="margin: 0 0 4px 0; color: #2c3e50; font-size: 0.9rem; font-weight: 700;">상품 이미지</h4>
+               <div id="productImageContainer" style="width: 100%; height: 100px; background: #fff; border: 1px solid #dee2e6; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #6c757d; font-size: 0.8rem; overflow: hidden; cursor: pointer; box-sizing: border-box;" onclick="selectProductImage()">
+                 <span id="productImageText">이미지를 선택하세요</span>
+               </div>
+             </div>
+             <div style="flex: 1;">
+               <h4 style="margin: 0 0 4px 0; color: #2c3e50; font-size: 0.9rem; font-weight: 700;">제품설명 및 혜택</h4>
+               <div style="width: 100%; height: 100px; background: #fff; border: 1px solid #dee2e6; border-radius: 6px; padding: 6px; color: #495057; font-size: 0.75rem; line-height: 1.2; overflow-y: auto; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
+                 <span style="font-size: 0.7rem; color: #6c757d;">${specialNotes || '제품설명 및 혜택이 없습니다.'}</span>
+               </div>
+             </div>
+           </div>
         </div>
 
 

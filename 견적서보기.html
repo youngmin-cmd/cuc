@@ -389,7 +389,7 @@
       quoteContent.innerHTML = `
         <div style="border: 2px solid #1976d2; border-radius: 8px; padding: 16px; background: #ffffff; box-shadow: 0 4px 12px rgba(25, 118, 210, 0.1);">
           <div style="text-align: center; margin-bottom: 12px;">
-            <h2 style="color: #1976d2; font-size: 1.8rem; font-weight: 800; margin: 0 0 8px 0; letter-spacing: 2px;">CUCKOO</h2>
+            <h2 style="color: #1976d2; font-size: 3.6rem; font-weight: 800; margin: 0 0 8px 0; letter-spacing: 2px;">CUCKOO</h2>
             <hr style="border: none; height: 2px; background: #1976d2; margin: 0;">
           </div>
         
@@ -409,7 +409,9 @@
         </div>
 
         <div style="margin-bottom: 12px;">
-          <p style="margin: 3px 0; font-size: 0.85rem; color: #495057;"><strong>고객명:</strong> ${data.customerName} 님</p>
+          <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 10px; margin: 4px 0;">
+            <p style="margin: 3px 0; font-size: 0.85rem; color: #495057;"><strong>고객명:</strong> ${data.customerName} 님</p>
+          </div>
         </div>
 
         <div style="margin-bottom: 20px;">
@@ -445,7 +447,7 @@
         <div class="product-image-section">
           <div class="image-container">
             ${data.productImage ? `
-            <div class="image-box">
+            <div class="image-box" style="flex: 1;">
               <h5>상품 이미지</h5>
               <div class="image-display">
                 <img src="${data.productImage}" alt="상품 이미지">
@@ -453,8 +455,8 @@
             </div>
             ` : ''}
             ${data.specialNotes ? `
-            <div class="notes-box">
-              <h5>특이사항</h5>
+            <div class="notes-box" style="flex: 1;">
+              <h5>제품설명 및 혜택</h5>
               <div class="notes-display">
                 ${data.specialNotes}
               </div>
