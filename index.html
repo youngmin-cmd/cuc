@@ -1429,6 +1429,39 @@ button:active {
 
       <div class="product-info" id="매트리스" style="display: none;">
         <h4>🛏️ 매트리스</h4>
+        
+        <!-- 매트리스 보기 & 프레임 보기 드롭다운 -->
+        <div style="margin-bottom: 20px; text-align: center;">
+          <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+            <!-- 매트리스 보기 드롭다운 -->
+            <div style="flex: 1; min-width: 250px; max-width: 300px;">
+              <label for="mattressModelView" style="display: block; margin-bottom: 8px; font-weight: bold; color: #007bff;">매트리스 보기</label>
+              <select id="mattressModelView" onchange="showMattressModelView()" style="width: 100%; padding: 10px; border: 2px solid #007bff; border-radius: 6px; background-color: white; font-size: 14px; cursor: pointer;">
+                <option value="">매트리스를 선택하여 정보를 확인하세요</option>
+                <option value="A10">A10 시리즈 매트리스</option>
+                <option value="B10">B10 시리즈 매트리스</option>
+                <option value="B01">B01 시리즈 매트리스</option>
+                <option value="C01">C01 시리즈 매트리스</option>
+                <option value="D01">D01 시리즈 매트리스</option>
+              </select>
+            </div>
+            
+            <!-- 프레임 보기 드롭다운 -->
+            <div style="flex: 1; min-width: 250px; max-width: 300px;">
+              <label for="frameModelView" style="display: block; margin-bottom: 8px; font-weight: bold; color: #28a745;">프레임 보기</label>
+              <select id="frameModelView" onchange="showFrameModelView()" style="width: 100%; padding: 10px; border: 2px solid #28a745; border-radius: 6px; background-color: white; font-size: 14px; cursor: pointer;">
+                <option value="">프레임을 선택하여 정보를 확인하세요</option>
+                <option value="A10">A10 시리즈 프레임</option>
+                <option value="A01">A01 시리즈 프레임 (패브릭)</option>
+                <option value="B10">B10 시리즈 프레임</option>
+                <option value="B01">B01 시리즈 프레임 (패브릭)</option>
+                <option value="C01">C01 시리즈 프레임</option>
+                <option value="D01">D01 시리즈 프레임</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        
         <div class="info-grid">
           <div class="info-item">
             <strong>매트리스 타입 선택:</strong>
@@ -3915,48 +3948,6 @@ button:active {
         if (selectedModel === 'CPABS') {
           priceHTML += `
             <div style="margin-top: 8px; font-size: 0.8rem; color: #666;">
-<img src="https://ai.esmplus.com/cuckoohs1/cuckoo/rental/spec/CP-ABS100GWH/01.jpg" alt="ABS 제품 이미지" style="width: 100%; max-width: 400px; display: block; margin: 0 auto 16px auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
-            </div>
-
-              <strong>🌟 ABS 특장점:</strong><br>
-              <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px;">
-                <span style="background: #e8f5e8; padding: 4px 8px; border-radius: 4px; border: 1px solid #c8e6c9;">냉수 기능</span>
-                <span style="background: #e3f2fd; padding: 4px 8px; border-radius: 4px; border: 1px solid #bbdefb;">온수 기능</span>
-                <span style="background: #fff3e0; padding: 4px 8px; border-radius: 4px; border: 1px solid #ffcc80;">일반형</span>
-                <span style="background: #f3e5f5; padding: 4px 8px; border-radius: 4px; border: 1px solid #e1bee7;">실용적 디자인</span>
-                <span style="background: #e0f2f1; padding: 4px 8px; border-radius: 4px; border: 1px solid #b2dfdb;">간편 조작</span>
-                <span style="background: #fce4ec; padding: 4px 8px; border-radius: 4px; border: 1px solid #f8bbd9;">경제성</span>
-             </div>
-            </div>
-          </div>
-          `;
-        }
-        
-        // TS 특장점 표시
-        if (selectedModel === 'TS') {
-          priceHTML += `
-             <div style="margin-top: 8px; font-size: 0.8rem; color: #666;">
-<img src="https://gi.esmplus.com/cuckoohs/spec/CP-TS100WS/01.jpg" alt="TS 제품 이미지" style="width: 100%; max-width: 400px; display: block; margin: 0 auto 16px auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
-            </div>
-
-              <strong>🌟 TS 특장점:</strong><br>
-              <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px;">
-                <span style="background: #e8f5e8; padding: 4px 8px; border-radius: 4px; border: 1px solid #c8e6c9;">냉수 기능</span>
-                <span style="background: #e3f2fd; padding: 4px 8px; border-radius: 4px; border: 1px solid #bbdefb;">온수 기능</span>
-                <span style="background: #fff3e0; padding: 4px 8px; border-radius: 4px; border: 1px solid #ffcc80;">TS 시리즈</span>
-                <span style="background: #f3e5f5; padding: 4px 8px; border-radius: 4px; border: 1px solid #e1bee7;">컴팩트 디자인</span>
-                <span style="background: #e0f2f1; padding: 4px 8px; border-radius: 4px; border: 1px solid #b2dfdb;">효율적 사용</span>
-                <span style="background: #fce4ec; padding: 4px 8px; border-radius: 4px; border: 1px solid #f8bbd9;">합리적 가격</span>
-              </div>
-             </div>
-           </div>
-         `;
-        }
-        
-        // AAS 특장점 표시
-        if (selectedModel === 'AAS') {
-          priceHTML += `
-            <div style="margin-top: 8px; font-size: 0.8rem; color: #666;">
 <img src="https://gi.esmplus.com/cuckoohs/spec/CP-AAS100ULW_PC/01_ULW.jpg" alt="AAS 제품 이미지" style="width: 100%; max-width: 400px; display: block; margin: 0 auto 16px auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
             </div>
 
@@ -4958,7 +4949,7 @@ button:active {
                 </table>
               </div>
               <div style="margin-top: 8px; font-size: 0.8rem; color: #666;">
-<img src="https://ai.esmplus.com/cuckoohs1/cuckoo/rental/spec/CPPU-C1710S.jpg"POU 제품 이미지" style="width: 100%; max-width: 400px; display: block; margin: 0 auto 16px auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+<img src="https://ai.esmplus.com/cuckoohs1/cuckoo/rental/spec/CPPU-C1710S.jpg" alt="POU 제품 이미지" style="width: 100%; max-width: 400px; display: block; margin: 0 auto 16px auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
             </div>
 
                 <strong>📝 참고사항:</strong><br>
@@ -5093,6 +5084,11 @@ button:active {
                 </div>
               </div>
             </div>
+            <div style="margin-top: 16px; text-align: center;">
+              <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_dd37f32f-bee7-4871-9612-ec5262c3f663.jpg" 
+                   alt="G1031W 비데" 
+                   style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            </div>
           `;
         } else if (selectedModel === 'G3031W') {
           priceDetails.innerHTML = `
@@ -5129,6 +5125,11 @@ button:active {
                   재렌탈: 10,900원
                 </div>
               </div>
+            </div>
+             <div style="margin-top: 16px; text-align: center;">
+              <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/content/CBT-G3031W_01.jpg" 
+                   alt="G3031W 비데" 
+                   style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
             </div>
           `;
         } else if (selectedModel === 'L1031W') {
@@ -5179,6 +5180,11 @@ button:active {
                 </div>
               </div>
             </div>
+             <div style="margin-top: 16px; text-align: center;">
+              <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_1c893a04-0353-4e83-b63a-f6a306f0ca55.jpg" 
+                   alt="L1031W 비데" 
+                   style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            </div>
           `;
         } else if (selectedModel === 'L1031W필터6개월') {
           priceDetails.innerHTML = `
@@ -5228,6 +5234,11 @@ button:active {
                 </div>
               </div>
             </div>
+             <div style="margin-top: 16px; text-align: center;">
+              <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_1c893a04-0353-4e83-b63a-f6a306f0ca55.jpg" 
+                   alt="L1031W 비데" 
+                   style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            </div>
           `;
         } else if (selectedModel === 'L1031W필터4개월재렌탈') {
           priceDetails.innerHTML = `
@@ -5257,6 +5268,11 @@ button:active {
                 </div>
               </div>
             </div>
+             <div style="margin-top: 16px; text-align: center;">
+              <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_1c893a04-0353-4e83-b63a-f6a306f0ca55.jpg" 
+                   alt="L1031W 비데" 
+                   style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            </div>
           `;
         } else if (selectedModel === 'L1031W필터6개월재렌탈') {
           priceDetails.innerHTML = `
@@ -5285,6 +5301,11 @@ button:active {
                   재렌탈: 8,900원
                 </div>
               </div>
+            </div>
+             <div style="margin-top: 16px; text-align: center;">
+              <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_1c893a04-0353-4e83-b63a-f6a306f0ca55.jpg" 
+                   alt="L1031W 비데" 
+                   style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
             </div>
           `;
         } else if (selectedModel === 'IS1031W필터6개월') {
@@ -5335,6 +5356,11 @@ button:active {
                 </div>
               </div>
             </div>
+             <div style="margin-top: 16px; text-align: center;">
+              <img src="https://ai.esmplus.com/cuckoohs1/cuckoo/rental/spec/CBT-IS1031W.jpg" 
+                   alt="L1031W 비데" 
+                   style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            </div>
           `;
         } else if (selectedModel === 'CBTQSB1041W필터4개월') {
           priceDetails.innerHTML = `
@@ -5383,6 +5409,10 @@ button:active {
                   재렌탈: 16,900원
                 </div>
               </div>
+            </div>
+             <div style="margin-top: 16px; text-align: center;">
+              <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_4f2a3e04-a5ec-4a3b-8c28-ef911c523412.jpg" 
+                   style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
             </div>
           `;
         } else if (selectedModel === 'QS1041RW필터4개월') {
@@ -5433,6 +5463,10 @@ button:active {
                 </div>
               </div>
             </div>
+             <div style="margin-top: 16px; text-align: center;">
+              <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_5a9f6ae2-201a-4002-a837-599527ea600a.jpg" 
+                   style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            </div>
           `;
         } else if (selectedModel === 'PFF31RW필터6개월') {
           priceDetails.innerHTML = `
@@ -5482,6 +5516,10 @@ button:active {
                 </div>
               </div>
             </div>
+             <div style="margin-top: 16px; text-align: center;">
+              <img src="https://ai.esmplus.com/cuckoohs1/cuckoo/rental/spec/CBT-PFF31RW.jpg" 
+                   style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            </div>
           `;
         } else if (selectedModel === 'CBTKFFS31RW필터6개월') {
           priceDetails.innerHTML = `
@@ -5530,6 +5568,10 @@ button:active {
                   재렌탈: 12,900원
                 </div>
               </div>
+            </div>
+             <div style="margin-top: 16px; text-align: center;">
+              <img src="https://gi.esmplus.com/cuckoohs/spec/CBT-KFFS31RW.jpg" 
+                   style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
             </div>
           `;
         } else if (selectedModel === 'KFFS31RW프로모션') {
@@ -5770,7 +5812,366 @@ button:active {
       }
     }
 
-    function showMattressPrice() {
+    function showMattressModelView() {
+      const modelViewSelect = document.getElementById('mattressModelView');
+      const selectedSeries = modelViewSelect.value;
+      
+      if (!selectedSeries) {
+        return;
+      }
+      
+      // 모델 정보를 표시할 모달 또는 알림창 생성
+      const modelInfo = {
+                 'A10': {
+           name: 'A10 시리즈',
+           description: '쿠쿠 매트리스 A10 시리즈는 프리미엄 매트리스 라인입니다.',
+           models: ['A10 SS', 'A10 Q', 'A10 K', 'A10 LK'],
+           features: ['고급 소재 사용', '편안한 수면 환경', '다양한 사이즈 지원'],
+           image: 'https://gi.esmplus.com/cuckoohs/spec/CRM-A10K.jpg'
+         },
+        'B10': {
+          name: 'B10 시리즈',
+          description: '쿠쿠 매트리스 B10 시리즈는 중급 매트리스 라인입니다.',
+          models: ['B10 SS', 'B10 Q', 'B10 K', 'B10 LK'],
+          features: ['균형잡힌 경도', '합리적인 가격', '실용적인 디자인'],
+          image: 'https://gi.esmplus.com/cuckoohs/spec/CRM-B10LK.jpg'
+        },
+        'B01': {
+          name: 'B01 시리즈',
+          description: '쿠쿠 매트리스 B01 시리즈는 패브릭 소재를 사용한 매트리스입니다.',
+          models: ['B01 SS', 'B01 Q', 'B01 K', 'B01 LK'],
+          features: ['패브릭 소재', '부드러운 촉감', '세련된 디자인'],
+          image: 'https://gi.esmplus.com/cuckoohs/spec/CRM-B01HEMQ/01.jpg'
+        },
+        'C01': {
+          name: 'C01 시리즈',
+          description: '쿠쿠 매트리스 C01 시리즈는 기본 매트리스 라인입니다.',
+          models: ['C01 SS', 'C01 Q', 'C01 K', 'C01 LK'],
+          features: ['경제적인 가격', '기본적인 기능', '안정적인 품질'],
+          image: 'https://gi.esmplus.com/cuckoohs/spec/CRM-C01SEMK/01.jpg'
+        },
+        'D01': {
+          name: 'D01 시리즈',
+          description: '쿠쿠 매트리스 D01 시리즈는 고급 매트리스 라인입니다.',
+          models: ['D01 SS', 'D01 Q', 'D01 K', 'D01 LK'],
+          features: ['최고급 소재', '프리미엄 기능', '럭셔리한 디자인'],
+          image: 'https://gi.esmplus.com/cuckoohs/spec/CRM-D01HEMK/01.jpg'
+        }
+      };
+      
+      const series = modelInfo[selectedSeries];
+      if (series) {
+        // 모달 창 생성
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.5);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+        `;
+        
+        modal.innerHTML = `
+          <div style="
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+          ">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+              <h3 style="margin: 0; color: #007bff; font-size: 1.5rem;">${series.name}</h3>
+              <button onclick="this.closest('.modal').remove()" style="
+                background: none;
+                border: none;
+                font-size: 24px;
+                cursor: pointer;
+                color: #666;
+                padding: 0;
+                width: 30px;
+                height: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              ">&times;</button>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+              <p style="margin: 0 0 15px 0; font-size: 1rem; line-height: 1.6; color: #333;">
+                ${series.description}
+              </p>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+              <h4 style="margin: 0 0 10px 0; color: #007bff;">📋 모델 구성</h4>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px;">
+                ${series.models.map(model => `
+                  <div style="
+                    background: #f8f9fa;
+                    padding: 10px;
+                    border-radius: 6px;
+                    text-align: center;
+                    border: 1px solid #e9ecef;
+                  ">
+                    <strong style="color: #495057;">${model}</strong>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+              <h4 style="margin: 0 0 10px 0; color: #007bff;">✨ 주요 특징</h4>
+              <ul style="margin: 0; padding-left: 20px;">
+                ${series.features.map(feature => `
+                  <li style="margin-bottom: 5px; color: #495057;">${feature}</li>
+                `).join('')}
+              </ul>
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px;">
+              <div style="
+                background: #e8f4fd;
+                padding: 20px;
+                border-radius: 8px;
+                border: 2px dashed #007bff;
+              ">
+                <p style="margin: 0 0 15px 0; color: #007bff; font-weight: bold;">
+                  🖼️ ${series.name} 이미지
+                </p>
+                <img src="${series.image}" alt="${series.name}" style="
+                  max-width: 100%;
+                  height: auto;
+                  border-radius: 8px;
+                  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                  margin-bottom: 10px;
+                " onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <p style="margin: 5px 0 0 0; font-size: 0.9rem; color: #666; display: none;">
+                  (이미지를 불러올 수 없습니다: ${series.image})
+                </p>
+              </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px;">
+              <button onclick="this.closest('.modal').remove()" style="
+                background: #007bff;
+                color: white;
+                border: none;
+                padding: 12px 24px;
+                border-radius: 6px;
+                font-size: 1rem;
+                cursor: pointer;
+                transition: background-color 0.2s;
+              " onmouseover="this.style.backgroundColor='#0056b3'" onmouseout="this.style.backgroundColor='#007bff'">
+                닫기
+              </button>
+            </div>
+          </div>
+        `;
+        
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+        
+        // 모달 외부 클릭 시 닫기
+        modal.addEventListener('click', function(e) {
+          if (e.target === modal) {
+            modal.remove();
+          }
+        });
+             }
+     }
+
+     function showFrameModelView() {
+       const frameViewSelect = document.getElementById('frameModelView');
+       const selectedSeries = frameViewSelect.value;
+       
+       if (!selectedSeries) {
+         return;
+       }
+       
+       // 프레임 정보를 표시할 모달 생성
+       const frameInfo = {
+         'A10': {
+           name: 'A10 시리즈 프레임',
+           description: '쿠쿠 프레임 A10 시리즈는 프리미엄 프레임 라인입니다.',
+           models: ['A10 SS', 'A10 Q/K', 'A10 LK'],
+           features: ['고급 소재 사용', '안정적인 지지력', '다양한 사이즈 지원'],
+           image: 'https://gi.esmplus.com/cuckoohs/spec/CRF-A10GLK.jpg'
+         },
+         'A01': {
+           name: 'A01 시리즈 프레임 (패브릭)',
+           description: '쿠쿠 프레임 A01 시리즈는 패브릭 소재를 사용한 프레임입니다.',
+           models: ['A01 SS / 패브릭', 'A01 Q/K / 패브릭', 'A01 LK / 패브릭'],
+           features: ['패브릭 소재', '부드러운 촉감', '세련된 디자인'],
+           image: 'https://gi.esmplus.com/cuckoohs/spec/CRF-A01FLBGQK/01.jpg'
+         },
+         'B10': {
+           name: 'B10 시리즈 프레임',
+           description: '쿠쿠 프레임 B10 시리즈는 중급 프레임 라인입니다.',
+           models: ['B10 SS', 'B10 Q/K', 'B10 LK'],
+           features: ['균형잡힌 강도', '합리적인 가격', '실용적인 디자인'],
+           image: 'https://gi.esmplus.com/cuckoohs/spec/CRF-B10IQK.jpg'
+         },
+         'B01': {
+           name: 'B01 시리즈 프레임 (패브릭)',
+           description: '쿠쿠 프레임 B01 시리즈는 패브릭 소재를 사용한 프레임입니다.',
+           models: ['B01 SS / 패브릭', 'B01 Q/K / 패브릭', 'B01 LK / 패브릭'],
+           features: ['패브릭 소재', '부드러운 촉감', '세련된 디자인'],
+           image: 'https://gi.esmplus.com/cuckoohs/spec/CRF-B01FLBBQK/01.jpg'
+         },
+         'C01': {
+           name: 'C01 시리즈 프레임',
+           description: '쿠쿠 프레임 C01 시리즈는 기본 프레임 라인입니다.',
+           models: ['C01 SS', 'C01 Q/K', 'C01 LK'],
+           features: ['경제적인 가격', '기본적인 기능', '안정적인 품질'],
+           image: 'https://gi.esmplus.com/cuckoohs/spec/CRF-C01TMPBK/01.jpg'
+         },
+         'D01': {
+           name: 'D01 시리즈 프레임',
+           description: '쿠쿠 프레임 D01 시리즈는 고급 프레임 라인입니다.',
+           models: ['D01 SS', 'D01 Q/K', 'D01 LK'],
+           features: ['최고급 소재', '프리미엄 기능', '럭셔리한 디자인'],
+           image: 'D01_frame_series_image.jpg'
+         }
+       };
+       
+       const series = frameInfo[selectedSeries];
+       if (series) {
+         // 모달 창 생성
+         const modal = document.createElement('div');
+         modal.style.cssText = `
+           position: fixed;
+           top: 0;
+           left: 0;
+           width: 100%;
+           height: 100%;
+           background-color: rgba(0, 0, 0, 0.5);
+           display: flex;
+           justify-content: center;
+           align-items: center;
+           z-index: 1000;
+         `;
+         
+         modal.innerHTML = `
+           <div style="
+             background: white;
+             padding: 30px;
+             border-radius: 12px;
+             max-width: 600px;
+             width: 90%;
+             max-height: 80vh;
+             overflow-y: auto;
+             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+           ">
+             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+               <h3 style="margin: 0; color: #28a745; font-size: 1.5rem;">${series.name}</h3>
+               <button onclick="this.closest('.modal').remove()" style="
+                 background: none;
+                 border: none;
+                 font-size: 24px;
+                 cursor: pointer;
+                 color: #666;
+                 padding: 0;
+                 width: 30px;
+                 height: 30px;
+                 display: flex;
+                 align-items: center;
+                 justify-content: center;
+               ">&times;</button>
+             </div>
+             
+             <div style="margin-bottom: 20px;">
+               <p style="margin: 0 0 15px 0; font-size: 1rem; line-height: 1.6; color: #333;">
+                 ${series.description}
+               </p>
+             </div>
+             
+             <div style="margin-bottom: 20px;">
+               <h4 style="margin: 0 0 10px 0; color: #28a745;">📋 프레임 구성</h4>
+               <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                 ${series.models.map(model => `
+                   <div style="
+                     background: #f8f9fa;
+                     padding: 10px;
+                     border-radius: 6px;
+                     text-align: center;
+                     border: 1px solid #e9ecef;
+                   ">
+                     <strong style="color: #495057;">${model}</strong>
+                   </div>
+                 `).join('')}
+               </div>
+             </div>
+             
+             <div style="margin-bottom: 20px;">
+               <h4 style="margin: 0 0 10px 0; color: #28a745;">✨ 주요 특징</h4>
+               <ul style="margin: 0; padding-left: 20px;">
+                 ${series.features.map(feature => `
+                   <li style="margin-bottom: 5px; color: #495057;">${feature}</li>
+                 `).join('')}
+               </ul>
+             </div>
+             
+             <div style="text-align: center; margin-top: 20px;">
+               <div style="
+                 background: #e8f5e8;
+                 padding: 20px;
+                 border-radius: 8px;
+                 border: 2px dashed #28a745;
+               ">
+                 <p style="margin: 0 0 15px 0; color: #28a745; font-weight: bold;">
+                   🖼️ ${series.name} 이미지
+                 </p>
+                 <img src="${series.image}" alt="${series.name}" style="
+                   max-width: 100%;
+                   height: auto;
+                   border-radius: 8px;
+                   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                   margin-bottom: 10px;
+                 " onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                 <p style="margin: 5px 0 0 0; font-size: 0.9rem; color: #666; display: none;">
+                   (이미지를 불러올 수 없습니다: ${series.image})
+                 </p>
+               </div>
+             </div>
+             
+             <div style="text-align: center; margin-top: 20px;">
+               <button onclick="this.closest('.modal').remove()" style="
+                 background: #28a745;
+                 color: white;
+                 border: none;
+                 padding: 12px 24px;
+                 border-radius: 6px;
+                 font-size: 1rem;
+                 cursor: pointer;
+                 transition: background-color 0.2s;
+               " onmouseover="this.style.backgroundColor='#218838'" onmouseout="this.style.backgroundColor='#28a745'">
+                 닫기
+               </button>
+             </div>
+           </div>
+         `;
+         
+         modal.className = 'modal';
+         document.body.appendChild(modal);
+         
+         // 모달 외부 클릭 시 닫기
+         modal.addEventListener('click', function(e) {
+           if (e.target === modal) {
+             modal.remove();
+           }
+         });
+       }
+     }
+
+     function showMattressPrice() {
       const modelSelect = document.getElementById('mattressModel');
       const priceInfo = document.getElementById('mattressPriceInfo');
       const priceDetails = document.getElementById('mattressPriceDetails');
@@ -5903,7 +6304,10 @@ button:active {
                 패키지: ${model['72']['패키지'].toLocaleString()}원<br>
                 재렌탈: ${model['72']['재렌탈'].toLocaleString()}원
               </div>
-             </div>
+            </div>
+            <div style="margin-top: 16px; text-align: center;">
+              <img src="이미지URL" alt="${model.name} 매트리스" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            </div>
            </div>
          `;
         priceInfo.style.display = 'block';
@@ -6484,6 +6888,12 @@ button:active {
               </div>
             </div>
           </div>
+           <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_bcd44512-70e5-4685-8f7b-d25f798a5fe0.jpg" 
+                    alt="팻드라이룸" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+ 
         `;
       }
     }
@@ -6540,6 +6950,11 @@ button:active {
                 </div>
               </div>
             </div>
+            <div style="margin-top: 16px; text-align: center;">
+              <img src="https://ai.esmplus.com/cuckoohs1/cuckoo/rental/spec/AC-12R10FNW.jpg" 
+                   alt="브릭 12R 공기청정기" 
+                   style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            </div>
           </div>
         `;
       } else if (selectedModel === '브릭14R') {
@@ -6579,7 +6994,6 @@ button:active {
                     패키지: 15,900원<br>
                     재렌탈: 13,900원
                   </div>
-<img src="http://resource.cuckoo.co.kr/_GlobalResourceUpload/3490/thumbnail/25656/20d3bc947d0e4583965b20524c7110ca.jpg"12R 제품 이미지" style="width: 100%; max-width: 400px; display: block; margin: 0 auto 16px auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
             </div>
             </div>
 
@@ -6587,6 +7001,11 @@ button:active {
               </div>
             </div>
           </div>
+          <div style="margin-top: 16px; text-align: center;">
+              <img src="https://ai.esmplus.com/cuckoohs1/cuckoo/rental/spec/AC-14R10FNW.jpg" 
+                   alt="브릭 14R 공기청정기" 
+                   style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            </div>
         `;
       } else if (selectedModel === '17T') {
         priceDetails.innerHTML = `
@@ -6629,6 +7048,11 @@ button:active {
               </div>
             </div>
           </div>
+          <div style="margin-top: 16px; text-align: center;">
+              <img src="https://ai.esmplus.com/cuckoohs1/cuckoo/rental/spec/AC-17T10FWH.jpg" 
+                   alt="17T 공기청정기" 
+                   style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            </div>
         `;
       } else if (selectedModel === '20T') {
         priceDetails.innerHTML = `
@@ -6671,6 +7095,11 @@ button:active {
               </div>
             </div>
           </div>
+          <div style="margin-top: 16px; text-align: center;">
+              <img src="https://ai.esmplus.com/cuckoohs1/cuckoo/rental/spec/AC-20T10FWH.jpg" 
+                   alt="20T 공기청정기" 
+                   style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            </div>
         `;
       } else if (selectedModel === '25W') {
         priceDetails.innerHTML = `
@@ -6713,6 +7142,11 @@ button:active {
               </div>
             </div>
           </div>
+          <div style="margin-top: 16px; text-align: center;">
+              <img src="https://ai.esmplus.com/cuckoohs1/cuckoo/rental/spec/AC-25W10FWS.jpg" 
+                   alt="25W 공기청정기" 
+                   style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            </div>
         `;
       } else if (selectedModel === '28W') {
         priceDetails.innerHTML = `
@@ -6755,6 +7189,11 @@ button:active {
               </div>
             </div>
           </div>
+          <div style="margin-top: 16px; text-align: center;">
+              <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_cf559417-7c78-4fa5-8ac2-572578d5573f.jpg" 
+                   alt="28W 공기청정기" 
+                   style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            </div>
         `;
       } else if (selectedModel === '35U') {
         priceDetails.innerHTML = `
@@ -6797,6 +7236,11 @@ button:active {
               </div>
             </div>
           </div>
+          <div style="margin-top: 16px; text-align: center;">
+              <img src="https://ai.esmplus.com/cuckoohs1/cuckoo/rental/spec/AC-35U10FWS/AC-35U10FWS_1.jpg" 
+                   alt="35U 공기청정기" 
+                   style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            </div>
         `;
       } else if (selectedModel === 'AA10') {
         priceDetails.innerHTML = `
@@ -6818,6 +7262,11 @@ button:active {
               </div>
             </div>
           </div>
+          <div style="margin-top: 16px; text-align: center;">
+              <img src="https://gi.esmplus.com/cuckoohs/spec/AC-09AA10FWH/00.jpg" 
+                   alt="AA10 공기청정기" 
+                   style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            </div>
         `;
       } else if (selectedModel === '28AH') {
         priceDetails.innerHTML = `
@@ -6872,6 +7321,11 @@ button:active {
               </div>
             </div>
           </div>
+          <div style="margin-top: 16px; text-align: center;">
+              <img src="https://gi.esmplus.com/cuckoohs/spec/AC-28AH10FNW_PC/01.jpg" 
+                   alt="28AH 공기청정기" 
+                   style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            </div>
         `;
       } else if (selectedModel === '40AB') {
         priceDetails.innerHTML = `
@@ -6926,6 +7380,11 @@ button:active {
               </div>
             </div>
           </div>
+          <div style="margin-top: 16px; text-align: center;">
+              <img src="https://gi.esmplus.com/cuckoohs/spec/AC-40AB10FNW/01.jpg" 
+                   alt="40AH 공기청정기" 
+                   style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            </div>
         `;
              }
      }
@@ -7076,7 +7535,19 @@ button:active {
                  </div>
                </div>
              </div>
-           </div>
+           </div>    
+            <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_08ff01d9-d6dc-466f-97e8-ca310eef77c1.png" 
+                    alt="Y 제습기" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+              <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_039f86b1-c25e-4889-9af7-b3fb9f1b04d6.png" 
+                    alt="Y 제습기" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+ 
+       
          `;
        }
      }
@@ -7108,6 +7579,11 @@ button:active {
                  재렌탈: 33,520원
                </div>
              </div>
+             <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_3b007405-aa9d-4889-bc39-1ba30530720f.jpg" 
+                    alt="D 안마의자" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
            </div>
          `;
        } else if (selectedModel === 'E') {
@@ -7129,6 +7605,11 @@ button:active {
                </div>
              </div>
            </div>
+            <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_2f53627d-80c0-4381-a685-69a214479cfd.jpg" 
+                    alt="E 안마의자" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
          `;
                 } else if (selectedModel === 'F') {
            priceDetails.innerHTML = `
@@ -7148,6 +7629,11 @@ button:active {
                    재렌탈: 77,600원
                  </div>
                </div>
+             </div>
+              <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_ffd867ce-b760-4f7a-8f32-680f4f4f3632.jpg" 
+                    alt="F 안마의자" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
              </div>
            `;
          } else if (selectedModel === 'G') {
@@ -7169,6 +7655,11 @@ button:active {
                  </div>
                </div>
              </div>
+              <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_fa56ca94-3ecd-48bf-b8f7-dcbb22f2d774.jpg" 
+                    alt="G 안마의자" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
            `;
          } else if (selectedModel === 'H') {
            priceDetails.innerHTML = `
@@ -7188,6 +7679,11 @@ button:active {
                    재렌탈: 42,320원
                  </div>
                </div>
+             </div>
+              <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_22bab5e7-543a-4a25-bbab-bd73f9d0d8eb.jpg" 
+                    alt="H 안마의자" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
              </div>
            `;
          } else if (selectedModel === 'J') {
@@ -7209,6 +7705,12 @@ button:active {
                  </div>
                </div>
              </div>
+              <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_bfd026ee-f102-491d-81d9-ac405194413f.jpg" 
+                    alt="J 안마의자" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+
            `;
          }
      }
@@ -7262,6 +7764,11 @@ button:active {
                  </div>
                </div>
              </div>
+             <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_f095d96a-88bd-4545-9598-33555724a89a.jpg" 
+                    alt="CFD-C 음식물처리기" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
            </div>
                   `;
        }
@@ -7287,6 +7794,12 @@ button:active {
                • 렌탈료: 29,900원
              </div>
            </div>
+            <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_69713db6-99be-46b3-a60d-6204d41ff581.jpg" 
+                    alt="CLT301FG" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+ 
          `;
        } else if (selectedModel === 'D305FB') {
          priceDetails.innerHTML = `
@@ -7299,6 +7812,12 @@ button:active {
                • 렌탈료: 21,900원
              </div>
            </div>
+            <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_15e1f5b2-71aa-4548-b1f9-7d4bf3ed72bc.jpg" 
+                    alt="D305FB" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+ 
          `;
        } else if (selectedModel === 'EP340') {
          priceDetails.innerHTML = `
@@ -7329,6 +7848,12 @@ button:active {
                </table>
              </div>
            </div>
+            <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_515a1dbe-5704-44e5-a1ff-ac4fc66a7921.jpg" 
+                    alt="EP340" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+ 
          `;
        } else if (selectedModel === 'E301') {
          priceDetails.innerHTML = `
@@ -7368,6 +7893,12 @@ button:active {
                </table>
              </div>
            </div>
+            <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_1074ebe0-f58f-48fd-ba3b-7f2d73a145b2.jpg" 
+                    alt="E301" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div> 
+
          `;
        } else if (selectedModel === 'G301') {
          priceDetails.innerHTML = `
@@ -7398,6 +7929,12 @@ button:active {
                </table>
              </div>
            </div>
+            <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_94a91960-920e-40df-a511-c780412d69b6.jpg" 
+                    alt="G301" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+ 
          `;
        } else if (selectedModel === 'CIHR-HL301FB') {
          priceDetails.innerHTML = `
@@ -7420,6 +7957,11 @@ button:active {
                </table>
              </div>
            </div>
+            <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_c5c5a721-1ff7-4565-b1c4-0d11f8bd1005.jpg" 
+                    alt="CIHR-HL301FB" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
          `;
        } else if (selectedModel === 'CIR-F302FB') {
          priceDetails.innerHTML = `
@@ -7442,6 +7984,12 @@ button:active {
                </table>
              </div>
            </div>
+            <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.011st.com/11dims/thumbnail/11src/editorImg/20250715/65407372/1752529568868_E.jpg" 
+                    alt="CIR-F302FB" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+ 
          `;
        } else if (selectedModel === 'CIR-E301FAW') {
          priceDetails.innerHTML = `
@@ -7464,6 +8012,13 @@ button:active {
                </table>
              </div>
            </div>
+            <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_1074ebe0-f58f-48fd-ba3b-7f2d73a145b2.jpg" 
+                    alt="CIR-E301FAW" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+ 
+
          `;
        } else if (selectedModel === 'CIR-EP348FAW') {
          priceDetails.innerHTML = `
@@ -7486,6 +8041,12 @@ button:active {
                </table>
              </div>
            </div>
+            <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_515a1dbe-5704-44e5-a1ff-ac4fc66a7921.jpg" 
+                    alt="CIR-EP348FAW" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+ 
          `;
        }
      }
@@ -7532,6 +8093,12 @@ button:active {
                </table>
              </div>
            </div>
+            <div style="margin-top: 16px; text-align: center;">
+               <img src="https://gi.esmplus.com/cuckoohs/spec/CWS-AO201W/CWS-AO201W_01.jpg" 
+                    alt="A0201W" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+ 
          `;
        } else if (selectedModel === 'AEM1410') {
          priceDetails.innerHTML = `
@@ -7556,6 +8123,13 @@ button:active {
                </table>
              </div>
            </div>
+            <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_df669fa7-4658-4744-9d11-075d504ec1cc.jpg" 
+                    alt="AEM1410" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+ 
+
          `;
        } else if (selectedModel === 'F2010NW') {
          priceDetails.innerHTML = `
@@ -7580,6 +8154,13 @@ button:active {
                </table>
              </div>
            </div>
+            <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_fec3f439-6b85-411d-9831-01335a948189.jpg" 
+                    alt="F2010NW" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+ 
+
          `;
        } else if (selectedModel === 'BAC0510') {
          priceDetails.innerHTML = `
@@ -7602,6 +8183,12 @@ button:active {
                </table>
              </div>
            </div>
+            <div style="margin-top: 16px; text-align: center;">
+               <img src="https://gi.esmplus.com/cuckoohs/spec/CRVC-BAC0510NW_gif/01.jpg" 
+                    alt="BAC0510" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+ 
          `;
        } else if (selectedModel === 'EFF20') {
          priceDetails.innerHTML = `
@@ -7626,6 +8213,24 @@ button:active {
                </table>
              </div>
            </div>
+            <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_5cacf855-ca18-46ee-a3e8-ab984822b097.jpg" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+  <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_1412078e-0fd2-4e77-91f3-ebc135b5e85a.png" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+              <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_251d0108-f4db-4d5a-96c1-27950b2db918.jpg" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+              <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_ab1858b7-03fe-49f5-8924-17c330fc25c1.jpg" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+ 
+  
          `;
        } else if (selectedModel === 'CAE') {
          priceDetails.innerHTML = `
@@ -7650,7 +8255,18 @@ button:active {
                </table>
              </div>
            </div>
-         `;
+
+            <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_26aec9a4-7bec-4c29-a7b7-05595acf546c.jpg" 
+                    alt="CAE2010" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+              <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_1b4cbfa8-6b4d-4dd3-a09c-62bc4bfbd3e3.jpg" 
+                    alt="CAE2010" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>         
+             `;
        } else if (selectedModel === 'CAEW') {
          priceDetails.innerHTML = `
            <div style="margin-top: 8px;">
@@ -7674,6 +8290,18 @@ button:active {
                </table>
              </div>
            </div>
+            <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_692e6e92-6486-42e6-b6c9-ac569668ccd2.jpg" 
+                    alt="CAES2010" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+              <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_17cff5db-c236-4049-adc4-6594e988a67b.jpg" 
+                    alt="CAES2010" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+ 
+ 
          `;
        }
      }
