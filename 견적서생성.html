@@ -1439,7 +1439,11 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
         // 상품 이미지와 특이사항 박스 크기 조정
         const imageBoxes = quoteContent.querySelectorAll('#productImageContainer, div[style*="height: 120px"]');
         imageBoxes.forEach(box => {
-          box.style.height = '80px';
+          if (box.id === 'productImageContainer') {
+            box.style.height = '100px'; // 상품 이미지는 더 크게
+          } else {
+            box.style.height = '80px'; // 특이사항은 작게
+          }
         });
         
         html2canvas(quoteContent, {
@@ -1831,31 +1835,32 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
       const sellerEmail = document.getElementById('sellerEmail').value;
 
       const quoteContent = `
-        <div style="text-align: center; margin-bottom: 16px;">
-          <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjQwIiB2aWV3Qm94PSIwIDAgMTIwIDQwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjZmZmIi8+Cjx0ZXh0IHg9IjYwIiB5PSIyNSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzE5NzZkMiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkNVQ0tPTzwvdGV4dD4KPC9zdmc+" alt="CUCKOO" style="height: 60px; width: auto;">
-        </div>
+        <div style="border: 2px solid #1976d2; border-radius: 8px; padding: 16px; background: #ffffff; box-shadow: 0 4px 12px rgba(25, 118, 210, 0.1);">
+          <div style="text-align: center; margin-bottom: 12px;">
+            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjQwIiB2aWV3Qm94PSIwIDAgMTIwIDQwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjZmZmIi8+Cjx0ZXh0IHg9IjYwIiB5PSIyNSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzE5NzZkMiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkNVQ0tPTzwvdGV4dD4KPC9zdmc+" alt="CUCKOO" style="height: 50px; width: auto;">
+          </div>
         
-        <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
           <div style="flex: 1;">
-            <h4 style="margin: 0 0 8px 0; color: #2c3e50; font-size: 1rem; font-weight: 700;">견적서</h4>
-            <p style="margin: 4px 0; font-size: 0.9rem; color: #495057;"><strong>견적번호:</strong> ${quoteNumber}</p>
-            <p style="margin: 4px 0; font-size: 0.9rem; color: #495057;"><strong>견적일:</strong> ${formatDate(quoteDate)}</p>
-            <p style="margin: 4px 0; font-size: 0.9rem; color: #495057;"><strong>유효기간:</strong> 30일</p>
+            <h4 style="margin: 0 0 6px 0; color: #2c3e50; font-size: 0.95rem; font-weight: 700;">견적서</h4>
+            <p style="margin: 3px 0; font-size: 0.85rem; color: #495057;"><strong>견적번호:</strong> ${quoteNumber}</p>
+            <p style="margin: 3px 0; font-size: 0.85rem; color: #495057;"><strong>견적일:</strong> ${formatDate(quoteDate)}</p>
+            <p style="margin: 3px 0; font-size: 0.85rem; color: #495057;"><strong>유효기간:</strong> 30일</p>
           </div>
           <div style="flex: 1; text-align: left;">
-            <h4 style="margin: 0 0 8px 0; color: #2c3e50; font-size: 1rem; font-weight: 700;">판매인</h4>
-            <p style="margin: 4px 0; font-size: 0.9rem; color: #495057;"><strong>이름:</strong> ${sellerName}</p>
-            <p style="margin: 4px 0; font-size: 0.9rem; color: #495057;"><strong>전화:</strong> ${sellerPhone}</p>
-            <p style="margin: 4px 0; font-size: 0.9rem; color: #495057;"><strong>이메일:</strong> ${sellerEmail}</p>
+            <h4 style="margin: 0 0 6px 0; color: #2c3e50; font-size: 0.95rem; font-weight: 700;">판매인</h4>
+            <p style="margin: 3px 0; font-size: 0.85rem; color: #495057;"><strong>이름:</strong> ${sellerName}</p>
+            <p style="margin: 3px 0; font-size: 0.85rem; color: #495057;"><strong>전화:</strong> ${sellerPhone}</p>
+            <p style="margin: 3px 0; font-size: 0.85rem; color: #495057;"><strong>이메일:</strong> ${sellerEmail}</p>
           </div>
         </div>
 
-        <div style="margin-bottom: 16px;">
-          <p style="margin: 4px 0; font-size: 0.9rem; color: #495057;"><strong>고객명:</strong> ${customerName} 귀하</p>
+        <div style="margin-bottom: 12px;">
+          <p style="margin: 3px 0; font-size: 0.85rem; color: #495057;"><strong>고객명:</strong> ${customerName} 귀하</p>
         </div>
 
-        <div style="margin-bottom: 16px;">
-          <h4 style="margin: 0 0 10px 0; color: #2c3e50; font-size: 1rem; font-weight: 700;">렌탈 상품</h4>
+        <div style="margin-bottom: 12px;">
+          <h4 style="margin: 0 0 8px 0; color: #2c3e50; font-size: 0.95rem; font-weight: 700;">렌탈 상품</h4>
                       <table style="width: 100%; border-collapse: collapse; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
               <thead>
                 <tr style="background: #1976d2;">
@@ -1878,25 +1883,25 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
 
 
 
-        <div style="text-align: right; margin-top: 16px; padding-top: 16px; border-top: 2px solid #e1e8ed;">
-          <div style="display: flex; justify-content: space-between; margin: 8px 0; font-size: 1.1rem; font-weight: 800; color: #1976d2; border-top: 2px solid #1976d2; padding-top: 8px; margin-top: 12px;">
+        <div style="text-align: right; margin-top: 12px; padding-top: 12px; border-top: 2px solid #e1e8ed;">
+          <div style="display: flex; justify-content: space-between; margin: 6px 0; font-size: 1rem; font-weight: 800; color: #1976d2; border-top: 2px solid #1976d2; padding-top: 6px; margin-top: 8px;">
             <span>총 견적 금액:</span>
             <span>${hasCalculatorData ? calculatorData.fee.toLocaleString() + '원' : '0원'}</span>
           </div>
         </div>
 
-        <div style="margin-top: 16px; padding: 12px; background: #f8f9fa; border: 2px solid #e1e8ed; border-radius: 8px;">
-          <div style="display: flex; gap: 12px;">
-            <div style="flex: 1;">
-              <h4 style="margin: 0 0 8px 0; color: #2c3e50; font-size: 1rem; font-weight: 700;">상품 이미지</h4>
-              <div id="productImageContainer" style="width: 100%; height: 80px; background: #fff; border: 1px solid #dee2e6; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #6c757d; font-size: 0.85rem; overflow: hidden; cursor: pointer; box-sizing: border-box;" onclick="selectProductImage()">
+        <div style="margin-top: 12px; padding: 10px; background: #f8f9fa; border: 2px solid #e1e8ed; border-radius: 8px;">
+          <div style="display: flex; gap: 10px;">
+            <div style="flex: 1.2;">
+              <h4 style="margin: 0 0 6px 0; color: #2c3e50; font-size: 0.95rem; font-weight: 700;">상품 이미지</h4>
+              <div id="productImageContainer" style="width: 100%; height: 120px; background: #fff; border: 1px solid #dee2e6; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #6c757d; font-size: 0.85rem; overflow: hidden; cursor: pointer; box-sizing: border-box;" onclick="selectProductImage()">
                 <span id="productImageText">이미지를 선택하세요</span>
               </div>
             </div>
-            <div style="flex: 1;">
-              <h4 style="margin: 0 0 8px 0; color: #2c3e50; font-size: 1rem; font-weight: 700;">특이사항</h4>
-              <div style="width: 100%; height: 80px; background: #fff; border: 1px solid #dee2e6; border-radius: 6px; padding: 10px; color: #495057; font-size: 0.85rem; line-height: 1.4; overflow-y: auto; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
-                <span style="font-size: 0.8rem; color: #6c757d;">${specialNotes || '특이사항이 없습니다.'}</span>
+            <div style="flex: 0.8;">
+              <h4 style="margin: 0 0 6px 0; color: #2c3e50; font-size: 0.95rem; font-weight: 700;">특이사항</h4>
+              <div style="width: 100%; height: 120px; background: #fff; border: 1px solid #dee2e6; border-radius: 6px; padding: 8px; color: #495057; font-size: 0.8rem; line-height: 1.3; overflow-y: auto; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
+                <span style="font-size: 0.75rem; color: #6c757d;">${specialNotes || '특이사항이 없습니다.'}</span>
               </div>
             </div>
           </div>

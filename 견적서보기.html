@@ -387,32 +387,33 @@
       const quoteContent = document.getElementById('quoteContent');
       
       quoteContent.innerHTML = `
-        <div style="text-align: center; margin-bottom: 20px;">
-          <h2 style="color: #1976d2; font-size: 2rem; font-weight: 800; margin: 0 0 10px 0; letter-spacing: 2px;">CUCKOO</h2>
-          <hr style="border: none; height: 2px; background: #1976d2; margin: 0;">
-        </div>
+        <div style="border: 2px solid #1976d2; border-radius: 8px; padding: 16px; background: #ffffff; box-shadow: 0 4px 12px rgba(25, 118, 210, 0.1);">
+          <div style="text-align: center; margin-bottom: 12px;">
+            <h2 style="color: #1976d2; font-size: 1.8rem; font-weight: 800; margin: 0 0 8px 0; letter-spacing: 2px;">CUCKOO</h2>
+            <hr style="border: none; height: 2px; background: #1976d2; margin: 0;">
+          </div>
         
-        <div style="display: flex; justify-content: space-between; margin-bottom: 24px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
           <div style="flex: 1;">
-            <h4 style="margin: 0 0 12px 0; color: #2c3e50; font-size: 1.1rem; font-weight: 700;">견적서</h4>
-            <p style="margin: 6px 0; font-size: 0.95rem; color: #495057;"><strong>견적번호:</strong> ${data.number}</p>
-            <p style="margin: 6px 0; font-size: 0.95rem; color: #495057;"><strong>견적일:</strong> ${formatDate(data.date)}</p>
-            <p style="margin: 6px 0; font-size: 0.95rem; color: #495057;"><strong>유효기간:</strong> 30일</p>
+            <h4 style="margin: 0 0 6px 0; color: #2c3e50; font-size: 0.95rem; font-weight: 700;">견적서</h4>
+            <p style="margin: 3px 0; font-size: 0.85rem; color: #495057;"><strong>견적번호:</strong> ${data.number}</p>
+            <p style="margin: 3px 0; font-size: 0.85rem; color: #495057;"><strong>견적일:</strong> ${formatDate(data.date)}</p>
+            <p style="margin: 3px 0; font-size: 0.85rem; color: #495057;"><strong>유효기간:</strong> 30일</p>
           </div>
           <div style="flex: 1; text-align: left;">
-            <h4 style="margin: 0 0 12px 0; color: #2c3e50; font-size: 1.1rem; font-weight: 700;">판매인</h4>
-            <p style="margin: 6px 0; font-size: 0.95rem; color: #495057;"><strong>이름:</strong> ${data.sellerName}</p>
-            <p style="margin: 6px 0; font-size: 0.95rem; color: #495057;"><strong>전화:</strong> ${data.sellerPhone}</p>
-            <p style="margin: 6px 0; font-size: 0.95rem; color: #495057;"><strong>이메일:</strong> ${data.sellerEmail}</p>
+            <h4 style="margin: 0 0 6px 0; color: #2c3e50; font-size: 0.95rem; font-weight: 700;">판매인</h4>
+            <p style="margin: 3px 0; font-size: 0.85rem; color: #495057;"><strong>이름:</strong> ${data.sellerName}</p>
+            <p style="margin: 3px 0; font-size: 0.85rem; color: #495057;"><strong>전화:</strong> ${data.sellerPhone}</p>
+            <p style="margin: 3px 0; font-size: 0.85rem; color: #495057;"><strong>이메일:</strong> ${data.sellerEmail}</p>
           </div>
         </div>
 
-        <div style="margin-bottom: 24px;">
-          <p style="margin: 6px 0; font-size: 0.95rem; color: #495057;"><strong>고객명:</strong> ${data.customerName} 귀하</p>
+        <div style="margin-bottom: 12px;">
+          <p style="margin: 3px 0; font-size: 0.85rem; color: #495057;"><strong>고객명:</strong> ${data.customerName} 귀하</p>
         </div>
 
-        <div style="margin-bottom: 24px;">
-          <h4 style="margin: 0 0 14px 0; color: #2c3e50; font-size: 1.1rem; font-weight: 700;">렌탈 상품</h4>
+        <div style="margin-bottom: 12px;">
+          <h4 style="margin: 0 0 8px 0; color: #2c3e50; font-size: 0.95rem; font-weight: 700;">렌탈 상품</h4>
           <table class="products-table">
             <thead>
               <tr>
@@ -462,6 +463,7 @@
           </div>
         </div>
         ` : ''}
+        </div>
       `;
 
       // 액션 버튼 표시
