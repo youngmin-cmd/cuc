@@ -348,6 +348,21 @@
     </div>
     
     <div class="actions" id="actions" style="display: none;">
+      <div style="margin-bottom: 20px; padding: 16px; background: #f8f9fa; border-radius: 8px; border-left: 3px solid #007bff;">
+        <h4 style="margin: 0 0 12px 0; color: #2c3e50; font-size: 1rem;">📏 폼 크기 설정</h4>
+        <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-bottom: 12px;">
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="radio" name="viewFormSize" value="auto" checked style="margin: 0;" onchange="changeFormSize('auto')">
+            <span style="font-size: 0.9rem;">자동 크기</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="radio" name="viewFormSize" value="fixed" style="margin: 0;" onchange="changeFormSize('fixed')">
+            <span style="font-size: 0.9rem;">고정 크기 (A4)</span>
+          </label>
+        </div>
+        <p style="margin: 0; font-size: 0.8rem; color: #6c757d;">고정 크기로 설정하면 견적서가 A4 용지 크기에 맞춰 표시됩니다.</p>
+      </div>
+      
       <button class="btn btn-primary" onclick="downloadPDF()">PDF 다운로드</button>
       <a href="견적서생성선택.html" class="btn btn-secondary">새 견적서 만들기</a>
     </div>
@@ -387,6 +402,18 @@
         }
 
         displayQuote(quoteData);
+        
+        // 공유된 견적서의 폼 크기 설정이 있다면 적용
+        if (quoteData.formSize) {
+          // 라디오 버튼 설정
+          const radioButton = document.querySelector(`input[name="viewFormSize"][value="${quoteData.formSize}"]`);
+          if (radioButton) {
+            radioButton.checked = true;
+          }
+          
+          // 폼 크기 적용
+          changeFormSize(quoteData.formSize);
+        }
       } catch (error) {
         console.error('견적서 데이터 파싱 오류:', error);
         showError('견적서 데이터를 불러오는데 실패했습니다.');
@@ -397,8 +424,14 @@
     function displayQuote(data) {
       const quoteContent = document.getElementById('quoteContent');
       
+      // 폼 크기 설정 확인
+      const formSize = data.formSize || 'auto';
+      const containerStyle = formSize === 'fixed' ? 
+        'border: 2px solid #1976d2; border-radius: 8px; padding: 16px; background: #ffffff; box-shadow: 0 4px 12px rgba(25, 118, 210, 0.1); width: 800px; max-width: 800px; height: 1131px; max-height: 1131px; overflow: hidden; box-sizing: border-box;' :
+        'border: 2px solid #1976d2; border-radius: 8px; padding: 16px; background: #ffffff; box-shadow: 0 4px 12px rgba(25, 118, 210, 0.1);';
+      
       quoteContent.innerHTML = `
-        <div style="border: 2px solid #1976d2; border-radius: 8px; padding: 16px; background: #ffffff; box-shadow: 0 4px 12px rgba(25, 118, 210, 0.1);">
+        <div style="${containerStyle}">
           <div style="text-align: center; margin-bottom: 12px;">
             <h2 style="color: #1976d2; font-size: 3.6rem; font-weight: 800; margin: 0 0 8px 0; letter-spacing: 2px;">CUCKOO</h2>
             <hr style="border: none; height: 2px; background: #1976d2; margin: 0;">
@@ -531,6 +564,36 @@
         const quoteId = getQuoteId();
         pdf.save(`견적서_${quoteId}.pdf`);
       });
+    }
+
+    // 폼 크기 변경 함수
+    function changeFormSize(formSize) {
+      const quoteContent = document.getElementById('quoteContent');
+      const container = quoteContent.querySelector('div');
+      
+      if (formSize === 'fixed') {
+        container.style.cssText = `
+          border: 2px solid #1976d2; 
+          border-radius: 8px; 
+          padding: 16px; 
+          background: #ffffff; 
+          box-shadow: 0 4px 12px rgba(25, 118, 210, 0.1); 
+          width: 800px; 
+          max-width: 800px; 
+          height: 1131px; 
+          max-height: 1131px; 
+          overflow: hidden; 
+          box-sizing: border-box;
+        `;
+      } else {
+        container.style.cssText = `
+          border: 2px solid #1976d2; 
+          border-radius: 8px; 
+          padding: 16px; 
+          background: #ffffff; 
+          box-shadow: 0 4px 12px rgba(25, 118, 210, 0.1);
+        `;
+      }
     }
 
     // 페이지 로드 시 견적서 데이터 로드
