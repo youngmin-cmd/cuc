@@ -1016,6 +1016,13 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
         <label for="customerName">고객명</label>
         <input type="text" id="customerName" placeholder="고객명을 입력하세요">
       </div>
+      
+      <!-- 모델명 입력 (계산기 데이터가 없을 때) -->
+      <div class="form-group" id="modelInputGroup" style="display: none;">
+        <label for="productModelInput">모델명 (선택사항)</label>
+        <input type="text" id="productModelInput" placeholder="모델명을 입력하세요">
+        <small style="color: #6c757d; font-size: 0.8rem;">계산기에서 모델명이 없는 경우 입력하세요.</small>
+      </div>
 
       <div class="form-group">
         <label for="specialNotes">제품설명 및 혜택</label>
@@ -1694,9 +1701,31 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
         }
       });
       
+      // 모델명 입력 필드 이벤트 리스너
+      const productModelInput = document.getElementById('productModelInput');
+      if (productModelInput) {
+        productModelInput.addEventListener('input', updatePreview);
+      }
+      
       // 이미지 업로드 이벤트 리스너
       const productImageInput = document.getElementById('productImage');
       productImageInput.addEventListener('change', handleImageUpload);
+      
+      // 계산기 데이터 확인 및 모델명 입력 필드 표시
+      checkCalculatorDataAndShowModelInput();
+    }
+    
+    // 계산기 데이터 확인 및 모델명 입력 필드 표시
+    function checkCalculatorDataAndShowModelInput() {
+      const calculatorData = JSON.parse(localStorage.getItem('calculatorResult') || '{}');
+      const modelInputGroup = document.getElementById('modelInputGroup');
+      
+      // 계산기 데이터가 있고 모델명이 없는 경우 모델명 입력 필드 표시
+      if (calculatorData.fee && (!calculatorData.model || calculatorData.model === '-' || calculatorData.model === '')) {
+        modelInputGroup.style.display = 'block';
+      } else {
+        modelInputGroup.style.display = 'none';
+      }
     }
     
     // 이미지 업로드 처리
@@ -1850,6 +1879,9 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
         document.getElementById('productModel').textContent = '-';
       }
       
+      // 모델명 입력 필드 표시 여부 확인
+      checkCalculatorDataAndShowModelInput();
+      
       if (calculatorData.type) {
         document.getElementById('transactionType').textContent = calculatorData.type;
       } else {
@@ -1899,9 +1931,10 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
         return;
       }
       
-      // 최종 사용할 데이터 (계산기 데이터만 사용)
+      // 최종 사용할 데이터 (계산기 데이터 우선, 모델명은 입력 필드 우선)
       const finalProductName = calculatorData.category || '쿠쿠 제품';
-      const finalProductModel = calculatorData.model || '-';
+      const manualModelInput = document.getElementById('productModelInput').value;
+      const finalProductModel = manualModelInput || calculatorData.model || '-';
       const finalRentalFee = calculatorData.fee || 0;
       const finalUsagePeriod = calculatorData.period || 36;
       
@@ -2069,6 +2102,7 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
       if (confirm('입력한 내용을 모두 초기화하시겠습니까?')) {
         document.getElementById('customerName').value = '';
         document.getElementById('specialNotes').value = '';
+        document.getElementById('productModelInput').value = '';
         
         // 판매인 정보 초기화
         document.getElementById('sellerName').value = '';
