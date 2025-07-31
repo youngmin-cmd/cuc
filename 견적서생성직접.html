@@ -9,6 +9,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
   <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+  <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
 
   <style>
 body { background: #f0f4f9; }
@@ -692,40 +693,393 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
       });
     }
 
-    // 견적서 공유
+    // 견적서 공유 함수
     function shareQuote() {
       if (!sharedQuoteData) {
         alert('먼저 견적서를 생성해주세요.');
         return;
       }
 
-      // 견적서 데이터를 로컬 스토리지에 저장
-      localStorage.setItem('sharedQuoteData', JSON.stringify(sharedQuoteData));
-      
-      // 공유 URL 생성
-      const currentUrl = window.location.href;
-      const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
-      const shareUrl = `${baseUrl}견적서보기.html?id=${sharedQuoteData.number}`;
-      
-      // 공유 텍스트
-      const shareText = `견적서가 도착했습니다!\n\n견적번호: ${sharedQuoteData.number}\n고객명: ${sharedQuoteData.customerName}\n\n견적서 확인: ${shareUrl}`;
-      
-      // 클립보드에 복사
+      // 공유 모달 표시
+      showShareModal();
+    }
+
+    // 공유 모달 표시
+    function showShareModal() {
+      const modal = document.createElement('div');
+      modal.id = 'shareModal';
+      modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      `;
+
+      modal.innerHTML = `
+        <div style="background: white; border-radius: 12px; padding: 24px; max-width: 90%; max-height: 90%; overflow: auto;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <h3 style="margin: 0; color: #2c3e50;">견적서 공유하기</h3>
+            <button onclick="closeShareModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #6c757d;">&times;</button>
+          </div>
+          
+          <div style="margin-bottom: 24px;">
+            <p style="margin: 0 0 16px 0; color: #495057; font-size: 1rem;">견적서를 공유할 방법을 선택하세요:</p>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 16px; margin-bottom: 24px;">
+            <button onclick="shareViaKakao()" style="padding: 16px; background: #FEE500; color: #000; border: none; border-radius: 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+              <span style="font-size: 24px;">📸</span>
+              <span style="font-size: 0.9rem; font-weight: 600;">카카오톡<br>(이미지)</span>
+            </button>
+            
+            <button onclick="shareViaSMS()" style="padding: 16px; background: #007AFF; color: white; border: none; border-radius: 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+              <span style="font-size: 24px;">📱</span>
+              <span style="font-size: 0.9rem; font-weight: 600;">문자</span>
+            </button>
+          </div>
+          
+          <div style="display: flex; gap: 10px; justify-content: center;">
+            <button onclick="closeShareModal()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">닫기</button>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(modal);
+    }
+
+    // 공유 모달 닫기
+    function closeShareModal() {
+      const modal = document.getElementById('shareModal');
+      if (modal) {
+        modal.remove();
+      }
+    }
+    
+    // 공유 텍스트 표시 (클립보드 실패 시)
+    function showShareText(text) {
+      const modal = document.createElement('div');
+      modal.id = 'shareTextModal';
+      modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1001;
+      `;
+
+      modal.innerHTML = `
+        <div style="background: white; border-radius: 12px; padding: 24px; max-width: 90%; max-height: 90%; overflow: auto;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <h3 style="margin: 0; color: #2c3e50;">공유할 내용</h3>
+            <button onclick="closeShareTextModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #6c757d;">&times;</button>
+          </div>
+          
+          <div style="margin-bottom: 24px;">
+            <p style="margin: 0 0 16px 0; color: #495057; font-size: 1rem;">아래 내용을 복사하여 공유하세요:</p>
+            <textarea style="width: 100%; height: 200px; padding: 12px; border: 1px solid #dee2e6; border-radius: 6px; font-size: 0.9rem; line-height: 1.4; resize: vertical;" readonly>${text}</textarea>
+          </div>
+          
+          <div style="display: flex; gap: 10px; justify-content: center;">
+            <button onclick="copyTextToClipboard('${text.replace(/'/g, "\\'")}')" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">복사하기</button>
+            <button onclick="closeShareTextModal()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">닫기</button>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(modal);
+    }
+    
+    // 공유 텍스트 모달 닫기
+    function closeShareTextModal() {
+      const modal = document.getElementById('shareTextModal');
+      if (modal) {
+        modal.remove();
+      }
+    }
+    
+    // 텍스트를 클립보드에 복사
+    function copyTextToClipboard(text) {
       if (navigator.clipboard) {
-        navigator.clipboard.writeText(shareText).then(() => {
-          alert('견적서 정보가 클립보드에 복사되었습니다!\n\n카카오톡이나 문자로 공유하세요.');
+        navigator.clipboard.writeText(text).then(() => {
+          alert('텍스트가 클립보드에 복사되었습니다!');
         }).catch(() => {
-          alert('클립보드 복사에 실패했습니다. 수동으로 복사해주세요.');
+          alert('클립보드 복사에 실패했습니다. 텍스트를 수동으로 복사하세요.');
         });
       } else {
-        // 구형 브라우저 지원
         const textArea = document.createElement('textarea');
-        textArea.value = shareText;
+        textArea.value = text;
         document.body.appendChild(textArea);
         textArea.select();
         document.execCommand('copy');
         document.body.removeChild(textArea);
-        alert('견적서 정보가 클립보드에 복사되었습니다!\n\n카카오톡이나 문자로 공유하세요.');
+        alert('텍스트가 클립보드에 복사되었습니다!');
+      }
+    }
+
+    // 카카오톡 공유 (이미지 캡처 방식)
+    function shareViaKakao() {
+      try {
+        // 견적서 데이터를 로컬 스토리지에 저장
+        localStorage.setItem('sharedQuoteData', JSON.stringify(sharedQuoteData));
+        
+        // 견적서 이미지 캡처 시도
+        captureQuoteAsImage().then(imageDataUrl => {
+          console.log('이미지 캡처 성공:', imageDataUrl.substring(0, 100) + '...');
+          
+          // 모바일에서 카카오톡 공유
+          if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            shareImageToKakao(imageDataUrl);
+          } else {
+            // 데스크톱에서는 이미지 다운로드 후 수동 공유 안내
+            downloadImageForSharing(imageDataUrl);
+          }
+        }).catch(error => {
+          console.error('이미지 캡처 실패:', error);
+          alert('이미지 캡처에 실패했습니다. 텍스트로 공유합니다.');
+          // 이미지 캡처 실패 시 기존 텍스트 공유 방식으로 폴백
+          fallbackTextShare();
+        });
+        
+        closeShareModal();
+      } catch (error) {
+        console.error('카카오톡 공유 오류:', error);
+        alert('공유 중 오류가 발생했습니다. 텍스트로 공유합니다.');
+        fallbackTextShare();
+      }
+    }
+    
+    // 견적서를 이미지로 캡처 (간단한 방법)
+    function captureQuoteAsImage() {
+      return new Promise((resolve, reject) => {
+        const quoteContent = document.getElementById('quoteContent');
+        
+        // 캡처 중 로딩 표시
+        showCaptureLoading();
+        
+        // 간단한 캡처 시도
+        html2canvas(quoteContent, {
+          scale: 1.5,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: '#ffffff',
+          logging: false,
+          removeContainer: true,
+          foreignObjectRendering: false, // 간단한 렌더링 사용
+          imageTimeout: 5000
+        }).then(canvas => {
+          hideCaptureLoading();
+          const imageDataUrl = canvas.toDataURL('image/png', 0.8);
+          resolve(imageDataUrl);
+        }).catch(error => {
+          hideCaptureLoading();
+          console.error('간단한 캡처 실패:', error);
+          
+          // 더 간단한 방법으로 재시도
+          try {
+            const simpleCanvas = document.createElement('canvas');
+            const ctx = simpleCanvas.getContext('2d');
+            simpleCanvas.width = quoteContent.offsetWidth;
+            simpleCanvas.height = quoteContent.offsetHeight;
+            
+            // 흰색 배경
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, simpleCanvas.width, simpleCanvas.height);
+            
+            // 텍스트만 그리기
+            ctx.fillStyle = '#000000';
+            ctx.font = '14px Arial';
+            ctx.fillText('견적서 이미지 생성에 실패했습니다.', 10, 30);
+            ctx.fillText('텍스트로 공유해주세요.', 10, 50);
+            
+            const fallbackImageDataUrl = simpleCanvas.toDataURL('image/png');
+            resolve(fallbackImageDataUrl);
+          } catch (fallbackError) {
+            reject(fallbackError);
+          }
+        });
+      });
+    }
+    
+    // 모바일에서 카카오톡으로 이미지 공유
+    function shareImageToKakao(imageDataUrl) {
+      // 이미지를 Blob으로 변환
+      fetch(imageDataUrl)
+        .then(res => res.blob())
+        .then(blob => {
+          const file = new File([blob], `견적서_${sharedQuoteData.number}.png`, { type: 'image/png' });
+          
+          // Web Share API로 이미지 공유
+          if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            navigator.share({
+              title: `견적서 - ${sharedQuoteData.customerName}`,
+              text: `견적번호: ${sharedQuoteData.number}\n고객명: ${sharedQuoteData.customerName}`,
+              files: [file]
+            }).catch(() => {
+              // Web Share API 실패 시 카카오톡 앱으로 이동
+              openKakaoAppWithImage(imageDataUrl);
+            });
+          } else {
+            // Web Share API가 파일을 지원하지 않는 경우
+            openKakaoAppWithImage(imageDataUrl);
+          }
+        })
+        .catch(error => {
+          console.error('이미지 공유 실패:', error);
+          fallbackTextShare();
+        });
+    }
+    
+    // 카카오톡 앱으로 이미지와 함께 이동
+    function openKakaoAppWithImage(imageDataUrl) {
+      // 카카오톡 앱 스키마 사용
+      const shareText = `견적서가 도착했습니다!\n\n견적번호: ${sharedQuoteData.number}\n고객명: ${sharedQuoteData.customerName}`;
+      
+      // 카카오톡 앱으로 이동 (이미지는 별도로 첨부 필요)
+      const kakaoUrl = `kakaotalk://send?text=${encodeURIComponent(shareText)}`;
+      
+      // 앱이 설치되어 있는지 확인
+      const checkApp = setTimeout(() => {
+        // 앱이 없으면 웹으로 이동
+        window.open('https://www.kakaocorp.com/service/KakaoTalk', '_blank');
+      }, 2000);
+      
+      window.location.href = kakaoUrl;
+      clearTimeout(checkApp);
+      
+      // 이미지 다운로드 안내
+      setTimeout(() => {
+        alert('견적서 이미지가 다운로드되었습니다.\n카카오톡에서 이미지를 첨부하여 공유하세요.');
+      }, 1000);
+    }
+    
+    // 데스크톱에서 이미지 다운로드
+    function downloadImageForSharing(imageDataUrl) {
+      const link = document.createElement('a');
+      link.download = `견적서_${sharedQuoteData.number}.png`;
+      link.href = imageDataUrl;
+      link.click();
+      
+      alert('견적서 이미지가 다운로드되었습니다!\n\n카카오톡에서 이미지를 첨부하여 공유하세요.');
+    }
+    
+    // 텍스트 공유 폴백
+    function fallbackTextShare() {
+      const currentUrl = window.location.href;
+      const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
+      const shareUrl = `${baseUrl}견적서보기.html?id=${sharedQuoteData.number}`;
+      const shareText = `견적서가 도착했습니다!\n\n견적번호: ${sharedQuoteData.number}\n고객명: ${sharedQuoteData.customerName}\n\n견적서 확인: ${shareUrl}`;
+      
+      fallbackKakaoShare(shareText, shareUrl);
+    }
+    
+    // 캡처 로딩 표시
+    function showCaptureLoading() {
+      const loading = document.createElement('div');
+      loading.id = 'captureLoading';
+      loading.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1002;
+      `;
+      loading.innerHTML = `
+        <div style="background: white; border-radius: 12px; padding: 24px; text-align: center;">
+          <div style="margin-bottom: 16px;">📸</div>
+          <div>견적서 이미지 생성 중...</div>
+        </div>
+      `;
+      document.body.appendChild(loading);
+    }
+    
+    // 캡처 로딩 숨기기
+    function hideCaptureLoading() {
+      const loading = document.getElementById('captureLoading');
+      if (loading) {
+        loading.remove();
+      }
+    }
+    
+    // 카카오톡 공유 대체 방법
+    function fallbackKakaoShare(text, url) {
+      // 클립보드에 복사
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+          alert('견적서 정보가 클립보드에 복사되었습니다!\n\n카카오톡에서 붙여넣기하여 공유하세요.');
+        }).catch(() => {
+          // 클립보드 실패 시 텍스트 표시
+          showShareText(text);
+        });
+      } else {
+        // 구형 브라우저 지원
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        alert('견적서 정보가 클립보드에 복사되었습니다!\n\n카카오톡에서 붙여넣기하여 공유하세요.');
+      }
+    }
+
+    // 문자 공유
+    function shareViaSMS() {
+      try {
+        // 견적서 데이터를 로컬 스토리지에 저장
+        localStorage.setItem('sharedQuoteData', JSON.stringify(sharedQuoteData));
+        
+        // 공유 URL 생성 (절대 경로 사용)
+        const currentUrl = window.location.href;
+        const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
+        const shareUrl = `${baseUrl}견적서보기.html?id=${sharedQuoteData.number}`;
+        
+        // 문자 메시지 내용
+        const message = `견적서가 도착했습니다!\n\n견적번호: ${sharedQuoteData.number}\n고객명: ${sharedQuoteData.customerName}\n\n견적서 확인: ${shareUrl}`;
+        
+        // 모바일에서만 SMS 앱 실행
+        if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+          const smsUrl = `sms:?body=${encodeURIComponent(message)}`;
+          window.open(smsUrl);
+        } else {
+          // 데스크톱에서는 클립보드에 복사
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(message).then(() => {
+              alert('문자 내용이 클립보드에 복사되었습니다!\n\n휴대폰에서 문자 앱을 열고 붙여넣기하여 전송하세요.');
+            }).catch(() => {
+              showShareText(message);
+            });
+          } else {
+            // 구형 브라우저 지원
+            const textArea = document.createElement('textarea');
+            textArea.value = message;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            alert('문자 내용이 클립보드에 복사되었습니다!\n\n휴대폰에서 문자 앱을 열고 붙여넣기하여 전송하세요.');
+          }
+        }
+        
+        closeShareModal();
+      } catch (error) {
+        console.error('문자 공유 오류:', error);
+        alert('문자 공유에 실패했습니다. 클립보드에 복사하여 수동으로 전송하세요.');
       }
     }
 
