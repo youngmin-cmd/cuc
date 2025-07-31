@@ -1079,23 +1079,6 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
     </div>
     <div class="card-section quote-preview" id="quotePreview">
       <h3>견적서 미리보기</h3>
-      
-      <!-- 폼 크기 설정 옵션 -->
-      <div style="margin-bottom: 20px; padding: 16px; background: #f8f9fa; border-radius: 8px; border-left: 3px solid #007bff;">
-        <h4 style="margin: 0 0 12px 0; color: #2c3e50; font-size: 1rem;">📏 폼 크기 설정</h4>
-        <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-bottom: 12px;">
-          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-            <input type="radio" name="previewFormSize" value="auto" checked style="margin: 0;" onchange="changePreviewFormSize('auto')">
-            <span style="font-size: 0.9rem;">자동 크기</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-            <input type="radio" name="previewFormSize" value="fixed" style="margin: 0;" onchange="changePreviewFormSize('fixed')">
-            <span style="font-size: 0.9rem;">고정 크기 (A4)</span>
-          </label>
-        </div>
-        <p style="margin: 0; font-size: 0.8rem; color: #6c757d;">고정 크기로 설정하면 견적서가 A4 용지 크기에 맞춰 표시됩니다.</p>
-      </div>
-      
       <div id="quoteContent">
         <p style="text-align: center; color: #6c757d; font-style: italic;">견적서 정보를 입력하고 "견적서 만들기" 버튼을 클릭하세요.</p>
       </div>
@@ -1932,37 +1915,7 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
       }
     }
 
-    // 미리보기 폼 크기 변경 함수
-    function changePreviewFormSize(formSize) {
-      const quoteContent = document.getElementById('quoteContent');
-      const container = quoteContent.querySelector('div');
-      
-      if (container) {
-        if (formSize === 'fixed') {
-          container.style.cssText = `
-            border: 2px solid #1976d2; 
-            border-radius: 8px; 
-            padding: 16px; 
-            background: #ffffff; 
-            box-shadow: 0 4px 12px rgba(25, 118, 210, 0.1); 
-            width: 800px; 
-            max-width: 800px; 
-            height: 1131px; 
-            max-height: 1131px; 
-            overflow: hidden; 
-            box-sizing: border-box;
-          `;
-        } else {
-          container.style.cssText = `
-            border: 2px solid #1976d2; 
-            border-radius: 8px; 
-            padding: 16px; 
-            background: #ffffff; 
-            box-shadow: 0 4px 12px rgba(25, 118, 210, 0.1);
-          `;
-        }
-      }
-    }
+
 
 
 
@@ -2068,14 +2021,8 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
       const sellerPhone = document.getElementById('sellerPhone').value;
       const sellerEmail = document.getElementById('sellerEmail').value;
 
-      // 폼 크기 설정 가져오기
-      const formSize = document.querySelector('input[name="previewFormSize"]:checked')?.value || 'auto';
-      const containerStyle = formSize === 'fixed' ? 
-        'border: 2px solid #1976d2; border-radius: 8px; padding: 12px; background: #ffffff; box-shadow: 0 4px 12px rgba(25, 118, 210, 0.1); width: 800px; max-width: 800px; height: 1131px; max-height: 1131px; overflow: hidden; box-sizing: border-box;' :
-        'border: 2px solid #1976d2; border-radius: 8px; padding: 12px; background: #ffffff; box-shadow: 0 4px 12px rgba(25, 118, 210, 0.1);';
-      
       const quoteContent = `
-        <div style="${containerStyle}">
+        <div style="border: 2px solid #1976d2; border-radius: 8px; padding: 12px; background: #ffffff; box-shadow: 0 4px 12px rgba(25, 118, 210, 0.1);">
           <div style="text-align: center; margin-bottom: 8px;">
             <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjQwIiB2aWV3Qm94PSIwIDAgMTIwIDQwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjZmZmIi8+Cjx0ZXh0IHg9IjYwIiB5PSIyNSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzE5NzZkMiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkNVQ0tPTzwvdGV4dD4KPC9zdmc+" alt="CUCKOO" style="height: 80px; width: auto;">
           </div>
@@ -2167,7 +2114,6 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
       document.getElementById('shareButtons').style.display = 'flex';
       
       // 공유용 데이터 저장
-      const currentFormSize = document.querySelector('input[name="previewFormSize"]:checked')?.value || 'auto';
       sharedQuoteData = {
         number: quoteNumber,
         date: quoteDate,
@@ -2182,8 +2128,7 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
         sellerEmail: sellerEmail,
         calculatorData: calculatorData,
         method: 'calculator',
-        productImage: selectedProductImage,
-        formSize: currentFormSize
+        productImage: selectedProductImage
       };
     }
 
