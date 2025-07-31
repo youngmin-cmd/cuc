@@ -421,6 +421,19 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
         <textarea id="specialNotes" placeholder="제품설명 및 혜택을 입력하세요 (선택사항)"></textarea>
       </div>
       
+      <!-- 상품 이미지 업로드 -->
+      <div class="form-group">
+        <label for="productImage">상품 이미지 (선택사항)</label>
+        <input type="file" id="productImage" accept="image/*" style="padding: 8px; border: 2px dashed #dee2e6; background: #f8f9fa;">
+        <div id="imagePreview" style="margin-top: 10px; display: none;">
+          <img id="previewImg" style="max-width: 200px; max-height: 150px; border-radius: 8px; border: 2px solid #dee2e6;">
+          <div style="margin-top: 8px;">
+            <button type="button" onclick="cropImage()" style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; margin-right: 8px;">이미지 편집</button>
+            <button type="button" onclick="removeImage()" style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem;">이미지 제거</button>
+          </div>
+        </div>
+      </div>
+      
       <!-- 판매인 정보 -->
       <h3 style="margin-top: 20px; margin-bottom: 15px; color: #1976d2; font-size: 1rem; font-weight: 700;">🏢 판매인 정보</h3>
       <div class="form-group">
@@ -515,6 +528,113 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
           document.getElementById('customerNameError').classList.remove('show');
         }
       });
+      
+      // 이미지 업로드 이벤트 리스너
+      const productImageInput = document.getElementById('productImage');
+      productImageInput.addEventListener('change', handleImageUpload);
+    }
+    
+    // 이미지 업로드 처리
+    function handleImageUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          selectedProductImage = e.target.result;
+          document.getElementById('previewImg').src = selectedProductImage;
+          document.getElementById('imagePreview').style.display = 'block';
+          updatePreview();
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+    
+    // 이미지 편집 (크롭)
+    function cropImage() {
+      if (!selectedProductImage) return;
+      
+      const modal = document.createElement('div');
+      modal.id = 'cropModal';
+      modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      `;
+      
+      modal.innerHTML = `
+        <div style="background: white; border-radius: 12px; padding: 20px; max-width: 90%; max-height: 90%; overflow: auto;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="margin: 0; color: #2c3e50;">이미지 편집</h3>
+            <button onclick="closeCropModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #6c757d;">&times;</button>
+          </div>
+          <div style="margin-bottom: 20px;">
+            <img id="cropImage" src="${selectedProductImage}" style="max-width: 100%; max-height: 400px;">
+          </div>
+          <div style="display: flex; gap: 10px; justify-content: center;">
+            <button onclick="applyCrop()" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">적용</button>
+            <button onclick="closeCropModal()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">취소</button>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+      
+      // Cropper.js 초기화
+      const image = document.getElementById('cropImage');
+      cropper = new Cropper(image, {
+        aspectRatio: 4 / 3,
+        viewMode: 1,
+        dragMode: 'move',
+        autoCropArea: 1,
+        restore: false,
+        guides: true,
+        center: true,
+        highlight: false,
+        cropBoxMovable: true,
+        cropBoxResizable: true,
+        toggleDragModeOnDblclick: false
+      });
+    }
+    
+    // 크롭 모달 닫기
+    function closeCropModal() {
+      const modal = document.getElementById('cropModal');
+      if (modal) {
+        if (cropper) {
+          cropper.destroy();
+          cropper = null;
+        }
+        modal.remove();
+      }
+    }
+    
+    // 크롭 적용
+    function applyCrop() {
+      if (cropper) {
+        const canvas = cropper.getCroppedCanvas({
+          width: 400,
+          height: 300
+        });
+        selectedProductImage = canvas.toDataURL('image/jpeg', 0.8);
+        document.getElementById('previewImg').src = selectedProductImage;
+        closeCropModal();
+        updatePreview();
+      }
+    }
+    
+    // 이미지 제거
+    function removeImage() {
+      selectedProductImage = null;
+      document.getElementById('productImage').value = '';
+      document.getElementById('imagePreview').style.display = 'none';
+      updatePreview();
     }
 
     // 실시간 미리보기 업데이트
@@ -622,12 +742,23 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
           </div>
         </div>
 
+        ${selectedProductImage ? `
+        <div style="margin-top: 12px; padding: 8px; background: #f8f9fa; border: 2px solid #e1e8ed; border-radius: 8px;">
+          <h4 style="margin: 0 0 8px 0; color: #2c3e50; font-size: 0.9rem; font-weight: 700;">상품 이미지</h4>
+          <div style="text-align: center;">
+            <img src="${selectedProductImage}" alt="상품 이미지" style="max-width: 100%; max-height: 200px; border-radius: 6px; border: 1px solid #dee2e6; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          </div>
+        </div>
+        ` : ''}
+
         <div style="margin-top: 8px; padding: 8px; background: #f8f9fa; border: 2px solid #e1e8ed; border-radius: 8px;">
           <div style="display: flex; gap: 8px;">
             <div style="flex: 1;">
               <h4 style="margin: 0 0 4px 0; color: #2c3e50; font-size: 0.9rem; font-weight: 700;">제품설명 및 혜택</h4>
-              <div style="width: 100%; height: 100px; background: #fff; border: 1px solid #dee2e6; border-radius: 6px; padding: 6px; color: #495057; font-size: 0.75rem; line-height: 1.2; overflow-y: auto; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
-                <span style="font-size: 0.7rem; color: #6c757d;">${specialNotes || '제품설명 및 혜택이 없습니다.'}</span>
+              <div style="width: 100%; min-height: 100px; background: #fff; border: 1px solid #dee2e6; border-radius: 6px; padding: 8px; color: #495057; font-size: 0.75rem; line-height: 1.4; overflow-y: auto; box-sizing: border-box; text-align: center; display: flex; align-items: center; justify-content: center;">
+                <div style="text-align: center; margin: 0; padding: 0; width: 100%;">
+                  ${specialNotes ? specialNotes.split('\n').map(line => `<div style="text-align: center; margin: 0; padding: 0;">${line}</div>`).join('') : '<span style="font-size: 0.7rem; color: #6c757d;">제품설명 및 혜택이 없습니다.</span>'}
+                </div>
               </div>
             </div>
           </div>
@@ -1101,6 +1232,11 @@ a.btn.btn-secondary:hover, a.btn.btn-secondary:focus, a.btn.btn-secondary:active
         // 공유 데이터 초기화
         sharedQuoteData = null;
         document.getElementById('actionButtons').style.display = 'none';
+        
+        // 이미지 초기화
+        selectedProductImage = null;
+        document.getElementById('productImage').value = '';
+        document.getElementById('imagePreview').style.display = 'none';
         
         // 견적서 번호와 날짜는 다시 생성
         const today = new Date().toISOString().split('T')[0];
