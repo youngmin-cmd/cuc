@@ -545,6 +545,23 @@ body {
   background: rgba(220, 53, 69, 0.3);
 }
 
+.auto-sync-info {
+  margin-top: 15px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+
+.auto-sync-info p {
+  margin: 0;
+  color: white;
+}
+
+.auto-sync-info strong {
+  color: #ffd700;
+}
+
 @media (max-width: 768px) {
   .sync-buttons {
     flex-direction: column;
@@ -766,9 +783,13 @@ body {
             <button class="btn btn-success" onclick="syncToFirebase()">클라우드에 업로드</button>
             <button class="btn btn-info" onclick="syncFromFirebase()">클라우드에서 다운로드</button>
             <button class="btn btn-warning" onclick="enableRealtimeSync()">실시간 동기화 시작</button>
+            <button class="btn btn-primary" onclick="toggleAutoSync()" id="autoSyncBtn">자동 동기화: OFF</button>
           </div>
           <div class="sync-status" id="syncStatus">
             <span class="status-text">동기화 상태: 대기 중</span>
+          </div>
+          <div class="auto-sync-info">
+            <p><strong>💡 자동 동기화:</strong> 페이지 로드 시 자동으로 클라우드와 동기화합니다.</p>
           </div>
         </div>
         <div class="analytics-note">
@@ -901,6 +922,7 @@ body {
       updateVisitStats(); // 방문 통계 업데이트
       refreshAnalytics(); // Analytics 통계 표시
       updateMemberStats(); // 회원 통계 업데이트
+      initializeAutoSync(); // 자동 동기화 초기화
     });
 
     // 사용자 데이터 로드
@@ -1417,6 +1439,56 @@ body {
         updateSyncStatus('실시간 동기화 실패: ' + error.message, 'error');
         setTimeout(() => updateSyncStatus('동기화 상태: 대기 중'), 5000);
       }
+    }
+
+    // 자동 동기화 토글
+    function toggleAutoSync() {
+      const autoSyncEnabled = localStorage.getItem('autoSyncEnabled') === 'true';
+      const newState = !autoSyncEnabled;
+      
+      localStorage.setItem('autoSyncEnabled', newState.toString());
+      
+      const btn = document.getElementById('autoSyncBtn');
+      if (newState) {
+        btn.textContent = '자동 동기화: ON';
+        btn.className = 'btn btn-success';
+        updateSyncStatus('자동 동기화가 활성화되었습니다.', 'success');
+      } else {
+        btn.textContent = '자동 동기화: OFF';
+        btn.className = 'btn btn-primary';
+        updateSyncStatus('자동 동기화가 비활성화되었습니다.', 'default');
+      }
+    }
+
+    // 자동 동기화 상태 확인 및 적용
+    function checkAutoSyncStatus() {
+      const autoSyncEnabled = localStorage.getItem('autoSyncEnabled') === 'true';
+      const btn = document.getElementById('autoSyncBtn');
+      
+      if (autoSyncEnabled) {
+        btn.textContent = '자동 동기화: ON';
+        btn.className = 'btn btn-success';
+        // 자동으로 클라우드에서 데이터 다운로드
+        setTimeout(() => {
+          syncFromFirebase();
+        }, 1000);
+      } else {
+        btn.textContent = '자동 동기화: OFF';
+        btn.className = 'btn btn-primary';
+      }
+    }
+
+    // 페이지 로드 시 자동 동기화 확인
+    function initializeAutoSync() {
+      checkAutoSyncStatus();
+      
+      // 5분마다 자동 동기화 (자동 동기화가 활성화된 경우)
+      setInterval(() => {
+        const autoSyncEnabled = localStorage.getItem('autoSyncEnabled') === 'true';
+        if (autoSyncEnabled) {
+          syncFromFirebase();
+        }
+      }, 5 * 60 * 1000); // 5분
     }
 
     // 사용자 검색/필터링
