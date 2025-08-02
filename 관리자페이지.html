@@ -803,46 +803,7 @@
           </div>
         </div>
 
-        <div class="settings-section">
-          <h3>📢 공지사항 관리</h3>
-          <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-            <button class="btn btn-success" onclick="showNoticeForm()">새 공지 작성</button>
-            <button class="btn btn-info" onclick="viewAllNotices()">전체 공지 보기</button>
-            <a href="공지사항.html" class="btn btn-primary">공지사항 페이지</a>
-          </div>
-          <div id="noticeForm" style="display: none; background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 15px;">
-            <h4>새 공지사항 작성</h4>
-            <div style="margin-bottom: 15px;">
-              <label style="display: block; margin-bottom: 5px; font-weight: 600;">제목 *</label>
-              <input type="text" id="noticeTitle" style="width: 100%; padding: 10px; border: 2px solid #e1e8ed; border-radius: 6px;" placeholder="공지사항 제목을 입력하세요">
-            </div>
-            <div style="margin-bottom: 15px;">
-              <label style="display: block; margin-bottom: 5px; font-weight: 600;">카테고리 *</label>
-              <select id="noticeCategory" style="width: 100%; padding: 10px; border: 2px solid #e1e8ed; border-radius: 6px;">
-                <option value="">카테고리 선택</option>
-                <option value="일반">일반</option>
-                <option value="중요">중요</option>
-                <option value="업데이트">업데이트</option>
-                <option value="점검">점검</option>
-                <option value="이벤트">이벤트</option>
-              </select>
-            </div>
-            <div style="margin-bottom: 15px;">
-              <label style="display: block; margin-bottom: 5px; font-weight: 600;">내용 *</label>
-              <textarea id="noticeContent" style="width: 100%; padding: 10px; border: 2px solid #e1e8ed; border-radius: 6px; min-height: 120px; resize: vertical;" placeholder="공지사항 내용을 입력하세요"></textarea>
-            </div>
-            <div style="margin-bottom: 15px;">
-              <label style="display: flex; align-items: center; gap: 8px;">
-                <input type="checkbox" id="isImportant">
-                <span>중요 공지로 설정</span>
-              </label>
-            </div>
-            <div style="display: flex; gap: 10px;">
-              <button class="btn btn-success" onclick="submitNotice()">공지 등록</button>
-              <button class="btn btn-secondary" onclick="hideNoticeForm()">취소</button>
-            </div>
-          </div>
-        </div>
+
 
         <div class="settings-section">
           <h3>🔄 데이터 동기화</h3>
@@ -859,7 +820,6 @@
           <h3>🔗 빠른 링크</h3>
           <div style="display: flex; gap: 10px; flex-wrap: wrap;">
             <a href="index.html" class="btn btn-primary">메인 페이지</a>
-            <a href="공지사항.html" class="btn btn-success">공지사항 페이지</a>
             <a href="로그인.html" class="btn btn-secondary">로그인 페이지</a>
           </div>
         </div>
@@ -1295,118 +1255,7 @@
       }
     }
 
-    // 공지사항 관련 함수들
-    function showNoticeForm() {
-      document.getElementById('noticeForm').style.display = 'block';
-    }
 
-    function hideNoticeForm() {
-      document.getElementById('noticeForm').style.display = 'none';
-      // 폼 초기화
-      document.getElementById('noticeTitle').value = '';
-      document.getElementById('noticeCategory').value = '';
-      document.getElementById('noticeContent').value = '';
-      document.getElementById('isImportant').checked = false;
-    }
-
-    async function submitNotice() {
-      const title = document.getElementById('noticeTitle').value.trim();
-      const category = document.getElementById('noticeCategory').value;
-      const content = document.getElementById('noticeContent').value.trim();
-      const isImportant = document.getElementById('isImportant').checked;
-
-      if (!title || !category || !content) {
-        showMessage('모든 필수 항목을 입력해주세요.', 'error');
-        return;
-      }
-
-      const newNotice = {
-        id: Date.now().toString(),
-        title: title,
-        category: category,
-        content: content,
-        isImportant: isImportant,
-        author: localStorage.getItem('username') || '관리자',
-        timestamp: new Date().toISOString(),
-        deviceInfo: getDeviceInfo()
-      };
-
-      try {
-        // 로컬 스토리지에 저장
-        const notices = JSON.parse(localStorage.getItem('notices') || '[]');
-        notices.push(newNotice);
-        localStorage.setItem('notices', JSON.stringify(notices));
-
-        // Firebase에 직접 업로드
-        await window.firebaseDB.addDoc(
-          window.firebaseDB.collection(window.firebaseDB.db, 'notices'),
-          newNotice
-        );
-
-        hideNoticeForm();
-        showMessage('공지사항이 성공적으로 등록되었습니다!');
-      } catch (error) {
-        console.error('공지사항 등록 실패:', error);
-        showMessage('공지사항 등록에 실패했습니다.', 'error');
-      }
-    }
-
-    function viewAllNotices() {
-      const notices = JSON.parse(localStorage.getItem('notices') || '[]');
-      
-      if (notices.length === 0) {
-        showMessage('등록된 공지사항이 없습니다.', 'error');
-        return;
-      }
-
-      let noticeList = '=== 전체 공지사항 ===\n\n';
-      
-      notices.slice().reverse().forEach((notice, index) => {
-        const date = new Date(notice.timestamp).toLocaleDateString('ko-KR');
-        const importance = notice.isImportant ? '🔥 중요' : '';
-        
-        noticeList += `${index + 1}. [${date}] ${notice.category} ${importance}\n`;
-        noticeList += `제목: ${notice.title}\n`;
-        noticeList += `작성자: ${notice.author}\n`;
-        noticeList += `내용: ${notice.content.substring(0, 100)}${notice.content.length > 100 ? '...' : ''}\n\n`;
-      });
-
-      alert(noticeList);
-    }
-
-    function getDeviceInfo() {
-      const userAgent = navigator.userAgent;
-      if (/Android/i.test(userAgent)) return 'Android';
-      if (/iPhone|iPad|iPod/i.test(userAgent)) return 'iOS';
-      if (/Windows/i.test(userAgent)) return 'Windows';
-      if (/Mac/i.test(userAgent)) return 'Mac';
-      if (/Linux/i.test(userAgent)) return 'Linux';
-      return 'Unknown';
-    }
-
-    async function syncNoticesToFirebase() {
-      try {
-        const notices = JSON.parse(localStorage.getItem('notices') || '[]');
-        
-        // 기존 notices 컬렉션의 모든 문서 삭제
-        try {
-          const querySnapshot = await window.firebaseDB.getDocs(window.firebaseDB.collection(window.firebaseDB.db, 'notices'));
-          const deletePromises = querySnapshot.docs.map(doc => window.firebaseDB.deleteDoc(doc.ref));
-          await Promise.all(deletePromises);
-        } catch (error) {
-          console.log('기존 공지사항 삭제 중 오류 (무시됨):', error);
-        }
-        
-        // 새로운 공지사항들을 개별 문서로 추가
-        for (const notice of notices) {
-          await window.firebaseDB.addDoc(window.firebaseDB.collection(window.firebaseDB.db, 'notices'), notice);
-        }
-        
-        console.log('공지사항이 Firebase에 업로드되었습니다.');
-      } catch (error) {
-        console.error('공지사항 Firebase 업로드 실패:', error);
-      }
-    }
 
     // 페이지 로드 시 초기화
     window.addEventListener('load', async function() {
