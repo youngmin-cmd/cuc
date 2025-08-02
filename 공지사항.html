@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공지사항 - 쿠쿠 수수료계산기</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 100%;
+            margin: 0;
+            padding: 8px;
+            background-color: #f0f4f9;
+            line-height: 1.4;
+            min-height: 100vh;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            margin: 0 0 12px 0;
+            text-align: center;
+            color: #2c3e50;
+            padding: 8px 0;
+            position: relative;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h2::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            opacity: 0.1;
+            border-radius: 15px;
+            z-index: -1;
+            filter: blur(20px);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: rotate(45deg);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin: 0;
+            font-weight: 500;
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .header-icon {
+            width: 500px;
+            height: 150px;
+            margin-bottom: 15px;
+            display: block;
+            animation: float 3s ease-in-out infinite;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .notice-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .admin-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            color: white;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(23, 162, 184, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.3);
+        }
+
+        .notice-form {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .notice-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .notice-item {
+            background: white;
+            border: 2px solid #e1e5e9;
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .notice-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .notice-item.important {
+            border-color: #dc3545;
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe6e6 100%);
+        }
+
+        .notice-item.important::before {
+            content: '🔥';
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 20px;
+        }
+
+        .notice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .notice-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #333;
+            margin: 0;
+            flex: 1;
+        }
+
+        .notice-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9em;
+            color: #6c757d;
+            flex-wrap: wrap;
+        }
+
+        .notice-category {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .notice-content {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            white-space: pre-wrap;
+        }
+
+        .notice-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.9em;
+        }
+
+        .no-notices {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .no-notices h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 6px;
+            background: white;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 6px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        /* 반응형 레이아웃 - 데스크톱 */
+        @media (min-width: 1024px) {
+            body {
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+            
+            .container {
+                margin: 20px auto;
+            }
+            
+            .header {
+                margin-bottom: 30px;
+                padding: 25px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .header-icon {
+                width: 500px;
+                height: 150px;
+                margin-bottom: 15px;
+                display: block;
+                animation: float 3s ease-in-out infinite;
+                filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+            }
+        }
+
+        /* 반응형 레이아웃 - 태블릿 */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            body {
+                padding: 15px;
+            }
+            
+            .container {
+                margin: 15px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.6rem;
+            }
+            
+            .header-icon {
+                width: 400px;
+                height: 120px;
+            }
+        }
+
+        /* 반응형 레이아웃 - 모바일 */
+        @media (max-width: 767px) {
+            body {
+                padding: 5px;
+                font-size: 14px;
+            }
+            
+            .container {
+                margin: 5px;
+                border-radius: 15px;
+            }
+            
+            .header {
+                margin-bottom: 15px;
+                padding: 15px 10px;
+                min-height: 120px;
+            }
+            
+            .header h1 {
+                font-size: 1.3rem;
+            }
+            
+            .header-icon {
+                width: 300px;
+                height: 90px;
+            }
+            
+            .header-subtitle {
+                font-size: 0.7rem;
+                bottom: 10px;
+                right: 10px;
+                padding: 3px 6px;
+            }
+            
+            .content {
+                padding: 20px 15px;
+            }
+            
+            .notice-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .admin-controls {
+                justify-content: center;
+            }
+            
+            .notice-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .notice-meta {
+                justify-content: flex-start;
+            }
+            
+            .notice-actions {
+                justify-content: center;
+            }
+        }
+
+        /* 반응형 레이아웃 - 작은 모바일 */
+        @media (max-width: 480px) {
+            body {
+                padding: 3px;
+                font-size: 13px;
+            }
+            
+            .container {
+                margin: 3px;
+                border-radius: 12px;
+            }
+            
+            .header {
+                padding: 12px 8px;
+                min-height: 100px;
+            }
+            
+            .header h1 {
+                font-size: 1.1rem;
+            }
+            
+            .header-icon {
+                width: 250px;
+                height: 75px;
+            }
+            
+            .header-subtitle {
+                font-size: 0.65rem;
+                bottom: 8px;
+                right: 8px;
+                padding: 2px 4px;
+            }
+            
+            .content {
+                padding: 15px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <svg class="header-icon" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#0066cc;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#003366;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <text x="100" y="35" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="url(#logoGradient)">CUCKOO</text>
+            </svg>
+            <h1>공지사항</h1>
+            <p>중요한 소식과 업데이트를 확인하세요!</p>
+        </div>
+
+        <div class="content">
+            <div class="notice-controls">
+                <div class="filter-controls">
+                    <select class="filter-select" id="categoryFilter">
+                        <option value="">전체 카테고리</option>
+                        <option value="일반">일반</option>
+                        <option value="중요">중요</option>
+                        <option value="업데이트">업데이트</option>
+                        <option value="점검">점검</option>
+                        <option value="이벤트">이벤트</option>
+                    </select>
+                    <div class="search-box">
+                        <input type="text" id="searchBox" placeholder="공지사항 검색...">
+                    </div>
+                </div>
+                <div class="admin-controls" id="adminControls" style="display: none;">
+                    <button class="btn btn-primary" onclick="showNoticeForm()">새 공지 작성</button>
+                    <button class="btn btn-secondary" onclick="refreshNotices()">새로고침</button>
+                </div>
+            </div>
+
+            <div class="success-message" id="successMessage"></div>
+            <div class="error-message" id="errorMessage"></div>
+
+            <div class="notice-form" id="noticeForm">
+                <h3>새 공지사항 작성</h3>
+                <form id="addNoticeForm">
+                    <div class="form-group">
+                        <label for="noticeTitle">제목 *</label>
+                        <input type="text" id="noticeTitle" name="title" required placeholder="공지사항 제목을 입력하세요">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="noticeCategory">카테고리 *</label>
+                        <select id="noticeCategory" name="category" required>
+                            <option value="">카테고리 선택</option>
+                            <option value="일반">일반</option>
+                            <option value="중요">중요</option>
+                            <option value="업데이트">업데이트</option>
+                            <option value="점검">점검</option>
+                            <option value="이벤트">이벤트</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="noticeContent">내용 *</label>
+                        <textarea id="noticeContent" name="content" required placeholder="공지사항 내용을 입력하세요"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="isImportant" name="isImportant">
+                            중요 공지로 설정
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success">공지 등록</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideNoticeForm()">취소</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="notice-list" id="noticeList">
+                <!-- 공지사항 목록이 여기에 동적으로 생성됩니다 -->
+            </div>
+
+            <a href="index.html" class="back-btn">← 메인으로 돌아가기</a>
+        </div>
+    </div>
+
+    <script>
+        // Firebase SDK 추가
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, doc, setDoc, collection, addDoc, getDocs, deleteDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
+
+        // Firebase 설정
+        const firebaseConfig = {
+            apiKey: "AIzaSyBaOntDx7egYhApd8ep4nZmTpL0CWeZEy0",
+            authDomain: "cuckoo-01.firebaseapp.com",
+            projectId: "cuckoo-01",
+            storageBucket: "cuckoo-01.firebasestorage.app",
+            messagingSenderId: "234502662315",
+            appId: "1:234502662315:web:ed71d3217474d1f336afee",
+            measurementId: "G-BWRDTZ67XK"
+        };
+
+        // Firebase 초기화
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const analytics = getAnalytics(app);
+
+        // Firebase 연결 테스트
+        async function testFirebaseConnection() {
+            try {
+                const testDoc = doc(db, 'test', 'connection');
+                await setDoc(testDoc, { timestamp: new Date().toISOString() });
+                await deleteDoc(testDoc);
+                console.log('Firebase 연결 성공');
+                return true;
+            } catch (error) {
+                console.error('Firebase 연결 실패:', error);
+                return false;
+            }
+        }
+
+        // Firebase DB 함수들을 전역으로 노출
+        window.firebaseDB = {
+            db: db,
+            doc: doc,
+            setDoc: setDoc,
+            addDoc: addDoc,
+            getDocs: getDocs,
+            deleteDoc: deleteDoc,
+            updateDoc: updateDoc,
+            collection: collection,
+            isConnected: () => false,
+            testConnection: testFirebaseConnection
+        };
+
+        // Google Analytics
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-5V8D4NBW56', {
+            page_title: '공지사항',
+            page_location: window.location.href
+        });
+
+        // 페이지 로드 시 실행
+        window.addEventListener('load', async function() {
+            await window.firebaseDB.testConnection();
+            logUserAccess('방문자', '공지사항 페이지 접속');
+            checkAdminPermission();
+            loadNotices();
+        });
+
+        // 사용자 접속 로그
+        function logUserAccess(username, action) {
+            const accessLogs = JSON.parse(localStorage.getItem('accessLogs') || '[]');
+            const logEntry = {
+                username: username,
+                action: action,
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                deviceInfo: getDeviceInfo(),
+                screenResolution: `${screen.width}x${screen.height}`,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                language: navigator.language,
+                referrer: document.referrer || '직접 접속',
+                url: window.location.href
+            };
+            accessLogs.push(logEntry);
+            if (accessLogs.length > 500) {
+                accessLogs.splice(0, accessLogs.length - 500);
+            }
+            localStorage.setItem('accessLogs', JSON.stringify(accessLogs));
+        }
+
+        // 기기 정보 가져오기
+        function getDeviceInfo() {
+            const userAgent = navigator.userAgent;
+            if (/Android/i.test(userAgent)) return 'Android';
+            if (/iPhone|iPad|iPod/i.test(userAgent)) return 'iOS';
+            if (/Windows/i.test(userAgent)) return 'Windows';
+            if (/Mac/i.test(userAgent)) return 'Mac';
+            if (/Linux/i.test(userAgent)) return 'Linux';
+            return 'Unknown';
+        }
+
+        // 관리자 권한 확인
+        function checkAdminPermission() {
+            const username = localStorage.getItem('username');
+            const isAdmin = username === 'cuckoo';
+            
+            if (isAdmin) {
+                document.getElementById('adminControls').style.display = 'flex';
+                logUserAccess(username, '관리자 공지사항 페이지 접속');
+            } else {
+                logUserAccess(username || '방문자', '일반 사용자 공지사항 페이지 접속');
+            }
+        }
+
+        // 공지사항 로드
+        async function loadNotices() {
+            try {
+                let notices = JSON.parse(localStorage.getItem('notices') || '[]');
+                
+                // Firebase에서 최신 데이터 가져오기
+                if (window.firebaseDB.isConnected()) {
+                    try {
+                        const querySnapshot = await window.firebaseDB.getDocs(
+                            window.firebaseDB.collection(window.firebaseDB.db, 'notices')
+                        );
+                        
+                        const firebaseNotices = [];
+                        querySnapshot.forEach((doc) => {
+                            firebaseNotices.push({ id: doc.id, ...doc.data() });
+                        });
+                        
+                        // Firebase 데이터가 더 최신이면 업데이트
+                        if (firebaseNotices.length > notices.length) {
+                            notices = firebaseNotices;
+                            localStorage.setItem('notices', JSON.stringify(notices));
+                        }
+                    } catch (error) {
+                        console.error('Firebase에서 공지사항 로드 실패:', error);
+                    }
+                }
+                
+                displayNotices(notices);
+            } catch (error) {
+                console.error('공지사항 로드 오류:', error);
+                showMessage('공지사항을 불러오는데 실패했습니다.', 'error');
+            }
+        }
+
+        // 공지사항 표시
+        function displayNotices(notices) {
+            const noticeList = document.getElementById('noticeList');
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            
+            // 필터링
+            let filteredNotices = notices.filter(notice => {
+                const matchesCategory = !categoryFilter || notice.category === categoryFilter;
+                const matchesSearch = !searchTerm || 
+                    notice.title.toLowerCase().includes(searchTerm) ||
+                    notice.content.toLowerCase().includes(searchTerm);
+                return matchesCategory && matchesSearch;
+            });
+            
+            // 날짜순 정렬 (최신순)
+            filteredNotices.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            if (filteredNotices.length === 0) {
+                noticeList.innerHTML = `
+                    <div class="no-notices">
+                        <h3>📭 공지사항이 없습니다</h3>
+                        <p>등록된 공지사항이 없거나 검색 결과가 없습니다.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            noticeList.innerHTML = filteredNotices.map(notice => `
+                <div class="notice-item ${notice.isImportant ? 'important' : ''}">
+                    <div class="notice-header">
+                        <h3 class="notice-title">${notice.title}</h3>
+                        <div class="notice-meta">
+                            <span class="notice-category">${notice.category}</span>
+                            <span>📅 ${formatDate(notice.timestamp)}</span>
+                            <span>👤 ${notice.author || '관리자'}</span>
+                        </div>
+                    </div>
+                    <div class="notice-content">${notice.content}</div>
+                    ${isAdmin() ? `
+                        <div class="notice-actions">
+                            <button class="btn btn-sm btn-secondary" onclick="editNotice('${notice.id}')">수정</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteNotice('${notice.id}')">삭제</button>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        // 관리자 여부 확인
+        function isAdmin() {
+            return localStorage.getItem('username') === 'cuckoo';
+        }
+
+        // 날짜 포맷팅
+        function formatDate(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleDateString('ko-KR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // 공지사항 폼 표시/숨김
+        function showNoticeForm() {
+            document.getElementById('noticeForm').style.display = 'block';
+        }
+
+        function hideNoticeForm() {
+            document.getElementById('noticeForm').style.display = 'none';
+            document.getElementById('addNoticeForm').reset();
+        }
+
+        // 새 공지사항 등록
+        document.getElementById('addNoticeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const notice = {
+                title: formData.get('title'),
+                category: formData.get('category'),
+                content: formData.get('content'),
+                isImportant: formData.get('isImportant') === 'on',
+                author: localStorage.getItem('username') || '관리자',
+                timestamp: new Date().toISOString(),
+                deviceInfo: getDeviceInfo()
+            };
+
+            try {
+                // 로컬 스토리지에 저장
+                const notices = JSON.parse(localStorage.getItem('notices') || '[]');
+                const newNotice = { ...notice, id: Date.now().toString() };
+                notices.push(newNotice);
+                localStorage.setItem('notices', JSON.stringify(notices));
+
+                // Firebase에 업로드
+                if (window.firebaseDB.isConnected()) {
+                    try {
+                        await window.firebaseDB.addDoc(
+                            window.firebaseDB.collection(window.firebaseDB.db, 'notices'),
+                            notice
+                        );
+                        console.log('Firebase에 공지사항 업로드 완료');
+                    } catch (firebaseError) {
+                        console.error('Firebase 업로드 실패:', firebaseError);
+                    }
+                }
+
+                showMessage('공지사항이 성공적으로 등록되었습니다!', 'success');
+                hideNoticeForm();
+                loadNotices();
+
+            } catch (error) {
+                console.error('공지사항 등록 오류:', error);
+                showMessage('공지사항 등록에 실패했습니다.', 'error');
+            }
+        });
+
+        // 공지사항 삭제
+        async function deleteNotice(noticeId) {
+            if (!confirm('정말로 이 공지사항을 삭제하시겠습니까?')) return;
+
+            try {
+                // 로컬 스토리지에서 삭제
+                const notices = JSON.parse(localStorage.getItem('notices') || '[]');
+                const updatedNotices = notices.filter(notice => notice.id !== noticeId);
+                localStorage.setItem('notices', JSON.stringify(updatedNotices));
+
+                // Firebase에서 삭제
+                if (window.firebaseDB.isConnected()) {
+                    try {
+                        await window.firebaseDB.deleteDoc(
+                            window.firebaseDB.doc(window.firebaseDB.db, 'notices', noticeId)
+                        );
+                    } catch (firebaseError) {
+                        console.error('Firebase 삭제 실패:', firebaseError);
+                    }
+                }
+
+                showMessage('공지사항이 삭제되었습니다.', 'success');
+                loadNotices();
+
+            } catch (error) {
+                console.error('공지사항 삭제 오류:', error);
+                showMessage('공지사항 삭제에 실패했습니다.', 'error');
+            }
+        }
+
+        // 공지사항 수정 (간단한 구현)
+        function editNotice(noticeId) {
+            alert('공지사항 수정 기능은 추후 업데이트 예정입니다.');
+        }
+
+        // 공지사항 새로고침
+        function refreshNotices() {
+            loadNotices();
+            showMessage('공지사항이 새로고침되었습니다.', 'success');
+        }
+
+        // 메시지 표시
+        function showMessage(message, type) {
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            if (type === 'success') {
+                successMessage.textContent = message;
+                successMessage.style.display = 'block';
+                errorMessage.style.display = 'none';
+                setTimeout(() => successMessage.style.display = 'none', 3000);
+            } else {
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
+                successMessage.style.display = 'none';
+                setTimeout(() => errorMessage.style.display = 'none', 3000);
+            }
+        }
+
+        // 필터링 이벤트
+        document.getElementById('categoryFilter').addEventListener('change', loadNotices);
+        document.getElementById('searchBox').addEventListener('input', loadNotices);
+
+        // 초기 샘플 공지사항 추가 (테스트용)
+        function addSampleNotices() {
+            const notices = JSON.parse(localStorage.getItem('notices') || '[]');
+            if (notices.length === 0) {
+                const sampleNotices = [
+                    {
+                        id: '1',
+                        title: '쿠쿠 수수료계산기 서비스 시작',
+                        category: '일반',
+                        content: '안녕하세요! 쿠쿠 수수료계산기 서비스가 시작되었습니다.\n\n더 정확하고 빠른 수수료 계산을 위해 노력하겠습니다.\n\n많은 관심과 이용 부탁드립니다!',
+                        isImportant: false,
+                        author: '관리자',
+                        timestamp: new Date().toISOString(),
+                        deviceInfo: 'Web'
+                    },
+                    {
+                        id: '2',
+                        title: '중요: 시스템 점검 안내',
+                        category: '중요',
+                        content: '2025년 1월 30일 오전 2시부터 4시까지 시스템 점검이 예정되어 있습니다.\n\n점검 시간 동안 서비스 이용이 제한될 수 있으니 참고해 주시기 바랍니다.',
+                        isImportant: true,
+                        author: '관리자',
+                        timestamp: new Date(Date.now() - 86400000).toISOString(),
+                        deviceInfo: 'Web'
+                    }
+                ];
+                localStorage.setItem('notices', JSON.stringify(sampleNotices));
+            }
+        }
+
+        // 페이지 로드 시 샘플 데이터 추가
+        setTimeout(addSampleNotices, 1000);
+    </script>
+</body>
+</html> 
