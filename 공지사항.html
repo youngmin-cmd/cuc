@@ -710,7 +710,7 @@
             deleteDoc: deleteDoc,
             updateDoc: updateDoc,
             collection: collection,
-            isConnected: () => false,
+            isConnected: () => true,
             testConnection: testFirebaseConnection
         };
 
@@ -783,25 +783,30 @@
                 let notices = JSON.parse(localStorage.getItem('notices') || '[]');
                 
                 // Firebase에서 최신 데이터 가져오기
-                if (window.firebaseDB.isConnected()) {
-                    try {
-                        const querySnapshot = await window.firebaseDB.getDocs(
-                            window.firebaseDB.collection(window.firebaseDB.db, 'notices')
-                        );
+                try {
+                    const querySnapshot = await window.firebaseDB.getDocs(
+                        window.firebaseDB.collection(window.firebaseDB.db, 'notices')
+                    );
+                    
+                    const firebaseNotices = [];
+                    querySnapshot.forEach((doc) => {
+                        firebaseNotices.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    // Firebase 데이터가 있으면 로컬 데이터와 병합
+                    if (firebaseNotices.length > 0) {
+                        // 로컬에 없는 새로운 공지사항들만 추가
+                        const localIds = notices.map(n => n.id);
+                        const newNotices = firebaseNotices.filter(n => !localIds.includes(n.id));
                         
-                        const firebaseNotices = [];
-                        querySnapshot.forEach((doc) => {
-                            firebaseNotices.push({ id: doc.id, ...doc.data() });
-                        });
-                        
-                        // Firebase 데이터가 더 최신이면 업데이트
-                        if (firebaseNotices.length > notices.length) {
-                            notices = firebaseNotices;
+                        if (newNotices.length > 0) {
+                            notices = [...notices, ...newNotices];
                             localStorage.setItem('notices', JSON.stringify(notices));
+                            console.log('Firebase에서 새로운 공지사항을 가져왔습니다:', newNotices.length + '개');
                         }
-                    } catch (error) {
-                        console.error('Firebase에서 공지사항 로드 실패:', error);
                     }
+                } catch (error) {
+                    console.error('Firebase에서 공지사항 로드 실패:', error);
                 }
                 
                 displayNotices(notices);
@@ -968,9 +973,27 @@
         }
 
         // 공지사항 새로고침
-        function refreshNotices() {
-            loadNotices();
-            showMessage('공지사항이 새로고침되었습니다.', 'success');
+        async function refreshNotices() {
+            try {
+                // Firebase에서 최신 데이터 강제로 가져오기
+                const querySnapshot = await window.firebaseDB.getDocs(
+                    window.firebaseDB.collection(window.firebaseDB.db, 'notices')
+                );
+                
+                const firebaseNotices = [];
+                querySnapshot.forEach((doc) => {
+                    firebaseNotices.push({ id: doc.id, ...doc.data() });
+                });
+                
+                // Firebase 데이터로 로컬 스토리지 업데이트
+                localStorage.setItem('notices', JSON.stringify(firebaseNotices));
+                
+                displayNotices(firebaseNotices);
+                showMessage('공지사항이 새로고침되었습니다.', 'success');
+            } catch (error) {
+                console.error('공지사항 새로고침 실패:', error);
+                showMessage('공지사항 새로고침에 실패했습니다.', 'error');
+            }
         }
 
         // 메시지 표시
