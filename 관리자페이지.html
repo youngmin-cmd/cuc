@@ -12,34 +12,49 @@
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
 
-    gtag('config', 'G-5V8D4NBW56');
+    gtag('config', 'G-5V8D4NBW56', {
+      page_title: '관리자 페이지',
+      page_location: window.location.href
+    });
   </script>
 
   <!-- Firebase SDK -->
   <script type="module">
-    // Import the functions you need from the SDKs you need
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
 
-    // Your web app's Firebase configuration
-    // Firebase 콘솔에서 복사한 실제 설정값으로 교체하세요
     const firebaseConfig = {
-      apiKey: "AIzaSyBaOntDx7egYhApd8ep4nZmTpL0CWeZEy0",
-      authDomain: "cuckoo-01.firebaseapp.com",
-      projectId: "cuckoo-01",
-      storageBucket: "cuckoo-01.firebasestorage.app",
-      messagingSenderId: "234502662315",
-      appId: "1:234502662315:web:ed71d3217474d1f336afee",
-      measurementId: "G-BWRDTZ67XK"
+      apiKey: process.env.FIREBASE_API_KEY || "AIzaSyBaOntDx7egYhApd8ep4nZmTpL0CWeZEy0",
+      authDomain: process.env.FIREBASE_AUTH_DOMAIN || "cuckoo-01.firebaseapp.com",
+      projectId: process.env.FIREBASE_PROJECT_ID || "cuckoo-01",
+      storageBucket: process.env.FIREBASE_STORAGE_BUCKET || "cuckoo-01.firebasestorage.app",
+      messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID || "234502662315",
+      appId: process.env.FIREBASE_APP_ID || "1:234502662315:web:ed71d3217474d1f336afee",
+      measurementId: process.env.FIREBASE_MEASUREMENT_ID || "G-BWRDTZ67XK"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
     const db = getFirestore(app);
 
-    // Firebase 함수들을 전역으로 사용할 수 있도록 설정
+    let firebaseConnected = false;
+    
+    async function testFirebaseConnection() {
+      try {
+        const testDoc = doc(db, 'test', 'connection');
+        await setDoc(testDoc, { timestamp: new Date().toISOString() });
+        await deleteDoc(testDoc);
+        firebaseConnected = true;
+        console.log('Firebase 연결 성공');
+        return true;
+      } catch (error) {
+        console.error('Firebase 연결 실패:', error);
+        firebaseConnected = false;
+        return false;
+      }
+    }
+
     window.firebaseDB = {
       db: db,
       collection: collection,
@@ -50,7 +65,9 @@
       addDoc: addDoc,
       updateDoc: updateDoc,
       deleteDoc: deleteDoc,
-      onSnapshot: onSnapshot
+      onSnapshot: onSnapshot,
+      isConnected: () => firebaseConnected,
+      testConnection: testFirebaseConnection
     };
   </script>
   
@@ -81,23 +98,6 @@ body {
   align-items: center;
 }
 
-.page-header::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  transform: rotate(45deg);
-  animation: shimmer 3s infinite;
-}
-
-@keyframes shimmer {
-  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-}
-
 .header-title {
   font-size: 1.8rem;
   font-weight: 800;
@@ -109,23 +109,6 @@ body {
   letter-spacing: 1px;
   position: relative;
   z-index: 1;
-}
-
-.header-subtitle {
-  font-size: 0.9rem;
-  color: #6c757d;
-  margin: 0;
-  font-weight: 500;
-  position: absolute;
-  bottom: 15px;
-  right: 15px;
-  z-index: 1;
-  background: rgba(255, 255, 255, 0.8);
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .header-icon {
@@ -238,6 +221,26 @@ body {
   box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
 }
 
+.btn-info {
+  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+  color: white;
+}
+
+.btn-info:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(23, 162, 184, 0.3);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);
+  color: white;
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(108, 117, 125, 0.3);
+}
+
 .search-section {
   margin-bottom: 25px;
 }
@@ -325,175 +328,29 @@ body {
   text-decoration: underline;
 }
 
-/* 반응형 레이아웃 */
-@media (max-width: 768px) {
-  body {
-    padding: 10px;
-  }
-  
-  .admin-container {
-    margin: 10px;
-  }
-  
-  .admin-section {
-    padding: 20px 15px;
-  }
-  
-  .page-header {
-    margin-bottom: 20px;
-    padding: 20px 15px;
-  }
-  
-  .header-title {
-    font-size: 1.5rem;
-  }
-  
-  .header-icon {
-    font-size: 4rem;
-  }
-  
-  .stats-section {
-    grid-template-columns: 1fr;
-  }
-  
-  .controls-section {
-    flex-direction: column;
-  }
-  
-  .search-input {
-    max-width: 100%;
-  }
-  
-  .users-table {
-    font-size: 0.8rem;
-  }
-  
-  .users-table th,
-  .users-table td {
-    padding: 10px 8px;
-  }
-  
-  .action-buttons {
-    flex-direction: column;
-  }
-}
-
-@media (max-width: 480px) {
-  .admin-container {
-    margin: 5px;
-  }
-  
-  .admin-section {
-    padding: 15px 10px;
-  }
-  
-  .page-header {
-    padding: 15px 10px;
-  }
-  
-  .header-title {
-    font-size: 1.3rem;
-  }
-  
-  .header-icon {
-    font-size: 3.5rem;
-  }
-}
-
-/* Google Analytics 통계 스타일 */
-.analytics-section {
-  margin: 30px 0;
-  padding: 25px;
-  background: #fff;
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e1e8ed;
-}
-
-.analytics-section h3 {
-  margin: 0 0 20px 0;
-  color: #2c3e50;
-  font-size: 1.3rem;
-  font-weight: 700;
-}
-
-.analytics-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-  margin-bottom: 25px;
-}
-
-.analytics-card {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+/* 회원 상태 배지 스타일 */
+.badge {
+  padding: 4px 8px;
   border-radius: 12px;
-  padding: 20px;
-  text-align: center;
-  border: 1px solid #dee2e6;
-  transition: transform 0.2s ease;
-}
-
-.analytics-card:hover {
-  transform: translateY(-2px);
-}
-
-.analytics-card h4 {
-  margin: 0 0 10px 0;
-  color: #495057;
-  font-size: 0.9rem;
+  font-size: 0.75rem;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.analytics-number {
-  font-size: 2rem;
-  font-weight: 800;
-  color: #1976d2;
-  margin-bottom: 5px;
+.bg-success {
+  background-color: #28a745;
+  color: white;
 }
 
-.analytics-label {
-  font-size: 0.8rem;
-  color: #6c757d;
-  font-weight: 500;
-}
-
-.analytics-actions {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
-  flex-wrap: wrap;
-}
-
-.analytics-note {
-  background: #e3f2fd;
-  border: 1px solid #bbdefb;
-  border-radius: 8px;
-  padding: 12px;
-}
-
-.analytics-note p {
-  margin: 0;
-  font-size: 0.85rem;
-  color: #1976d2;
-}
-
-@media (max-width: 768px) {
-  .analytics-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-  
-  .analytics-actions {
-    flex-direction: column;
-  }
-  
-  .analytics-actions .btn {
-    width: 100%;
-  }
+.bg-danger {
+  background-color: #dc3545;
+  color: white;
 }
 
 /* Firebase 동기화 스타일 */
 .firebase-sync-section {
-  margin-top: 20px;
+  margin: 30px 0;
   padding: 20px;
   background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
   border-radius: 12px;
@@ -562,7 +419,58 @@ body {
   color: #ffd700;
 }
 
+/* 반응형 레이아웃 */
 @media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+  
+  .admin-container {
+    margin: 10px;
+  }
+  
+  .admin-section {
+    padding: 20px 15px;
+  }
+  
+  .page-header {
+    margin-bottom: 20px;
+    padding: 20px 15px;
+  }
+  
+  .header-title {
+    font-size: 1.5rem;
+  }
+  
+  .header-icon {
+    font-size: 4rem;
+  }
+  
+  .stats-section {
+    grid-template-columns: 1fr;
+  }
+  
+  .controls-section {
+    flex-direction: column;
+  }
+  
+  .search-input {
+    max-width: 100%;
+  }
+  
+  .users-table {
+    font-size: 0.8rem;
+  }
+  
+  .users-table th,
+  .users-table td {
+    padding: 10px 8px;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
   .sync-buttons {
     flex-direction: column;
   }
@@ -572,146 +480,25 @@ body {
   }
 }
 
-/* 통합 회원 관리 스타일 */
-.member-management-section {
-  margin: 30px 0;
-  padding: 25px;
-  background: #fff;
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e1e8ed;
-}
-
-.member-management-section h3 {
-  margin: 0 0 20px 0;
-  color: #2c3e50;
-  font-size: 1.3rem;
-  font-weight: 700;
-}
-
-.member-stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-  margin-bottom: 25px;
-}
-
-.member-stat-card {
-  background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
-  border-radius: 12px;
-  padding: 20px;
-  text-align: center;
-  border: 1px solid #c3e6cb;
-  transition: transform 0.2s ease;
-}
-
-.member-stat-card:hover {
-  transform: translateY(-2px);
-}
-
-.member-stat-card h4 {
-  margin: 0 0 10px 0;
-  color: #155724;
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-.member-stat-number {
-  font-size: 2rem;
-  font-weight: 800;
-  color: #28a745;
-  margin-bottom: 5px;
-}
-
-.member-stat-label {
-  font-size: 0.8rem;
-  color: #6c757d;
-  font-weight: 500;
-}
-
-.member-tools {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-bottom: 25px;
-}
-
-.tool-group {
-  background: #f8f9fa;
-  border-radius: 10px;
-  padding: 20px;
-  border: 1px solid #dee2e6;
-}
-
-.tool-group h4 {
-  margin: 0 0 15px 0;
-  color: #495057;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.tool-group .btn {
-  display: block;
-  width: 100%;
-  margin-bottom: 10px;
-  font-size: 0.85rem;
-}
-
-.advanced-filters {
-  background: #f8f9fa;
-  border-radius: 10px;
-  padding: 20px;
-  border: 1px solid #dee2e6;
-}
-
-.advanced-filters h4 {
-  margin: 0 0 15px 0;
-  color: #495057;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.filter-controls {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.filter-controls select,
-.filter-controls input {
-  padding: 8px 12px;
-  border: 1px solid #ced4da;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  background: #fff;
-}
-
-.filter-controls select:focus,
-.filter-controls input:focus {
-  outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
-}
-
-@media (max-width: 768px) {
-  .member-stats-grid {
-    grid-template-columns: 1fr 1fr;
+@media (max-width: 480px) {
+  .admin-container {
+    margin: 5px;
   }
   
-  .member-tools {
-    grid-template-columns: 1fr;
+  .admin-section {
+    padding: 15px 10px;
   }
   
-  .filter-controls {
-    flex-direction: column;
-    align-items: stretch;
+  .page-header {
+    padding: 15px 10px;
   }
   
-  .filter-controls select,
-  .filter-controls input,
-  .filter-controls .btn {
-    width: 100%;
+  .header-title {
+    font-size: 1.3rem;
+  }
+  
+  .header-icon {
+    font-size: 3.5rem;
   }
 }
   </style>
@@ -724,155 +511,58 @@ body {
     </div>
 
     <div class="admin-section">
+      <!-- 핵심 통계 -->
       <div class="stats-section">
         <div class="stat-card">
           <h3>총 회원수</h3>
           <p class="number" id="totalUsers">0</p>
         </div>
         <div class="stat-card">
+          <h3>활성 회원</h3>
+          <p class="number" id="activeUsers">0</p>
+        </div>
+        <div class="stat-card">
           <h3>오늘 가입</h3>
           <p class="number" id="todayUsers">0</p>
         </div>
         <div class="stat-card">
-          <h3>활성 회원</h3>
-          <p class="number" id="activeUsers">0</p>
+          <h3>총 접속 기록</h3>
+          <p class="number" id="totalAccess">0</p>
         </div>
       </div>
 
+      <!-- 핵심 기능 버튼 -->
       <div class="controls-section">
         <button class="btn btn-primary" onclick="refreshData()">새로고침</button>
         <button class="btn btn-success" onclick="exportData()">데이터 내보내기</button>
-        <button class="btn btn-danger" onclick="clearAllData()">모든 데이터 삭제</button>
+        <button class="btn btn-info" onclick="viewAccessLogs()">접속 로그</button>
+        <button class="btn btn-secondary" onclick="addTestUsers()">테스트 회원 추가</button>
         <a href="index.html" class="btn btn-primary">메인 페이지로</a>
       </div>
 
-      <!-- Google Analytics 통계 섹션 -->
-      <div class="analytics-section">
-        <h3>📈 웹사이트 통계 (Google Analytics)</h3>
-        <div class="analytics-grid">
-          <div class="analytics-card">
-            <h4>실시간 방문자</h4>
-            <div class="analytics-number" id="realtimeVisitors">-</div>
-            <div class="analytics-label">현재 접속 중</div>
-          </div>
-          <div class="analytics-card">
-            <h4>오늘 방문자</h4>
-            <div class="analytics-number" id="todayVisitors">-</div>
-            <div class="analytics-label">오늘 총 방문</div>
-          </div>
-          <div class="analytics-card">
-            <h4>이번 주 방문자</h4>
-            <div class="analytics-number" id="weekVisitors">-</div>
-            <div class="analytics-label">이번 주 총 방문</div>
-          </div>
-          <div class="analytics-card">
-            <h4>이번 달 방문자</h4>
-            <div class="analytics-number" id="monthVisitors">-</div>
-            <div class="analytics-label">이번 달 총 방문</div>
-          </div>
+      <!-- Firebase 동기화 -->
+      <div class="firebase-sync-section">
+        <h4>🔥 클라우드 동기화</h4>
+        <div class="sync-buttons">
+          <button class="btn btn-success" onclick="syncToFirebase()">클라우드에 업로드</button>
+          <button class="btn btn-info" onclick="syncFromFirebase()">클라우드에서 다운로드</button>
+          <button class="btn btn-primary" onclick="toggleAutoSync()" id="autoSyncBtn">자동 동기화: OFF</button>
         </div>
-        <div class="analytics-actions">
-          <button class="btn btn-primary" onclick="openGoogleAnalytics()">Google Analytics 대시보드 열기</button>
-          <button class="btn btn-secondary" onclick="refreshAnalytics()">통계 새로고침</button>
+        <div class="sync-status" id="syncStatus">
+          <span class="status-text">동기화 상태: 대기 중</span>
         </div>
-
-        <!-- Firebase 동기화 섹션 -->
-        <div class="firebase-sync-section">
-          <h4>🔥 Firebase 실시간 동기화</h4>
-          <div class="sync-buttons">
-            <button class="btn btn-success" onclick="syncToFirebase()">클라우드에 업로드</button>
-            <button class="btn btn-info" onclick="syncFromFirebase()">클라우드에서 다운로드</button>
-            <button class="btn btn-warning" onclick="enableRealtimeSync()">실시간 동기화 시작</button>
-            <button class="btn btn-primary" onclick="toggleAutoSync()" id="autoSyncBtn">자동 동기화: OFF</button>
-          </div>
-          <div class="sync-status" id="syncStatus">
-            <span class="status-text">동기화 상태: 대기 중</span>
-          </div>
-          <div class="auto-sync-info">
-            <p><strong>💡 자동 동기화:</strong> 페이지 로드 시 자동으로 클라우드와 동기화합니다.</p>
-          </div>
-        </div>
-        <div class="analytics-note">
-          <p><strong>참고:</strong> Google Analytics 데이터는 24-48시간 지연될 수 있습니다. 실시간 데이터는 Google Analytics 대시보드에서 확인하세요.</p>
+        <div class="auto-sync-info">
+          <p><strong>💡 자동 동기화:</strong> 페이지 로드 시 자동으로 클라우드와 동기화합니다.</p>
+          <p><strong>📱 크로스 디바이스:</strong> 다른 기기에서도 동일한 데이터에 접근할 수 있습니다.</p>
         </div>
       </div>
 
-      <!-- 통합 회원 관리 섹션 -->
-      <div class="member-management-section">
-        <h3>👥 통합 회원 관리</h3>
-        
-        <!-- 회원 활동 통계 -->
-        <div class="member-stats-grid">
-          <div class="member-stat-card">
-            <h4>활성 회원</h4>
-            <div class="member-stat-number" id="activeMembers">0</div>
-            <div class="member-stat-label">최근 30일 활동</div>
-          </div>
-          <div class="member-stat-card">
-            <h4>견적서 생성</h4>
-            <div class="member-stat-number" id="totalQuotes">0</div>
-            <div class="member-stat-label">총 생성된 견적서</div>
-          </div>
-          <div class="member-stat-card">
-            <h4>PDF 다운로드</h4>
-            <div class="member-stat-number" id="pdfDownloads">0</div>
-            <div class="member-stat-label">총 다운로드 수</div>
-          </div>
-          <div class="member-stat-card">
-            <h4>평균 체류시간</h4>
-            <div class="member-stat-number" id="avgSessionTime">0분</div>
-            <div class="member-stat-label">페이지별 평균</div>
-          </div>
-        </div>
-
-        <!-- 회원 관리 도구 -->
-        <div class="member-tools">
-          <div class="tool-group">
-            <h4>회원 분석</h4>
-            <button class="btn btn-info" onclick="analyzeMemberActivity()">활동 분석</button>
-            <button class="btn btn-warning" onclick="exportMemberData()">회원 데이터 내보내기</button>
-            <button class="btn btn-success" onclick="generateMemberReport()">회원 리포트 생성</button>
-          </div>
-          <div class="tool-group">
-            <h4>회원 관리</h4>
-            <button class="btn btn-primary" onclick="sendBulkMessage()">일괄 메시지 발송</button>
-            <button class="btn btn-secondary" onclick="manageMemberGroups()">회원 그룹 관리</button>
-            <button class="btn btn-danger" onclick="cleanupInactiveMembers()">비활성 회원 정리</button>
-          </div>
-        </div>
-
-        <!-- 고급 필터링 -->
-        <div class="advanced-filters">
-          <h4>고급 필터링</h4>
-          <div class="filter-controls">
-            <select id="activityFilter" onchange="filterMembersByActivity()">
-              <option value="">모든 회원</option>
-              <option value="active">활성 회원 (최근 7일)</option>
-              <option value="inactive">비활성 회원 (30일 이상)</option>
-              <option value="new">신규 회원 (7일 이내)</option>
-              <option value="premium">프리미엄 회원</option>
-            </select>
-            <select id="regionFilter" onchange="filterMembersByRegion()">
-              <option value="">모든 지역</option>
-              <option value="서울">서울</option>
-              <option value="부산">부산</option>
-              <option value="대구">대구</option>
-              <option value="인천">인천</option>
-              <option value="광주">광주</option>
-              <option value="대전">대전</option>
-              <option value="울산">울산</option>
-              <option value="기타">기타</option>
-            </select>
-            <input type="date" id="dateFilter" onchange="filterMembersByDate()" placeholder="가입일 필터">
-            <button class="btn btn-secondary" onclick="clearFilters()">필터 초기화</button>
-          </div>
-        </div>
-      </div>
-
+      <!-- 회원 검색 -->
       <div class="search-section">
         <input type="text" class="search-input" id="searchInput" placeholder="이름, 아이디, 휴대폰 번호로 검색..." onkeyup="filterUsers()">
       </div>
 
+      <!-- 회원 목록 테이블 -->
       <div class="table-container">
         <table class="users-table" id="usersTable">
           <thead>
@@ -884,12 +574,13 @@ body {
               <th>총국</th>
               <th>지국</th>
               <th>가입일</th>
+              <th>상태</th>
               <th>관리</th>
             </tr>
           </thead>
           <tbody id="usersTableBody">
             <tr>
-              <td colspan="8" class="no-data">등록된 사용자가 없습니다.</td>
+              <td colspan="9" class="no-data">등록된 사용자가 없습니다.</td>
             </tr>
           </tbody>
         </table>
@@ -910,20 +601,126 @@ body {
         window.location.href = 'index.html';
         return false;
       }
+      
+      logAdminActivity('관리자 페이지 접속');
       return true;
     }
     
+    // 관리자 활동 로그
+    function logAdminActivity(action) {
+      const adminLogs = JSON.parse(localStorage.getItem('adminLogs') || '[]');
+      const logEntry = {
+        action: action,
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        deviceInfo: getDeviceInfo(),
+        screenResolution: `${screen.width}x${screen.height}`,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        language: navigator.language
+      };
+      
+      adminLogs.push(logEntry);
+      
+      if (adminLogs.length > 100) {
+        adminLogs.splice(0, adminLogs.length - 100);
+      }
+      
+      localStorage.setItem('adminLogs', JSON.stringify(adminLogs));
+    }
+
+    // 디바이스 정보 가져오기
+    function getDeviceInfo() {
+      const userAgent = navigator.userAgent;
+      let deviceType = '데스크톱';
+      
+      if (/Android/i.test(userAgent)) {
+        deviceType = 'Android';
+      } else if (/iPhone|iPad|iPod/i.test(userAgent)) {
+        deviceType = 'iOS';
+      } else if (/Windows/i.test(userAgent)) {
+        deviceType = 'Windows';
+      } else if (/Mac/i.test(userAgent)) {
+        deviceType = 'Mac';
+      } else if (/Linux/i.test(userAgent)) {
+        deviceType = 'Linux';
+      }
+      
+      return deviceType;
+    }
+
     // 페이지 로드 시 데이터 로드
-    window.addEventListener('load', function() {
+    window.addEventListener('load', async function() {
       if (!checkAdminPermission()) return;
+      
+      const firebaseStatus = await window.firebaseDB.testConnection();
+      updateFirebaseStatus(firebaseStatus);
+      
+      // Firebase에서 최신 데이터 동기화
+      await syncFromFirebase();
+      
+      // 실시간 동기화 시작
+      startRealtimeSync();
       
       loadUsers();
       updateStats();
-      updateVisitStats(); // 방문 통계 업데이트
-      refreshAnalytics(); // Analytics 통계 표시
-      updateMemberStats(); // 회원 통계 업데이트
-      initializeAutoSync(); // 자동 동기화 초기화
+      initializeAutoSync();
     });
+
+    // 실시간 동기화 시작
+    function startRealtimeSync() {
+      try {
+        const docRef = window.firebaseDB.doc(window.firebaseDB.db, 'appData', 'members');
+        
+        // 실시간 리스너 설정
+        window.firebaseDB.onSnapshot(docRef, (doc) => {
+          if (doc.exists()) {
+            const data = doc.data();
+            
+            // 로컬 데이터와 비교하여 업데이트
+            const localUsers = JSON.parse(localStorage.getItem('users') || '[]');
+            const localAccessLogs = JSON.parse(localStorage.getItem('accessLogs') || '[]');
+            
+            if (JSON.stringify(data.users) !== JSON.stringify(localUsers) ||
+                JSON.stringify(data.accessLogs) !== JSON.stringify(localAccessLogs)) {
+              
+              // 데이터가 다르면 업데이트
+              if (data.users) {
+                localStorage.setItem('users', JSON.stringify(data.users));
+              }
+              if (data.accessLogs) {
+                localStorage.setItem('accessLogs', JSON.stringify(data.accessLogs));
+              }
+              
+              // UI 업데이트
+              loadUsers();
+              updateStats();
+              
+              console.log('실시간 동기화 완료 - 데이터 업데이트됨');
+            }
+          }
+        });
+        
+        console.log('실시간 동기화 활성화됨');
+        
+      } catch (error) {
+        console.error('실시간 동기화 오류:', error);
+      }
+    }
+
+    // Firebase 연결 상태 표시
+    function updateFirebaseStatus(isConnected) {
+      const statusElement = document.getElementById('syncStatus');
+      const statusText = statusElement.querySelector('.status-text');
+      
+      if (isConnected) {
+        const deviceInfo = getDeviceInfo();
+        statusText.textContent = `Firebase 연결됨 - ${deviceInfo}에서 접속 중`;
+        statusElement.className = 'sync-status success';
+      } else {
+        statusText.textContent = 'Firebase 연결 실패 - 오프라인 모드';
+        statusElement.className = 'sync-status error';
+      }
+    }
 
     // 사용자 데이터 로드
     function loadUsers() {
@@ -931,11 +728,24 @@ body {
       const tableBody = document.getElementById('usersTableBody');
       
       if (users.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="8" class="no-data">등록된 사용자가 없습니다.</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="9" class="no-data">등록된 사용자가 없습니다.</td></tr>';
         return;
       }
 
-      tableBody.innerHTML = users.map((user, index) => `
+      const updatedUsers = users.map(user => {
+        const lastActivity = user.lastActivity ? new Date(user.lastActivity) : new Date(user.registerDate);
+        const now = new Date();
+        const daysSinceLastActivity = Math.floor((now - lastActivity) / (1000 * 60 * 60 * 24));
+        
+        user.isActive = daysSinceLastActivity < 30;
+        user.daysSinceLastActivity = daysSinceLastActivity;
+        
+        return user;
+      });
+
+      localStorage.setItem('users', JSON.stringify(updatedUsers));
+
+      tableBody.innerHTML = updatedUsers.map((user, index) => `
         <tr>
           <td>${index + 1}</td>
           <td>${user.username}</td>
@@ -945,7 +755,14 @@ body {
           <td>${user.position}</td>
           <td>${user.registerDate}</td>
           <td>
+            ${user.isActive ? 
+              '<span class="badge bg-success">활성</span>' : 
+              '<span class="badge bg-danger">비활성</span>'
+            }
+          </td>
+          <td>
             <div class="action-buttons">
+              <button class="btn btn-info btn-small" onclick="viewUserDetails('${user.username}')">상세</button>
               <button class="btn btn-danger btn-small" onclick="deleteUser('${user.username}')">삭제</button>
             </div>
           </td>
@@ -956,349 +773,154 @@ body {
     // 통계 업데이트
     function updateStats() {
       const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const accessLogs = JSON.parse(localStorage.getItem('accessLogs') || '[]');
       const today = new Date().toDateString();
       
       const totalUsers = users.length;
       const todayUsers = users.filter(user => user.registerDate === today).length;
-      const activeUsers = users.length; // 간단히 모든 사용자를 활성으로 간주
+      const activeUsers = users.filter(user => user.isActive).length;
+      const totalAccess = accessLogs.length;
 
       document.getElementById('totalUsers').textContent = totalUsers;
       document.getElementById('todayUsers').textContent = todayUsers;
       document.getElementById('activeUsers').textContent = activeUsers;
+      document.getElementById('totalAccess').textContent = totalAccess;
     }
 
-    // Google Analytics 대시보드 열기
-    function openGoogleAnalytics() {
-      window.open('https://analytics.google.com/analytics/web/#/p4071234567/reports/intelligenthome', '_blank');
-    }
-
-    // Analytics 통계 새로고침
-    function refreshAnalytics() {
-      // Google Analytics API는 직접 접근이 제한적이므로
-      // 사용자에게 Google Analytics 대시보드를 확인하도록 안내
-      alert('실시간 Google Analytics 데이터는 Google Analytics 대시보드에서 확인하세요.\n\n링크: https://analytics.google.com/analytics/web/#/p4071234567/reports/intelligenthome');
-      
-      // 로컬 스토리지에서 간단한 방문 통계 표시 (예시)
-      const visitStats = JSON.parse(localStorage.getItem('visitStats') || '{}');
-      document.getElementById('realtimeVisitors').textContent = visitStats.realtime || '0';
-      document.getElementById('todayVisitors').textContent = visitStats.today || '0';
-      document.getElementById('weekVisitors').textContent = visitStats.week || '0';
-      document.getElementById('monthVisitors').textContent = visitStats.month || '0';
-    }
-
-    // 페이지 방문 통계 업데이트 (간단한 예시)
-    function updateVisitStats() {
-      const today = new Date().toDateString();
-      const visitStats = JSON.parse(localStorage.getItem('visitStats') || '{}');
-      
-      // 오늘 방문자 수 증가
-      if (!visitStats[today]) {
-        visitStats[today] = 0;
-      }
-      visitStats[today]++;
-      
-      // 실시간 방문자 (간단한 시뮬레이션)
-      visitStats.realtime = Math.floor(Math.random() * 10) + 1;
-      
-      // 주간, 월간 통계 계산
-      const todayCount = visitStats[today] || 0;
-      visitStats.today = todayCount;
-      visitStats.week = todayCount * 7; // 간단한 예시
-      visitStats.month = todayCount * 30; // 간단한 예시
-      
-      localStorage.setItem('visitStats', JSON.stringify(visitStats));
-    }
-
-    // 통합 회원 관리 함수들
-    function updateMemberStats() {
+    // 사용자 상세 정보 보기
+    function viewUserDetails(username) {
       const users = JSON.parse(localStorage.getItem('users') || '[]');
-      const quotes = JSON.parse(localStorage.getItem('quotes') || '[]');
-      
-      // 활성 회원 수 (최근 30일 활동)
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      const activeMembers = users.filter(user => {
-        const lastActivity = new Date(user.lastActivity || user.registerDate);
-        return lastActivity > thirtyDaysAgo;
-      }).length;
-      
-      // 견적서 생성 수
-      const totalQuotes = quotes.length;
-      
-      // PDF 다운로드 수 (시뮬레이션)
-      const pdfDownloads = Math.floor(totalQuotes * 0.8); // 80% 다운로드율 가정
-      
-      // 평균 체류시간 (시뮬레이션)
-      const avgSessionTime = Math.floor(Math.random() * 10) + 5; // 5-15분
-      
-      document.getElementById('activeMembers').textContent = activeMembers;
-      document.getElementById('totalQuotes').textContent = totalQuotes;
-      document.getElementById('pdfDownloads').textContent = pdfDownloads;
-      document.getElementById('avgSessionTime').textContent = avgSessionTime + '분';
-    }
+      const user = users.find(u => u.username === username);
 
-    // 회원 활동 분석
-    function analyzeMemberActivity() {
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      const quotes = JSON.parse(localStorage.getItem('quotes') || '[]');
-      
-      let analysis = '=== 회원 활동 분석 리포트 ===\n\n';
-      
-      // 지역별 회원 분포
-      const regionStats = {};
-      users.forEach(user => {
-        const region = user.region || '기타';
-        regionStats[region] = (regionStats[region] || 0) + 1;
-      });
-      
-      analysis += '📊 지역별 회원 분포:\n';
-      Object.entries(regionStats).forEach(([region, count]) => {
-        analysis += `- ${region}: ${count}명 (${((count/users.length)*100).toFixed(1)}%)\n`;
-      });
-      
-      // 견적서 생성 패턴
-      analysis += '\n📋 견적서 생성 패턴:\n';
-      analysis += `- 총 견적서: ${quotes.length}개\n`;
-      analysis += `- 평균 생성률: ${(quotes.length/users.length).toFixed(1)}개/회원\n`;
-      
-      // 활성도 분석
-      const activeUsers = users.filter(user => {
-        const lastActivity = new Date(user.lastActivity || user.registerDate);
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-        return lastActivity > sevenDaysAgo;
-      });
-      
-      analysis += `- 활성 회원: ${activeUsers.length}명 (${((activeUsers.length/users.length)*100).toFixed(1)}%)\n`;
-      
-      alert(analysis);
-    }
-
-    // 회원 데이터 내보내기
-    function exportMemberData() {
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      const quotes = JSON.parse(localStorage.getItem('quotes') || '[]');
-      
-      const exportData = {
-        users: users,
-        quotes: quotes,
-        exportDate: new Date().toISOString(),
-        totalUsers: users.length,
-        totalQuotes: quotes.length
-      };
-      
-      const dataStr = JSON.stringify(exportData, null, 2);
-      const dataBlob = new Blob([dataStr], {type: 'application/json'});
-      
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(dataBlob);
-      link.download = `member_data_${new Date().toISOString().split('T')[0]}.json`;
-      link.click();
-      
-      alert('회원 데이터가 성공적으로 내보내졌습니다!');
-    }
-
-    // 회원 리포트 생성
-    function generateMemberReport() {
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      const quotes = JSON.parse(localStorage.getItem('quotes') || '[]');
-      
-      let report = `
-        <html>
-        <head>
-          <title>회원 관리 리포트</title>
-          <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            .header { text-align: center; margin-bottom: 30px; }
-            .section { margin-bottom: 20px; }
-            table { width: 100%; border-collapse: collapse; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-            th { background-color: #f2f2f2; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>쿠쿠 수수료계산기 - 회원 관리 리포트</h1>
-            <p>생성일: ${new Date().toLocaleDateString()}</p>
-          </div>
-          
-          <div class="section">
-            <h2>📊 전체 통계</h2>
-            <p>총 회원 수: ${users.length}명</p>
-            <p>총 견적서 수: ${quotes.length}개</p>
-            <p>평균 견적서 생성률: ${(quotes.length/users.length).toFixed(1)}개/회원</p>
-          </div>
-          
-          <div class="section">
-            <h2>👥 회원 목록</h2>
-            <table>
-              <tr>
-                <th>번호</th>
-                <th>아이디</th>
-                <th>이름</th>
-                <th>지역</th>
-                <th>가입일</th>
-              </tr>
-              ${users.map((user, index) => `
-                <tr>
-                  <td>${index + 1}</td>
-                  <td>${user.username}</td>
-                  <td>${user.name}</td>
-                  <td>${user.region || '-'}</td>
-                  <td>${user.registerDate}</td>
-                </tr>
-              `).join('')}
-            </table>
-          </div>
-        </body>
-        </html>
-      `;
-      
-      const reportBlob = new Blob([report], {type: 'text/html'});
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(reportBlob);
-      link.download = `member_report_${new Date().toISOString().split('T')[0]}.html`;
-      link.click();
-      
-      alert('회원 리포트가 성공적으로 생성되었습니다!');
-    }
-
-    // 일괄 메시지 발송
-    function sendBulkMessage() {
-      const message = prompt('발송할 메시지를 입력하세요:');
-      if (!message) return;
-      
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      const selectedUsers = users.filter(user => user.isSelected);
-      
-      if (selectedUsers.length === 0) {
-        alert('발송할 회원을 선택해주세요.');
+      if (!user) {
+        alert('사용자를 찾을 수 없습니다.');
         return;
       }
+
+      const lastActivity = user.lastActivity ? new Date(user.lastActivity) : new Date(user.registerDate);
+      const now = new Date();
+      const daysSinceLastActivity = Math.floor((now - lastActivity) / (1000 * 60 * 60 * 24));
+      const daysSinceRegistration = Math.floor((now - new Date(user.registerDate)) / (1000 * 60 * 60 * 24));
+
+      let details = `=== ${user.name} (${user.username}) 상세 정보 ===\n\n`;
+      details += `📋 기본 정보:\n`;
+      details += `• 아이디: ${user.username}\n`;
+      details += `• 이름: ${user.name}\n`;
+      details += `• 휴대폰: ${user.phone}\n`;
+      details += `• 총국: ${user.region || 'N/A'}\n`;
+      details += `• 지국: ${user.position || 'N/A'}\n\n`;
       
-      alert(`${selectedUsers.length}명의 회원에게 메시지가 발송되었습니다.\n\n메시지: ${message}`);
+      details += `📅 활동 정보:\n`;
+      details += `• 가입일: ${new Date(user.registerDate).toLocaleDateString()} (${daysSinceRegistration}일 전)\n`;
+      details += `• 마지막 활동: ${lastActivity.toLocaleDateString()} (${daysSinceLastActivity}일 전)\n`;
+      details += `• 활동 상태: ${user.isActive ? '활성' : '비활성'}\n`;
+
+      alert(details);
     }
 
-    // 회원 그룹 관리
-    function manageMemberGroups() {
-      const groups = [
-        { name: '신규 회원', count: 0 },
-        { name: '활성 회원', count: 0 },
-        { name: '비활성 회원', count: 0 },
-        { name: '프리미엄 회원', count: 0 }
-      ];
+    // 접속 로그 보기
+    function viewAccessLogs() {
+      const accessLogs = JSON.parse(localStorage.getItem('accessLogs') || '[]');
+      const adminLogs = JSON.parse(localStorage.getItem('adminLogs') || '[]');
       
-      let groupInfo = '=== 회원 그룹 현황 ===\n\n';
-      groups.forEach(group => {
-        groupInfo += `${group.name}: ${group.count}명\n`;
-      });
-      
-      alert(groupInfo + '\n그룹 관리 기능은 향후 업데이트 예정입니다.');
-    }
-
-    // 비활성 회원 정리
-    function cleanupInactiveMembers() {
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      const ninetyDaysAgo = new Date();
-      ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
-      
-      const inactiveUsers = users.filter(user => {
-        const lastActivity = new Date(user.lastActivity || user.registerDate);
-        return lastActivity < ninetyDaysAgo;
-      });
-      
-      if (inactiveUsers.length === 0) {
-        alert('정리할 비활성 회원이 없습니다.');
+      if (accessLogs.length === 0 && adminLogs.length === 0) {
+        alert('등록된 접속 로그가 없습니다.');
         return;
       }
+
+      let logContent = '=== 접속 로그 분석 ===\n\n';
       
-      if (confirm(`${inactiveUsers.length}명의 비활성 회원을 정리하시겠습니까?\n(90일 이상 활동이 없는 회원)`)) {
-        const activeUsers = users.filter(user => {
-          const lastActivity = new Date(user.lastActivity || user.registerDate);
-          return lastActivity >= ninetyDaysAgo;
-        });
+      const allLogs = [...accessLogs, ...adminLogs];
+      const uniqueUsers = [...new Set(allLogs.map(log => log.username || '관리자'))];
+      const uniqueDevices = [...new Set(allLogs.map(log => log.deviceInfo || log.userAgent))];
+      
+      logContent += `📊 전체 통계:\n`;
+      logContent += `• 총 접속 기록: ${allLogs.length}건\n`;
+      logContent += `• 고유 사용자: ${uniqueUsers.length}명\n`;
+      logContent += `• 사용 기기 종류: ${uniqueDevices.length}종\n\n`;
+      
+      logContent += `🕒 최근 접속 기록 (최근 10건):\n`;
+      allLogs.slice(-10).reverse().forEach((log, index) => {
+        const date = new Date(log.timestamp).toLocaleString('ko-KR');
+        const user = log.username || '관리자';
+        const device = log.deviceInfo || '알 수 없음';
+        const action = log.action || '접속';
         
-        localStorage.setItem('users', JSON.stringify(activeUsers));
-        alert(`${inactiveUsers.length}명의 비활성 회원이 정리되었습니다.`);
-        loadUsers();
-        updateStats();
-      }
+        logContent += `${index + 1}. [${date}] ${user} - ${action}\n`;
+        logContent += `   기기: ${device}\n\n`;
+      });
+
+      const deviceStats = {};
+      allLogs.forEach(log => {
+        const device = log.deviceInfo || '알 수 없음';
+        deviceStats[device] = (deviceStats[device] || 0) + 1;
+      });
+      
+      logContent += `📱 기기별 접속 통계:\n`;
+      Object.entries(deviceStats).forEach(([device, count]) => {
+        logContent += `• ${device}: ${count}회\n`;
+      });
+
+      alert(logContent);
     }
 
-    // 고급 필터링 함수들
-    function filterMembersByActivity() {
-      const filter = document.getElementById('activityFilter').value;
+    // 테스트 회원 추가
+    function addTestUsers() {
       const users = JSON.parse(localStorage.getItem('users') || '[]');
-      const tableBody = document.getElementById('usersTableBody');
-      
-      let filteredUsers = users;
-      
-      if (filter === 'active') {
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-        filteredUsers = users.filter(user => {
-          const lastActivity = new Date(user.lastActivity || user.registerDate);
-          return lastActivity > sevenDaysAgo;
-        });
-      } else if (filter === 'inactive') {
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        filteredUsers = users.filter(user => {
-          const lastActivity = new Date(user.lastActivity || user.registerDate);
-          return lastActivity < thirtyDaysAgo;
-        });
-      } else if (filter === 'new') {
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-        filteredUsers = users.filter(user => {
-          const registerDate = new Date(user.registerDate);
-          return registerDate > sevenDaysAgo;
-        });
-      }
-      
-      displayFilteredUsers(filteredUsers);
-    }
+      const newUsers = [
+        {
+          username: 'testuser1',
+          name: '테스트 사용자 1',
+          phone: '010-1234-5678',
+          region: '서울',
+          position: '총국',
+          registerDate: new Date().toDateString(),
+          lastActivity: new Date().toISOString(),
+          isActive: true
+        },
+        {
+          username: 'testuser2',
+          name: '테스트 사용자 2',
+          phone: '010-2345-6789',
+          region: '부산',
+          position: '지국',
+          registerDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toDateString(),
+          lastActivity: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(),
+          isActive: true
+        }
+      ];
 
-    function filterMembersByRegion() {
-      const filter = document.getElementById('regionFilter').value;
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      
-      let filteredUsers = users;
-      if (filter) {
-        filteredUsers = users.filter(user => user.region === filter);
-      }
-      
-      displayFilteredUsers(filteredUsers);
-    }
-
-    function filterMembersByDate() {
-      const filter = document.getElementById('dateFilter').value;
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      
-      let filteredUsers = users;
-      if (filter) {
-        filteredUsers = users.filter(user => user.registerDate === filter);
-      }
-      
-      displayFilteredUsers(filteredUsers);
-    }
-
-    function clearFilters() {
-      document.getElementById('activityFilter').value = '';
-      document.getElementById('regionFilter').value = '';
-      document.getElementById('dateFilter').value = '';
+      const updatedUsers = [...users, ...newUsers];
+      localStorage.setItem('users', JSON.stringify(updatedUsers));
       loadUsers();
+      updateStats();
+      alert('테스트 회원 2명이 추가되었습니다.');
+      logAdminActivity('테스트 회원 추가');
     }
 
-    function displayFilteredUsers(users) {
+    // 사용자 검색/필터링
+    function filterUsers() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
       const tableBody = document.getElementById('usersTableBody');
       
       if (users.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="8" class="no-data">필터링된 결과가 없습니다.</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="9" class="no-data">등록된 사용자가 없습니다.</td></tr>';
         return;
       }
 
-      tableBody.innerHTML = users.map((user, index) => `
+      const filteredUsers = users.filter(user => 
+        user.name.toLowerCase().includes(searchTerm) ||
+        user.username.toLowerCase().includes(searchTerm) ||
+        user.phone.includes(searchTerm)
+      );
+
+      if (filteredUsers.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="9" class="no-data">검색 결과가 없습니다.</td></tr>';
+        return;
+      }
+
+      tableBody.innerHTML = filteredUsers.map((user, index) => `
         <tr>
           <td>${index + 1}</td>
           <td>${user.username}</td>
@@ -1308,12 +930,77 @@ body {
           <td>${user.position}</td>
           <td>${user.registerDate}</td>
           <td>
+            ${user.isActive ? 
+              '<span class="badge bg-success">활성</span>' : 
+              '<span class="badge bg-danger">비활성</span>'
+            }
+          </td>
+          <td>
             <div class="action-buttons">
+              <button class="btn btn-info btn-small" onclick="viewUserDetails('${user.username}')">상세</button>
               <button class="btn btn-danger btn-small" onclick="deleteUser('${user.username}')">삭제</button>
             </div>
           </td>
         </tr>
       `).join('');
+    }
+
+    // 사용자 삭제
+    function deleteUser(username) {
+      if (confirm(`정말로 ${username} 사용자를 삭제하시겠습니까?`)) {
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        const updatedUsers = users.filter(user => user.username !== username);
+        localStorage.setItem('users', JSON.stringify(updatedUsers));
+        
+        logAdminActivity(`사용자 삭제: ${username}`);
+        
+        loadUsers();
+        updateStats();
+        alert('사용자가 삭제되었습니다.');
+      }
+    }
+
+    // 데이터 새로고침
+    function refreshData() {
+      loadUsers();
+      updateStats();
+      logAdminActivity('데이터 새로고침');
+      alert('데이터가 새로고침되었습니다.');
+    }
+
+    // 데이터 내보내기
+    function exportData() {
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      if (users.length === 0) {
+        alert('내보낼 데이터가 없습니다.');
+        return;
+      }
+
+      const csvContent = [
+        ['번호', '아이디', '이름', '휴대폰', '총국', '지국', '가입일', '상태'],
+        ...users.map((user, index) => [
+          index + 1,
+          user.username,
+          user.name,
+          user.phone,
+          user.region,
+          user.position,
+          user.registerDate,
+          user.isActive ? '활성' : '비활성'
+        ])
+      ].map(row => row.join(',')).join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `사용자목록_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      logAdminActivity(`데이터 내보내기: ${users.length}명의 사용자 데이터`);
     }
 
     // Firebase 동기화 함수들
@@ -1325,22 +1012,28 @@ body {
       statusElement.className = 'sync-status ' + type;
     }
 
-    // Firebase에 데이터 업로드
     async function syncToFirebase() {
       try {
+        if (!window.firebaseDB.isConnected()) {
+          const connected = await window.firebaseDB.testConnection();
+          if (!connected) {
+            updateSyncStatus('Firebase 연결이 필요합니다.', 'error');
+            return;
+          }
+        }
+        
         updateSyncStatus('클라우드에 업로드 중...', 'syncing');
         
         const users = JSON.parse(localStorage.getItem('users') || '[]');
-        const quotes = JSON.parse(localStorage.getItem('quotes') || '[]');
+        const accessLogs = JSON.parse(localStorage.getItem('accessLogs') || '[]');
         
         const data = {
           users: users,
-          quotes: quotes,
+          accessLogs: accessLogs,
           lastUpdated: new Date().toISOString(),
           deviceId: navigator.userAgent
         };
         
-        // Firebase에 데이터 저장
         await window.firebaseDB.setDoc(
           window.firebaseDB.doc(window.firebaseDB.db, 'appData', 'members'),
           data
@@ -1356,9 +1049,16 @@ body {
       }
     }
 
-    // Firebase에서 데이터 다운로드
     async function syncFromFirebase() {
       try {
+        if (!window.firebaseDB.isConnected()) {
+          const connected = await window.firebaseDB.testConnection();
+          if (!connected) {
+            updateSyncStatus('Firebase 연결이 필요합니다.', 'error');
+            return;
+          }
+        }
+        
         updateSyncStatus('클라우드에서 다운로드 중...', 'syncing');
         
         const docRef = window.firebaseDB.doc(window.firebaseDB.db, 'appData', 'members');
@@ -1367,18 +1067,15 @@ body {
         if (docSnap.exists()) {
           const data = docSnap.data();
           
-          // Local Storage에 데이터 저장
           if (data.users) {
             localStorage.setItem('users', JSON.stringify(data.users));
           }
-          if (data.quotes) {
-            localStorage.setItem('quotes', JSON.stringify(data.quotes));
+          if (data.accessLogs) {
+            localStorage.setItem('accessLogs', JSON.stringify(data.accessLogs));
           }
           
-          // UI 업데이트
           loadUsers();
           updateStats();
-          updateMemberStats();
           
           updateSyncStatus('클라우드 다운로드 완료!', 'success');
           setTimeout(() => updateSyncStatus('동기화 상태: 대기 중'), 3000);
@@ -1395,53 +1092,6 @@ body {
       }
     }
 
-    // 실시간 동기화 시작
-    function enableRealtimeSync() {
-      try {
-        updateSyncStatus('실시간 동기화 시작...', 'syncing');
-        
-        const docRef = window.firebaseDB.doc(window.firebaseDB.db, 'appData', 'members');
-        
-        // 실시간 리스너 설정
-        window.firebaseDB.onSnapshot(docRef, (doc) => {
-          if (doc.exists()) {
-            const data = doc.data();
-            
-            // 로컬 데이터와 비교하여 업데이트
-            const localUsers = JSON.parse(localStorage.getItem('users') || '[]');
-            const localQuotes = JSON.parse(localStorage.getItem('quotes') || '[]');
-            
-            if (JSON.stringify(data.users) !== JSON.stringify(localUsers) ||
-                JSON.stringify(data.quotes) !== JSON.stringify(localQuotes)) {
-              
-              // 데이터가 다르면 업데이트
-              if (data.users) {
-                localStorage.setItem('users', JSON.stringify(data.users));
-              }
-              if (data.quotes) {
-                localStorage.setItem('quotes', JSON.stringify(data.quotes));
-              }
-              
-              loadUsers();
-              updateStats();
-              updateMemberStats();
-              
-              updateSyncStatus('실시간 동기화 완료!', 'success');
-              setTimeout(() => updateSyncStatus('실시간 동기화 활성화 중...', 'default'), 2000);
-            }
-          }
-        });
-        
-        updateSyncStatus('실시간 동기화 활성화됨', 'success');
-        
-      } catch (error) {
-        console.error('실시간 동기화 오류:', error);
-        updateSyncStatus('실시간 동기화 실패: ' + error.message, 'error');
-        setTimeout(() => updateSyncStatus('동기화 상태: 대기 중'), 5000);
-      }
-    }
-
-    // 자동 동기화 토글
     function toggleAutoSync() {
       const autoSyncEnabled = localStorage.getItem('autoSyncEnabled') === 'true';
       const newState = !autoSyncEnabled;
@@ -1460,15 +1110,13 @@ body {
       }
     }
 
-    // 자동 동기화 상태 확인 및 적용
-    function checkAutoSyncStatus() {
+    function initializeAutoSync() {
       const autoSyncEnabled = localStorage.getItem('autoSyncEnabled') === 'true';
       const btn = document.getElementById('autoSyncBtn');
       
       if (autoSyncEnabled) {
         btn.textContent = '자동 동기화: ON';
         btn.className = 'btn btn-success';
-        // 자동으로 클라우드에서 데이터 다운로드
         setTimeout(() => {
           syncFromFirebase();
         }, 1000);
@@ -1476,121 +1124,13 @@ body {
         btn.textContent = '자동 동기화: OFF';
         btn.className = 'btn btn-primary';
       }
-    }
-
-    // 페이지 로드 시 자동 동기화 확인
-    function initializeAutoSync() {
-      checkAutoSyncStatus();
       
-      // 5분마다 자동 동기화 (자동 동기화가 활성화된 경우)
       setInterval(() => {
         const autoSyncEnabled = localStorage.getItem('autoSyncEnabled') === 'true';
         if (autoSyncEnabled) {
           syncFromFirebase();
         }
-      }, 5 * 60 * 1000); // 5분
-    }
-
-    // 사용자 검색/필터링
-    function filterUsers() {
-      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      const tableBody = document.getElementById('usersTableBody');
-      
-      if (users.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="8" class="no-data">등록된 사용자가 없습니다.</td></tr>';
-        return;
-      }
-
-      const filteredUsers = users.filter(user => 
-        user.name.toLowerCase().includes(searchTerm) ||
-        user.username.toLowerCase().includes(searchTerm) ||
-        user.phone.includes(searchTerm)
-      );
-
-      if (filteredUsers.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="8" class="no-data">검색 결과가 없습니다.</td></tr>';
-        return;
-      }
-
-      tableBody.innerHTML = filteredUsers.map((user, index) => `
-        <tr>
-          <td>${index + 1}</td>
-          <td>${user.username}</td>
-          <td>${user.name}</td>
-          <td>${user.phone}</td>
-          <td>${user.region}</td>
-          <td>${user.position}</td>
-          <td>${user.registerDate}</td>
-          <td>
-            <div class="action-buttons">
-              <button class="btn btn-danger btn-small" onclick="deleteUser('${user.username}')">삭제</button>
-            </div>
-          </td>
-        </tr>
-      `).join('');
-    }
-
-    // 사용자 삭제
-    function deleteUser(username) {
-      if (confirm(`정말로 ${username} 사용자를 삭제하시겠습니까?`)) {
-        const users = JSON.parse(localStorage.getItem('users') || '[]');
-        const updatedUsers = users.filter(user => user.username !== username);
-        localStorage.setItem('users', JSON.stringify(updatedUsers));
-        
-        loadUsers();
-        updateStats();
-        alert('사용자가 삭제되었습니다.');
-      }
-    }
-
-    // 데이터 새로고침
-    function refreshData() {
-      loadUsers();
-      updateStats();
-      alert('데이터가 새로고침되었습니다.');
-    }
-
-    // 데이터 내보내기
-    function exportData() {
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      if (users.length === 0) {
-        alert('내보낼 데이터가 없습니다.');
-        return;
-      }
-
-      const csvContent = [
-        ['번호', '아이디', '이름', '휴대폰', '총국', '지국', '가입일'],
-        ...users.map((user, index) => [
-          index + 1,
-          user.username,
-          user.name,
-          user.phone,
-          user.region,
-          user.position,
-          user.registerDate
-        ])
-      ].map(row => row.join(',')).join('\n');
-
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', `사용자목록_${new Date().toISOString().split('T')[0]}.csv`);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-
-    // 모든 데이터 삭제
-    function clearAllData() {
-      if (confirm('정말로 모든 사용자 데이터를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
-        localStorage.removeItem('users');
-        loadUsers();
-        updateStats();
-        alert('모든 데이터가 삭제되었습니다.');
-      }
+      }, 5 * 60 * 1000);
     }
   </script>
 </body>

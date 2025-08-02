@@ -5,14 +5,57 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>쿠쿠 수수료계산기 - 로그인</title>
   
-  <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-5V8D4NBW56"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
 
-    gtag('config', 'G-5V8D4NBW56');
+    const firebaseConfig = {
+      apiKey: process.env.FIREBASE_API_KEY || "AIzaSyBaOntDx7egYhApd8ep4nZmTpL0CWeZEy0",
+      authDomain: process.env.FIREBASE_AUTH_DOMAIN || "cuckoo-01.firebaseapp.com",
+      projectId: process.env.FIREBASE_PROJECT_ID || "cuckoo-01",
+      storageBucket: process.env.FIREBASE_STORAGE_BUCKET || "cuckoo-01.firebasestorage.app",
+      messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID || "234502662315",
+      appId: process.env.FIREBASE_APP_ID || "1:234502662315:web:ed71d3217474d1f336afee",
+      measurementId: process.env.FIREBASE_MEASUREMENT_ID || "G-BWRDTZ67XK"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db = getFirestore(app);
+
+    let firebaseConnected = false;
+    
+    async function testFirebaseConnection() {
+      try {
+        const testDoc = doc(db, 'test', 'connection');
+        await setDoc(testDoc, { timestamp: new Date().toISOString() });
+        await deleteDoc(testDoc);
+        firebaseConnected = true;
+        console.log('Firebase 연결 성공');
+        return true;
+      } catch (error) {
+        console.error('Firebase 연결 실패:', error);
+        firebaseConnected = false;
+        return false;
+      }
+    }
+
+    window.firebaseDB = {
+      db: db,
+      collection: collection,
+      doc: doc,
+      setDoc: setDoc,
+      getDoc: getDoc,
+      getDocs: getDocs,
+      addDoc: addDoc,
+      updateDoc: updateDoc,
+      deleteDoc: deleteDoc,
+      onSnapshot: onSnapshot,
+      isConnected: () => firebaseConnected,
+      testConnection: testFirebaseConnection
+    };
   </script>
   
   <style>
@@ -75,6 +118,10 @@ body::before {
   text-align: center;
   margin-bottom: 35px;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .header-icon {
@@ -84,6 +131,7 @@ body::before {
   display: block;
   animation: pulse 2s ease-in-out infinite;
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+  align-self: center;
 }
 
 @keyframes pulse {
@@ -328,6 +376,7 @@ body::before {
   .header-icon {
     width: 400px;
     height: 200px;
+    align-self: center;
   }
 }
 
@@ -344,6 +393,7 @@ body::before {
   .header-icon {
     width: 320px;
     height: 160px;
+    align-self: center;
   }
   
   .form-group input {
@@ -415,6 +465,52 @@ body::before {
   </div>
 
   <script>
+    // 접속 로그 기록 함수
+    function logUserAccess(username, action) {
+      const accessLogs = JSON.parse(localStorage.getItem('accessLogs') || '[]');
+      const logEntry = {
+        username: username,
+        action: action,
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        deviceInfo: getDeviceInfo(),
+        screenResolution: `${screen.width}x${screen.height}`,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        language: navigator.language,
+        referrer: document.referrer || '직접 접속',
+        url: window.location.href
+      };
+      
+      accessLogs.push(logEntry);
+      
+      // 최근 500개 로그만 유지
+      if (accessLogs.length > 500) {
+        accessLogs.splice(0, accessLogs.length - 500);
+      }
+      
+      localStorage.setItem('accessLogs', JSON.stringify(accessLogs));
+    }
+
+    // 디바이스 정보 가져오기
+    function getDeviceInfo() {
+      const userAgent = navigator.userAgent;
+      let deviceType = '데스크톱';
+      
+      if (/Android/i.test(userAgent)) {
+        deviceType = 'Android';
+      } else if (/iPhone|iPad|iPod/i.test(userAgent)) {
+        deviceType = 'iOS';
+      } else if (/Windows/i.test(userAgent)) {
+        deviceType = 'Windows';
+      } else if (/Mac/i.test(userAgent)) {
+        deviceType = 'Mac';
+      } else if (/Linux/i.test(userAgent)) {
+        deviceType = 'Linux';
+      }
+      
+      return deviceType;
+    }
+
     function handleLogin(event) {
       event.preventDefault();
       
@@ -428,6 +524,12 @@ body::before {
       
       // 관리자 계정 확인
       if (data.username === 'cuckoo' && data.password === '0823') {
+        // 접속 로그 기록
+        logUserAccess(data.username, '관리자 로그인');
+        
+        // Firebase 업데이트
+        updateUserActivity(data.username);
+        
         // 성공 메시지 표시
         document.getElementById('successMessage').style.display = 'block';
         document.getElementById('errorMessage').style.display = 'none';
@@ -454,6 +556,12 @@ body::before {
       console.log('찾은 사용자:', user);
       
       if (user) {
+        // 접속 로그 기록
+        logUserAccess(data.username, '일반 사용자 로그인');
+        
+        // Firebase 업데이트
+        updateUserActivity(data.username);
+        
         // 성공 메시지 표시
         document.getElementById('successMessage').style.display = 'block';
         document.getElementById('errorMessage').style.display = 'none';
@@ -469,20 +577,100 @@ body::before {
           window.location.href = 'index.html';
         }, 2000);
       } else {
+        // 실패 로그 기록
+        logUserAccess(data.username, '로그인 실패');
+        
         // 실패 메시지 표시
         document.getElementById('errorMessage').style.display = 'block';
         document.getElementById('successMessage').style.display = 'none';
       }
     }
     
-    // 페이지 로드 시 로그인 상태 확인
-    window.addEventListener('load', function() {
+    // 페이지 로드 시 로그인 상태 확인 및 접속 로그 기록
+    window.addEventListener('load', async function() {
+      // Firebase 연결 테스트
+      await window.firebaseDB.testConnection();
+      
+      // Firebase에서 최신 데이터 동기화
+      await syncFromFirebase();
+      
+      // 페이지 접속 로그 기록
+      logUserAccess('방문자', '로그인 페이지 접속');
+      
       const isLoggedIn = localStorage.getItem('isLoggedIn');
       if (isLoggedIn === 'true') {
         // 이미 로그인된 경우 메인 페이지로 리다이렉트
         window.location.href = 'index.html';
       }
     });
+
+    // Firebase에서 데이터 동기화
+    async function syncFromFirebase() {
+      try {
+        if (!window.firebaseDB.isConnected()) {
+          const connected = await window.firebaseDB.testConnection();
+          if (!connected) {
+            console.log('Firebase 연결 실패 - 로컬 데이터만 사용');
+            return;
+          }
+        }
+        
+        const docRef = window.firebaseDB.doc(window.firebaseDB.db, 'appData', 'members');
+        const docSnap = await window.firebaseDB.getDoc(docRef);
+        
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          
+          if (data.users) {
+            localStorage.setItem('users', JSON.stringify(data.users));
+            console.log('Firebase에서 사용자 데이터 동기화 완료');
+          }
+        }
+        
+      } catch (error) {
+        console.error('Firebase 동기화 오류:', error);
+      }
+    }
+
+    // 로그인 시 Firebase 업데이트
+    async function updateUserActivity(username) {
+      try {
+        if (!window.firebaseDB.isConnected()) {
+          const connected = await window.firebaseDB.testConnection();
+          if (!connected) {
+            console.log('Firebase 연결 실패 - 로컬에만 업데이트');
+            return;
+          }
+        }
+        
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        const userIndex = users.findIndex(user => user.username === username);
+        
+        if (userIndex !== -1) {
+          users[userIndex].lastActivity = new Date().toISOString();
+          users[userIndex].isActive = true;
+          
+          localStorage.setItem('users', JSON.stringify(users));
+          
+          // Firebase에 업데이트된 데이터 저장
+          const data = {
+            users: users,
+            lastUpdated: new Date().toISOString(),
+            deviceId: navigator.userAgent
+          };
+          
+          await window.firebaseDB.setDoc(
+            window.firebaseDB.doc(window.firebaseDB.db, 'appData', 'members'),
+            data
+          );
+          
+          console.log('Firebase에 사용자 활동 업데이트 완료:', username);
+        }
+        
+      } catch (error) {
+        console.error('Firebase 업데이트 오류:', error);
+      }
+    }
   </script>
 </body>
 </html> 
