@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API 연결 테스트</title>
+    
+    <!-- API 설정 -->
+    <script src="js/api-config.js"></script>
+    
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f4f9;
+            line-height: 1.6;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #1976d2;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            background: #fafafa;
+        }
+        
+        .test-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #1976d2, #64b5f6);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        button:hover {
+            background: linear-gradient(135deg, #1565c0, #42a5f5);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .success {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            color: #2e7d32;
+        }
+        
+        .error {
+            background: #ffebee;
+            border: 1px solid #f44336;
+            color: #c62828;
+        }
+        
+        .info {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            color: #1565c0;
+        }
+        
+        .status {
+            text-align: center;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+        
+        .status.connected {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        
+        .status.disconnected {
+            background: #ffebee;
+            color: #c62828;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 API 연결 테스트</h1>
+        
+        <div id="connectionStatus" class="status disconnected">
+            서버 연결 상태 확인 중...
+        </div>
+        
+        <!-- 서버 상태 테스트 -->
+        <div class="test-section">
+            <h3>🌐 서버 상태 확인</h3>
+            <button onclick="testServerHealth()">서버 상태 확인</button>
+            <div id="healthResult" class="result" style="display: none;"></div>
+        </div>
+        
+        <!-- 인증 테스트 -->
+        <div class="test-section">
+            <h3>🔐 인증 테스트</h3>
+            <div class="form-group">
+                <label for="testUsername">사용자명:</label>
+                <input type="text" id="testUsername" value="testuser" placeholder="테스트용 사용자명">
+            </div>
+            <div class="form-group">
+                <label for="testPassword">비밀번호:</label>
+                <input type="password" id="testPassword" value="testpass123" placeholder="테스트용 비밀번호">
+            </div>
+            <button onclick="testRegister()">회원가입 테스트</button>
+            <button onclick="testLogin()">로그인 테스트</button>
+            <button onclick="testLogout()">로그아웃 테스트</button>
+            <div id="authResult" class="result" style="display: none;"></div>
+        </div>
+        
+        <!-- 견적서 테스트 -->
+        <div class="test-section">
+            <h3>📋 견적서 테스트</h3>
+            <button onclick="testCreateQuote()">견적서 생성 테스트</button>
+            <button onclick="testGetQuotes()">견적서 목록 조회</button>
+            <div id="quoteResult" class="result" style="display: none;"></div>
+        </div>
+        
+        <!-- 제품 정보 테스트 -->
+        <div class="test-section">
+            <h3>📦 제품 정보 테스트</h3>
+            <button onclick="testGetCategories()">제품 카테고리 조회</button>
+            <button onclick="testSearchProducts()">제품 검색 테스트</button>
+            <div id="productResult" class="result" style="display: none;"></div>
+        </div>
+        
+        <!-- 관리자 기능 테스트 -->
+        <div class="test-section">
+            <h3>👨‍💼 관리자 기능 테스트</h3>
+            <button onclick="testAdminDashboard()">관리자 대시보드</button>
+            <button onclick="testSystemStatus()">시스템 상태</button>
+            <div id="adminResult" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // 페이지 로드 시 서버 연결 상태 확인
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkServerConnection();
+        });
+        
+        // 서버 연결 상태 확인
+        async function checkServerConnection() {
+            const statusDiv = document.getElementById('connectionStatus');
+            try {
+                const response = await apiService.get('/health');
+                statusDiv.textContent = '✅ 서버 연결 성공';
+                statusDiv.className = 'status connected';
+            } catch (error) {
+                statusDiv.textContent = '❌ 서버 연결 실패 - 서버가 실행 중인지 확인하세요';
+                statusDiv.className = 'status disconnected';
+            }
+        }
+        
+        // 서버 상태 확인
+        async function testServerHealth() {
+            const resultDiv = document.getElementById('healthResult');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.textContent = '서버 상태 확인 중...';
+            
+            try {
+                const response = await apiService.get('/health');
+                resultDiv.className = 'result success';
+                resultDiv.textContent = JSON.stringify(response, null, 2);
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `오류: ${error.message}`;
+            }
+        }
+        
+        // 회원가입 테스트
+        async function testRegister() {
+            const resultDiv = document.getElementById('authResult');
+            const username = document.getElementById('testUsername').value;
+            const password = document.getElementById('testPassword').value;
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.textContent = '회원가입 중...';
+            
+            try {
+                const response = await apiService.post(API_CONFIG.ENDPOINTS.AUTH.REGISTER, {
+                    username: username,
+                    email: `${username}@test.com`,
+                    password: password,
+                    name: '테스트 사용자',
+                    phone: '010-1234-5678',
+                    role: 'user'
+                });
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = JSON.stringify(response, null, 2);
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `오류: ${error.message}`;
+            }
+        }
+        
+        // 로그인 테스트
+        async function testLogin() {
+            const resultDiv = document.getElementById('authResult');
+            const username = document.getElementById('testUsername').value;
+            const password = document.getElementById('testPassword').value;
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.textContent = '로그인 중...';
+            
+            try {
+                const response = await apiService.post(API_CONFIG.ENDPOINTS.AUTH.LOGIN, {
+                    username: username,
+                    password: password
+                });
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = JSON.stringify(response, null, 2);
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `오류: ${error.message}`;
+            }
+        }
+        
+        // 로그아웃 테스트
+        async function testLogout() {
+            const resultDiv = document.getElementById('authResult');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.textContent = '로그아웃 중...';
+            
+            try {
+                const response = await apiService.post(API_CONFIG.ENDPOINTS.AUTH.LOGOUT);
+                resultDiv.className = 'result success';
+                resultDiv.textContent = JSON.stringify(response, null, 2);
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `오류: ${error.message}`;
+            }
+        }
+        
+        // 견적서 생성 테스트
+        async function testCreateQuote() {
+            const resultDiv = document.getElementById('quoteResult');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.textContent = '견적서 생성 중...';
+            
+            try {
+                const quoteData = {
+                    customer: {
+                        name: '테스트 고객',
+                        phone: '010-1234-5678',
+                        address: '서울시 강남구'
+                    },
+                    salesPerson: '테스트 담당자',
+                    salesPhone: '010-9876-5432',
+                    quoteDate: new Date().toISOString().split('T')[0],
+                    validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    description: '테스트 견적서입니다.',
+                    products: [
+                        {
+                            name: '정수기',
+                            model: 'CUCKOO-001',
+                            rentalFee: 50000,
+                            usagePeriod: 24,
+                            contractPeriod: 24,
+                            quantity: 1,
+                            total: 50000
+                        }
+                    ],
+                    totalAmount: 50000,
+                    status: 'draft',
+                    notes: 'API 테스트용 견적서'
+                };
+                
+                const response = await apiService.post(API_CONFIG.ENDPOINTS.QUOTES.CREATE, quoteData);
+                resultDiv.className = 'result success';
+                resultDiv.textContent = JSON.stringify(response, null, 2);
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `오류: ${error.message}`;
+            }
+        }
+        
+        // 견적서 목록 조회 테스트
+        async function testGetQuotes() {
+            const resultDiv = document.getElementById('quoteResult');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.textContent = '견적서 목록 조회 중...';
+            
+            try {
+                const response = await apiService.get(API_CONFIG.ENDPOINTS.QUOTES.LIST);
+                resultDiv.className = 'result success';
+                resultDiv.textContent = JSON.stringify(response, null, 2);
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `오류: ${error.message}`;
+            }
+        }
+        
+        // 제품 카테고리 조회 테스트
+        async function testGetCategories() {
+            const resultDiv = document.getElementById('productResult');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.textContent = '제품 카테고리 조회 중...';
+            
+            try {
+                const response = await apiService.get(API_CONFIG.ENDPOINTS.PRODUCTS.CATEGORIES);
+                resultDiv.className = 'result success';
+                resultDiv.textContent = JSON.stringify(response, null, 2);
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `오류: ${error.message}`;
+            }
+        }
+        
+        // 제품 검색 테스트
+        async function testSearchProducts() {
+            const resultDiv = document.getElementById('productResult');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.textContent = '제품 검색 중...';
+            
+            try {
+                const response = await apiService.post(API_CONFIG.ENDPOINTS.PRODUCTS.SEARCH, {
+                    query: '정수기',
+                    category: 'water-purifier'
+                });
+                resultDiv.className = 'result success';
+                resultDiv.textContent = JSON.stringify(response, null, 2);
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `오류: ${error.message}`;
+            }
+        }
+        
+        // 관리자 대시보드 테스트
+        async function testAdminDashboard() {
+            const resultDiv = document.getElementById('adminResult');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.textContent = '관리자 대시보드 조회 중...';
+            
+            try {
+                const response = await apiService.get(API_CONFIG.ENDPOINTS.ADMIN.DASHBOARD);
+                resultDiv.className = 'result success';
+                resultDiv.textContent = JSON.stringify(response, null, 2);
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `오류: ${error.message}`;
+            }
+        }
+        
+        // 시스템 상태 테스트
+        async function testSystemStatus() {
+            const resultDiv = document.getElementById('adminResult');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.textContent = '시스템 상태 조회 중...';
+            
+            try {
+                const response = await apiService.get(API_CONFIG.ENDPOINTS.ADMIN.SYSTEM_STATUS);
+                resultDiv.className = 'result success';
+                resultDiv.textContent = JSON.stringify(response, null, 2);
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `오류: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html> 

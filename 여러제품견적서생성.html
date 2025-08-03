@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>여러 제품 직접입력 견적서 생성</title>
+    
+    <!-- API 설정 -->
+    <script src="js/api-config.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -662,7 +666,7 @@
             });
         }
 
-                 function generateQuote() {
+                 async function generateQuote() {
              const customerName = document.getElementById('customerName').value || '고객명 미입력';
              const quoteDate = document.getElementById('quoteDate').value || '날짜 미입력';
              const validUntil = document.getElementById('validUntil').value || '날짜 미입력';
@@ -696,6 +700,45 @@
 
             // 총 금액 계산
             const totalAmount = products.reduce((sum, product) => sum + product.total, 0);
+            
+            // 백엔드 API로 견적서 저장 시도
+            try {
+                const quoteData = {
+                    customer: {
+                        name: customerName,
+                        phone: '',
+                        address: ''
+                    },
+                    salesPerson: salesPerson,
+                    salesPhone: salesPhone,
+                    quoteDate: quoteDate,
+                    validUntil: validUntil,
+                    description: description,
+                    products: products.map(product => ({
+                        name: product.name,
+                        model: product.model,
+                        rentalFee: product.rentalFee,
+                        usagePeriod: product.usagePeriod,
+                        contractPeriod: product.contractPeriod,
+                        quantity: product.quantity,
+                        total: product.total
+                    })),
+                    totalAmount: totalAmount,
+                    status: 'draft',
+                    notes: '여러 제품 직접입력으로 생성된 견적서'
+                };
+                
+                // API로 견적서 저장
+                const response = await apiService.post(API_CONFIG.ENDPOINTS.QUOTES.CREATE, quoteData);
+                console.log('견적서 저장 성공:', response);
+                
+                // 견적서 ID 저장 (나중에 수정/삭제 시 사용)
+                localStorage.setItem('lastQuoteId', response.quote._id);
+                
+            } catch (error) {
+                console.error('견적서 저장 실패:', error);
+                // API 저장 실패 시에도 로컬에서 견적서 생성은 계속 진행
+            }
 
             // 견적서 HTML 생성
             const quoteHTML = `
