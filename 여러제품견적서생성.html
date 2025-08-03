@@ -264,11 +264,15 @@
             background: #fff;
             border-radius: 15px;
             box-shadow: 0 4px 24px rgba(25,118,210,0.08);
-            padding: 28px 20px 20px 20px;
+            padding: 60px 50px 50px 50px;
             margin-bottom: 28px;
-            border: 1.5px solid #e1e8ed;
+            border: 2px solid #1976d2;
             position: relative;
             overflow: hidden;
+            /* 두 번째 테두리 추가 */
+            box-shadow: 0 4px 24px rgba(25,118,210,0.08), 
+                        0 0 0 4px rgba(25, 118, 210, 0.2),
+                        0 0 0 2px #1976d2;
         }
 
         .quote-preview h3 {
@@ -283,6 +287,8 @@
 
         .quote-content {
             padding: 0;
+            max-width: 100%;
+            overflow: hidden;
         }
 
         .quote-table {
@@ -432,7 +438,10 @@
             }
 
             .quote-preview {
-                padding: 20px 15px 15px 15px;
+                padding: 30px 20px 20px 20px;
+                box-shadow: 0 4px 24px rgba(25,118,210,0.08), 
+                            0 0 0 4px rgba(25, 118, 210, 0.2),
+                            0 0 0 2px #1976d2;
             }
 
             .quote-preview h3 {
@@ -467,7 +476,10 @@
             }
 
             .quote-preview {
-                padding: 15px 10px 10px 10px;
+                padding: 25px 15px 15px 15px;
+                box-shadow: 0 4px 24px rgba(25,118,210,0.08), 
+                            0 0 0 4px rgba(25, 118, 210, 0.2),
+                            0 0 0 2px #1976d2;
             }
 
             .quote-preview h3 {
@@ -492,12 +504,12 @@
         </div>
 
         <div class="content">
-                         <div class="form-section">
-                 <h3>📋 고객 정보</h3>
-                 <div class="form-row">
-                     <div class="form-group">
-                         <label for="customerName">고객명</label>
-                         <input type="text" id="customerName" placeholder="고객명을 입력하세요">
+            <div class="form-section">
+                <h3>📋 고객 정보</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="customerName">고객명</label>
+                        <input type="text" id="customerName" placeholder="고객명을 입력하세요">
                      </div>
                  </div>
              </div>
@@ -546,19 +558,39 @@
                 </div>
             </div>
 
+            <!-- 상품 이미지 업로드 -->
+            <div class="form-section">
+                <h3>🖼️ 상품 이미지 (선택사항)</h3>
+                <div class="form-group">
+                    <label for="productImage">상품 이미지</label>
+                    <input type="file" id="productImage" accept="image/*" style="padding: 8px; border: 2px dashed #dee2e6; background: #f8f9fa; border-radius: 8px; width: 100%;">
+                    <div id="imagePreview" style="margin-top: 10px; display: none;">
+                        <img id="previewImg" style="max-width: 200px; max-height: 150px; border-radius: 8px; border: 2px solid #dee2e6;">
+                        <div style="margin-top: 8px;">
+                            <button type="button" onclick="cropImage()" style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; margin-right: 8px;">이미지 편집</button>
+                            <button type="button" onclick="removeImage()" style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem;">이미지 제거</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PDF 다운로드 및 공유하기 버튼 -->
+            <div id="actionButtons" style="text-align: center; padding: 20px; display: none;">
+                <button type="button" class="download-btn" onclick="downloadPDF()" style="width: 150px;">
+                    📥 PDF 다운로드
+                </button>
+                <button type="button" class="download-btn" onclick="shareQuote()" style="margin-left: 10px; width: 150px;">
+                    📱 공유하기
+                </button>
+            </div>
+
             <button type="button" class="generate-btn" onclick="generateQuote()">
                 📄 견적서 생성
             </button>
 
             <div id="quotePreview" class="quote-preview" style="display: none;">
-                <h3>견적서 미리보기</h3>
                 <div class="quote-content" id="quoteContent">
                     <!-- 견적서 내용이 여기에 표시됩니다 -->
-                </div>
-                <div style="text-align: center; padding: 20px;">
-                    <button type="button" class="download-btn" onclick="downloadPDF()">
-                        📥 PDF 다운로드
-                    </button>
                 </div>
             </div>
         </div>
@@ -566,14 +598,40 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
 
     <script>
         let productCounter = 0;
+        
+        // 선택된 상품 이미지 URL
+        let selectedProductImage = null;
+        let cropper = null;
+        
+        // 공유용 견적서 데이터
+        let sharedQuoteData = null;
 
         // 페이지 로드 시 기본 제품 추가
         window.onload = function() {
             addProduct();
             setDefaultDates();
+            
+            // 이미지 업로드 이벤트 리스너
+            document.getElementById('productImage').addEventListener('change', handleImageUpload);
+            
+            // URL 파라미터 확인하여 공유된 견적서인지 체크
+            const urlParams = new URLSearchParams(window.location.search);
+            const isShared = urlParams.get('shared');
+            const sharedData = urlParams.get('data');
+            
+            if (isShared === 'true' && sharedData) {
+                try {
+                    const quoteData = JSON.parse(decodeURIComponent(sharedData));
+                    displaySharedQuote(quoteData);
+                } catch (error) {
+                    console.error('공유된 견적서 데이터 파싱 실패:', error);
+                }
+            }
         };
 
                  function setDefaultDates() {
@@ -741,71 +799,26 @@
             }
 
             // 견적서 HTML 생성
-            const quoteHTML = `
-                <div style="font-family: 'Malgun Gothic', sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
-                                         <div style="text-align: center; margin-bottom: 30px;">
-                                                                           <h1 style="color: #1976d2; font-size: 2.5rem; margin-bottom: 10px;">CUCKOO 견적서</h1>
-                          <p style="color: #666; font-size: 1.1rem;">${customerName} 고객님을 위한 맞춤 견적서입니다</p>
-                     </div>
-
-                                                                                                               <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
-                           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                               <div><strong>견적일자:</strong> ${quoteDate}</div>
-                               <div><strong>견적유효기간:</strong> ${validUntil}</div>
-                               <div><strong>담당자:</strong> ${salesPerson}</div>
-                               <div><strong>담당자 연락처:</strong> ${salesPhone}</div>
-                           </div>
-                       </div>
-
-                                         <div style="margin-bottom: 30px;">
-                         <p style="background: #f8f9fa; padding: 15px; border-radius: 8px; line-height: 1.6;">${description}</p>
-                     </div>
-
-                     <div style="margin-bottom: 30px;">
-                        <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                            <thead>
-                                                                 <tr style="background: linear-gradient(135deg, #1976d2, #64b5f6); color: white;">
-                                    <th style="padding: 12px; text-align: left; font-weight: 600;">제품군</th>
-                                    <th style="padding: 12px; text-align: left; font-weight: 600;">모델</th>
-                                    <th style="padding: 12px; text-align: right; font-weight: 600;">렌탈료</th>
-                                    <th style="padding: 12px; text-align: center; font-weight: 600;">수량</th>
-                                    <th style="padding: 12px; text-align: center; font-weight: 600;">의무기간</th>
-                                    <th style="padding: 12px; text-align: center; font-weight: 600;">계약기간</th>
-                                    <th style="padding: 12px; text-align: right; font-weight: 600;">소계</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${products.map(product => `
-                                    <tr style="border-bottom: 1px solid #e1e8ed;">
-                                        <td style="padding: 12px; font-weight: 500;">${product.name}</td>
-                                        <td style="padding: 12px;">${product.model}</td>
-                                        <td style="padding: 12px; text-align: right;">${product.rentalFee.toLocaleString()}원</td>
-                                        <td style="padding: 12px; text-align: center;">${product.quantity}개</td>
-                                        <td style="padding: 12px; text-align: center;">${product.usagePeriod}개월</td>
-                                        <td style="padding: 12px; text-align: center;">${product.contractPeriod}개월</td>
-                                        <td style="padding: 12px; text-align: right; font-weight: 600;">${product.total.toLocaleString()}원</td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    </div>
-
-                                                                                                                                                                       
-
-                                         <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #1976d2;">
-                                                 <h4 style="color: #1976d2; margin-bottom: 10px;">📋 견적서 안내사항</h4>
-                        <ul style="margin: 0; padding-left: 20px; line-height: 1.6;">
-                            <li>본 견적서는 ${validUntil}까지 유효합니다.</li>
-                            <li>계약 시 추가 할인 혜택이 적용될 수 있습니다.</li>
-                            <li>설치 및 배송비는 별도 문의 바랍니다.</li>
-                            <li>자세한 문의사항은 담당자에게 연락해 주시기 바랍니다.</li>
-                        </ul>
-                    </div>
-                </div>
-            `;
+            const quoteHTML = generateQuoteHTML(customerName, quoteDate, validUntil, salesPerson, salesPhone, description, products, selectedProductImage);
 
             document.getElementById('quoteContent').innerHTML = quoteHTML;
             document.getElementById('quotePreview').style.display = 'block';
+            
+            // 버튼들 표시
+            document.getElementById('actionButtons').style.display = 'block';
+            
+            // 공유용 데이터 저장
+            sharedQuoteData = {
+                customerName,
+                quoteDate,
+                validUntil,
+                salesPerson,
+                salesPhone,
+                description,
+                products,
+                totalAmount,
+                productImage: selectedProductImage
+            };
             
             // 견적서 미리보기로 스크롤
             document.getElementById('quotePreview').scrollIntoView({ behavior: 'smooth' });
@@ -844,6 +857,498 @@
                 const today = new Date().toISOString().split('T')[0];
                 doc.save(`CUCKOO_견적서_${customerName}_${today}.pdf`);
             });
+        }
+
+        // 이미지 업로드 처리
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    selectedProductImage = e.target.result;
+                    showImagePreview(selectedProductImage);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // 이미지 미리보기 표시
+        function showImagePreview(imageUrl) {
+            const preview = document.getElementById('imagePreview');
+            const previewImg = document.getElementById('previewImg');
+            
+            previewImg.src = imageUrl;
+            preview.style.display = 'block';
+        }
+
+        // 이미지 편집 (크롭)
+        function cropImage() {
+            if (!selectedProductImage) {
+                alert('편집할 이미지가 없습니다.');
+                return;
+            }
+
+            const modal = document.createElement('div');
+            modal.id = 'cropModal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+            `;
+
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 12px; padding: 20px; max-width: 90%; max-height: 90%;">
+                    <h3 style="margin: 0 0 20px 0; color: #2c3e50;">이미지 편집</h3>
+                    <div style="max-width: 500px; max-height: 400px; overflow: hidden;">
+                        <img id="cropImage" src="${selectedProductImage}" style="max-width: 100%; max-height: 100%;">
+                    </div>
+                    <div style="margin-top: 20px; text-align: center;">
+                        <button onclick="applyCrop()" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; margin-right: 10px;">적용</button>
+                        <button onclick="closeCropModal()" style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 4px;">취소</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            // Cropper.js 초기화
+            const image = document.getElementById('cropImage');
+            cropper = new Cropper(image, {
+                aspectRatio: 4 / 3,
+                viewMode: 1,
+                dragMode: 'move',
+                autoCropArea: 1,
+                restore: false,
+                guides: true,
+                center: true,
+                highlight: false,
+                cropBoxMovable: true,
+                cropBoxResizable: true,
+                toggleDragModeOnDblclick: false,
+            });
+        }
+
+        // 크롭 적용
+        function applyCrop() {
+            if (cropper) {
+                const canvas = cropper.getCroppedCanvas();
+                selectedProductImage = canvas.toDataURL();
+                showImagePreview(selectedProductImage);
+                closeCropModal();
+            }
+        }
+
+        // 크롭 모달 닫기
+        function closeCropModal() {
+            const modal = document.getElementById('cropModal');
+            if (modal) {
+                modal.remove();
+            }
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+        }
+
+        // 이미지 제거
+        function removeImage() {
+            selectedProductImage = null;
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('productImage').value = '';
+        }
+
+        // 견적서 공유 함수
+        function shareQuote() {
+            if (!sharedQuoteData) {
+                alert('먼저 견적서를 생성해주세요.');
+                return;
+            }
+
+            // 공유 모달 표시
+            showShareModal();
+        }
+
+        // 공유 모달 표시
+        function showShareModal() {
+            const modal = document.createElement('div');
+            modal.id = 'shareModal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+            `;
+
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 12px; padding: 24px; max-width: 90%; max-height: 90%; overflow: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                        <h3 style="margin: 0; color: #2c3e50;">견적서 공유하기</h3>
+                        <button onclick="closeShareModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #6c757d;">&times;</button>
+                    </div>
+                    
+                    <div style="margin-bottom: 24px;">
+                        <p style="margin: 0 0 16px 0; color: #495057; font-size: 1rem;">견적서를 공유할 방법을 선택하세요:</p>
+                    </div>
+                    
+                    <!-- 폼 크기 고정 옵션 -->
+                    <div style="margin-bottom: 20px; padding: 16px; background: #f8f9fa; border-radius: 8px; border-left: 3px solid #007bff;">
+                        <h4 style="margin: 0 0 12px 0; color: #2c3e50; font-size: 1rem;">📏 폼 크기 설정</h4>
+                        <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="radio" name="formSize" value="auto" checked style="margin: 0;">
+                                <span style="font-size: 0.9rem;">자동 크기</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="radio" name="formSize" value="fixed" style="margin: 0;">
+                                <span style="font-size: 0.9rem;">고정 크기 (A4)</span>
+                            </label>
+                        </div>
+                        <p style="margin: 8px 0 0 0; font-size: 0.8rem; color: #6c757d;">고정 크기로 설정하면 견적서가 A4 용지 크기에 맞춰 표시됩니다.</p>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                        <button onclick="shareViaKakao()" style="padding: 16px; background: #FEE500; color: #000; border: none; border-radius: 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                            <span style="font-size: 24px;">📸</span>
+                            <span style="font-size: 0.9rem; font-weight: 600;">카카오톡<br>(이미지)</span>
+                        </button>
+                        
+                        <button onclick="shareViaSMS()" style="padding: 16px; background: #007AFF; color: white; border: none; border-radius: 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                            <span style="font-size: 24px;">📱</span>
+                            <span style="font-size: 0.9rem; font-weight: 600;">문자</span>
+                        </button>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; justify-content: center;">
+                        <button onclick="closeShareModal()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">닫기</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        }
+
+        // 공유 모달 닫기
+        function closeShareModal() {
+            const modal = document.getElementById('shareModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        // 공유 텍스트 표시 (클립보드 실패 시)
+        function showShareText(text) {
+            const modal = document.createElement('div');
+            modal.id = 'shareTextModal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1001;
+            `;
+
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 12px; padding: 24px; max-width: 90%; max-height: 90%; overflow: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                        <h3 style="margin: 0; color: #2c3e50;">공유할 내용</h3>
+                        <button onclick="closeShareTextModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #6c757d;">&times;</button>
+                    </div>
+                    
+                    <div style="margin-bottom: 24px;">
+                        <p style="margin: 0 0 16px 0; color: #495057; font-size: 1rem;">아래 내용을 복사하여 공유하세요:</p>
+                    </div>
+                    
+                    <textarea style="width: 100%; height: 200px; padding: 12px; border: 1px solid #dee2e6; border-radius: 4px; font-family: monospace; font-size: 0.9rem; resize: vertical;" readonly>${text}</textarea>
+                    
+                    <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                        <button onclick="closeShareTextModal()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">닫기</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        }
+
+        // 공유 텍스트 모달 닫기
+        function closeShareTextModal() {
+            const modal = document.getElementById('shareTextModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // 카카오톡 공유 (이미지 캡처 방식)
+        function shareViaKakao() {
+            const formSize = document.querySelector('input[name="formSize"]:checked').value;
+            
+            // 폼 크기 설정 적용
+            if (formSize === 'fixed') {
+                document.getElementById('quotePreview').style.width = '210mm';
+                document.getElementById('quotePreview').style.height = '297mm';
+                document.getElementById('quotePreview').style.margin = '0';
+                document.getElementById('quotePreview').style.padding = '20px';
+            } else {
+                document.getElementById('quotePreview').style.width = '';
+                document.getElementById('quotePreview').style.height = '';
+                document.getElementById('quotePreview').style.margin = '';
+                document.getElementById('quotePreview').style.padding = '';
+            }
+
+            // 견적서 미리보기를 이미지로 캡처
+            html2canvas(document.getElementById('quotePreview'), {
+                scale: 2,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#ffffff'
+            }).then(canvas => {
+                // 모바일에서 카카오톡 공유
+                if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                    // Web Share API로 이미지 공유
+                    if (navigator.share) {
+                        canvas.toBlob(blob => {
+                            const file = new File([blob], '견적서.png', { type: 'image/png' });
+                            navigator.share({
+                                title: 'CUCKOO 견적서',
+                                text: '견적서를 확인해보세요!',
+                                files: [file]
+                            }).catch(error => {
+                                console.error('이미지 공유 실패:', error);
+                                // 텍스트 공유로 폴백
+                                shareViaText();
+                            });
+                        });
+                    } else {
+                        // 이미지 다운로드 후 수동 공유 안내
+                        const link = document.createElement('a');
+                        link.download = 'CUCKOO_견적서.png';
+                        link.href = canvas.toDataURL();
+                        link.click();
+                        alert('견적서 이미지가 다운로드되었습니다!\n\n카카오톡에서 이미지를 첨부하여 공유하세요.');
+                    }
+                } else {
+                    // 데스크톱에서는 이미지 다운로드 후 수동 공유 안내
+                    const link = document.createElement('a');
+                    link.download = 'CUCKOO_견적서.png';
+                    link.href = canvas.toDataURL();
+                    link.click();
+                    alert('견적서 이미지가 다운로드되었습니다.\n카카오톡에서 이미지를 첨부하여 공유하세요.');
+                }
+                
+                closeShareModal();
+            }).catch(error => {
+                console.error('이미지 캡처 실패:', error);
+                alert('이미지 캡처에 실패했습니다. 텍스트로 공유합니다.');
+                shareViaText();
+            });
+        }
+
+        // 문자 공유
+        function shareViaSMS() {
+            const customerName = document.getElementById('customerName').value || '고객';
+            const totalAmount = calculateTotalAmount();
+            
+            const message = `안녕하세요! ${customerName}님을 위한 CUCKOO 견적서입니다.
+
+총 견적 금액: ${totalAmount.toLocaleString()}원
+
+자세한 견적서는 첨부된 이미지를 확인해주세요.
+
+문의사항이 있으시면 언제든 연락주세요!`;
+
+            // 공유 URL 생성 (절대 경로 사용)
+            const currentUrl = window.location.href;
+            const shareUrl = `${currentUrl}?shared=true&data=${encodeURIComponent(JSON.stringify(sharedQuoteData))}`;
+
+            const fullMessage = `${message}\n\n견적서 링크: ${shareUrl}`;
+
+            // 모바일에서 문자 앱 실행
+            if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                const smsUrl = `sms:?body=${encodeURIComponent(fullMessage)}`;
+                window.open(smsUrl, '_blank');
+            } else {
+                // 데스크톱에서는 클립보드에 복사
+                navigator.clipboard.writeText(fullMessage).then(() => {
+                    alert('견적서 정보가 클립보드에 복사되었습니다!\n\n문자 앱에서 붙여넣기하여 전송하세요.');
+                }).catch(() => {
+                    showShareText(fullMessage);
+                });
+            }
+            
+            closeShareModal();
+        }
+
+        // 텍스트 공유
+        function shareViaText() {
+            const customerName = document.getElementById('customerName').value || '고객';
+            const totalAmount = calculateTotalAmount();
+            
+            const text = `안녕하세요! ${customerName}님을 위한 CUCKOO 견적서입니다.
+
+총 견적 금액: ${totalAmount.toLocaleString()}원
+
+자세한 견적서는 첨부된 이미지를 확인해주세요.
+
+문의사항이 있으시면 언제든 연락주세요!`;
+
+            // 클립보드에 복사
+            navigator.clipboard.writeText(text).then(() => {
+                alert('견적서 정보가 클립보드에 복사되었습니다!\n\n카카오톡에서 붙여넣기하여 공유하세요.');
+            }).catch(() => {
+                showShareText(text);
+            });
+        }
+
+        // 총 금액 계산 함수
+        function calculateTotalAmount() {
+            const products = [];
+            const productItems = document.querySelectorAll('.product-item');
+            
+            productItems.forEach(item => {
+                const name = item.querySelector('input[placeholder="제품명을 입력하세요"]').value;
+                const model = item.querySelector('input[placeholder="모델을 입력하세요"]').value;
+                const rentalFee = parseFloat(item.querySelector('input[placeholder="렌탈료를 입력하세요"]').value) || 0;
+                const quantity = parseInt(item.querySelector('input[placeholder="수량을 입력하세요"]').value) || 1;
+                const usagePeriod = parseInt(item.querySelector('input[placeholder="의무기간을 입력하세요"]').value) || 36;
+                const contractPeriod = parseInt(item.querySelector('input[placeholder="계약기간을 입력하세요"]').value) || usagePeriod;
+                
+                const total = rentalFee * quantity;
+                
+                products.push({
+                    name,
+                    model,
+                    rentalFee,
+                    quantity,
+                    usagePeriod,
+                    contractPeriod,
+                    total
+                });
+            });
+            
+            return products.reduce((sum, product) => sum + product.total, 0);
+        }
+
+        // 견적서 HTML 생성 함수
+        function generateQuoteHTML(customerName, quoteDate, validUntil, salesPerson, salesPhone, description, products, productImage) {
+            const imageSection = productImage ? `
+                <div style="margin-bottom: 25px; text-align: center;">
+                    <img src="${productImage}" style="max-width: 100%; max-height: 250px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" alt="상품 이미지">
+                </div>
+            ` : '';
+
+            return `
+                <div style="font-family: 'Malgun Gothic', sans-serif; max-width: 100%; margin: 0 auto; padding: 0;">
+                    <div style="text-align: center; margin-bottom: 25px;">
+                        <h1 style="color: #1976d2; font-size: 2.2rem; margin-bottom: 8px;">CUCKOO 견적서</h1>
+                        <p style="color: #666; font-size: 1rem;">${customerName} 고객님을 위한 맞춤 견적서입니다</p>
+                    </div>
+
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 25px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div><strong>견적일자:</strong> ${quoteDate}</div>
+                            <div><strong>견적유효기간:</strong> ${validUntil}</div>
+                            <div><strong>담당자:</strong> ${salesPerson}</div>
+                            <div><strong>담당자 연락처:</strong> ${salesPhone}</div>
+                        </div>
+                    </div>
+
+                    ${imageSection}
+
+                    <div style="margin-bottom: 25px;">
+                        <p style="background: #f8f9fa; padding: 12px; border-radius: 8px; line-height: 1.5;">${description}</p>
+                    </div>
+
+                    <div style="margin-bottom: 25px;">
+                        <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            <thead>
+                                <tr style="background: linear-gradient(135deg, #1976d2, #64b5f6); color: white;">
+                                    <th style="padding: 12px; text-align: left; font-weight: 600;">제품군</th>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600;">모델</th>
+                                    <th style="padding: 12px; text-align: right; font-weight: 600;">렌탈료</th>
+                                    <th style="padding: 12px; text-align: center; font-weight: 600;">수량</th>
+                                    <th style="padding: 12px; text-align: center; font-weight: 600;">의무기간</th>
+                                    <th style="padding: 12px; text-align: center; font-weight: 600;">계약기간</th>
+                                    <th style="padding: 12px; text-align: right; font-weight: 600;">소계</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${products.map(product => `
+                                    <tr style="border-bottom: 1px solid #e1e8ed;">
+                                        <td style="padding: 12px; font-weight: 500;">${product.name}</td>
+                                        <td style="padding: 12px;">${product.model}</td>
+                                        <td style="padding: 12px; text-align: right;">${product.rentalFee.toLocaleString()}원</td>
+                                        <td style="padding: 12px; text-align: center;">${product.quantity}개</td>
+                                        <td style="padding: 12px; text-align: center;">${product.usagePeriod}개월</td>
+                                        <td style="padding: 12px; text-align: center;">${product.contractPeriod}개월</td>
+                                        <td style="padding: 12px; text-align: right; font-weight: 600;">${product.total.toLocaleString()}원</td>
+                                    </tr>
+                                `).join('')}
+                                <tr style="background: linear-gradient(135deg, #f8f9fa, #e9ecef); border-top: 2px solid #1976d2;">
+                                    <td colspan="6" style="padding: 12px; text-align: right; font-weight: 700; color: #1976d2;">총 합계:</td>
+                                    <td style="padding: 12px; text-align: right; font-weight: 700; color: #1976d2; font-size: 1.1em;">${products.reduce((sum, product) => sum + product.total, 0).toLocaleString()}원</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="margin-top: 25px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #1976d2;">
+                        <h4 style="color: #1976d2; margin-bottom: 8px;">📋 견적서 안내사항</h4>
+                        <ul style="margin: 0; padding-left: 18px; line-height: 1.5;">
+                            <li>본 견적서는 ${validUntil}까지 유효합니다.</li>
+                            <li>계약 시 추가 할인 혜택이 적용될 수 있습니다.</li>
+                            <li>설치비 및 렌탈등록비 무상 입니다.</li>
+                            <li>자세한 문의사항은 담당자에게 연락해 주시기 바랍니다.</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 공유된 견적서 표시 함수
+        function displaySharedQuote(quoteData) {
+            // 폼 숨기기
+            document.querySelector('.content').style.display = 'none';
+            
+            // 견적서 미리보기 표시
+            const quoteHTML = generateQuoteHTML(
+                quoteData.customerName,
+                quoteData.quoteDate,
+                quoteData.validUntil,
+                quoteData.salesPerson,
+                quoteData.salesPhone,
+                quoteData.description,
+                quoteData.products,
+                quoteData.productImage
+            );
+            
+            document.getElementById('quoteContent').innerHTML = quoteHTML;
+            document.getElementById('quotePreview').style.display = 'block';
+            
+            // 버튼들 숨기기
+            document.getElementById('actionButtons').style.display = 'none';
+            
+            // 페이지 제목 변경
+            document.querySelector('.header-title').textContent = '공유된 견적서';
+            
+            // 견적서 미리보기로 스크롤
+            document.getElementById('quotePreview').scrollIntoView({ behavior: 'smooth' });
         }
     </script>
 </body>
