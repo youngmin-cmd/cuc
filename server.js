@@ -5,6 +5,8 @@ const morgan = require('morgan');
 const compression = require('compression');
 require('dotenv').config();
 
+const connectDB = require('./config/database');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -56,10 +58,22 @@ app.use((err, req, res, next) => {
 });
 
 // 서버 시작
-app.listen(PORT, () => {
-  console.log(`🚀 Cuckoo Quote API Server is running on port ${PORT}`);
-  console.log(`📊 Health check: http://localhost:${PORT}/health`);
-  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-});
+const startServer = async () => {
+  try {
+    // MongoDB 연결
+    await connectDB();
+    
+    app.listen(PORT, () => {
+      console.log(`🚀 Cuckoo Quote API Server is running on port ${PORT}`);
+      console.log(`📊 Health check: http://localhost:${PORT}/health`);
+      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+    });
+  } catch (error) {
+    console.error('서버 시작 실패:', error);
+    process.exit(1);
+  }
+};
+
+startServer();
 
 module.exports = app; 

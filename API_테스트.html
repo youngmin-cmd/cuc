@@ -210,9 +210,14 @@
         async function checkServerConnection() {
             const statusDiv = document.getElementById('connectionStatus');
             try {
-                const response = await apiService.get('/health');
-                statusDiv.textContent = '✅ 서버 연결 성공';
-                statusDiv.className = 'status connected';
+                // 직접 /health 엔드포인트 호출 (API 경로가 아님)
+                const response = await fetch('http://localhost:3000/health');
+                if (response.ok) {
+                    statusDiv.textContent = '✅ 서버 연결 성공';
+                    statusDiv.className = 'status connected';
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
             } catch (error) {
                 statusDiv.textContent = '❌ 서버 연결 실패 - 서버가 실행 중인지 확인하세요';
                 statusDiv.className = 'status disconnected';
@@ -227,9 +232,10 @@
             resultDiv.textContent = '서버 상태 확인 중...';
             
             try {
-                const response = await apiService.get('/health');
+                const response = await fetch('http://localhost:3000/health');
+                const data = await response.json();
                 resultDiv.className = 'result success';
-                resultDiv.textContent = JSON.stringify(response, null, 2);
+                resultDiv.textContent = JSON.stringify(data, null, 2);
             } catch (error) {
                 resultDiv.className = 'result error';
                 resultDiv.textContent = `오류: ${error.message}`;
@@ -251,9 +257,10 @@
                     username: username,
                     email: `${username}@test.com`,
                     password: password,
-                    name: '테스트 사용자',
-                    phone: '010-1234-5678',
-                    role: 'user'
+                    profile: {
+                        name: '테스트 사용자',
+                        phone: '010-1234-5678'
+                    }
                 });
                 
                 resultDiv.className = 'result success';
