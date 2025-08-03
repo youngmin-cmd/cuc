@@ -137,8 +137,18 @@
     <div class="container">
         <h1>🔗 API 연결 테스트</h1>
         
+        <!-- 클라우드 서버 정보 -->
+        <div class="test-section">
+            <h3>☁️ 클라우드 서버 정보</h3>
+            <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <p><strong>서버 URL:</strong> <code>${API_CONFIG.BASE_URL}</code></p>
+                <p><strong>API 키:</strong> <code>${API_CONFIG.API_KEY.substring(0, 20)}...</code></p>
+                <p><strong>상태:</strong> <span id="apiKeyStatus">✅ API 키 설정됨</span></p>
+            </div>
+        </div>
+        
         <div id="connectionStatus" class="status disconnected">
-            서버 연결 상태 확인 중...
+            클라우드 서버 연결 상태 확인 중...
         </div>
         
         <!-- 서버 상태 테스트 -->
@@ -196,7 +206,7 @@
             await checkServerConnection();
         });
         
-        // 서버 연결 상태 확인
+        // 서버 연결 상태 확인 (클라우드 서버)
         async function checkServerConnection() {
             const statusDiv = document.getElementById('connectionStatus');
             try {

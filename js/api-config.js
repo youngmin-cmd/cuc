@@ -1,10 +1,10 @@
 // API 설정 파일
 const API_CONFIG = {
-    // 백엔드 서버 URL (개발 환경)
-    BASE_URL: 'http://localhost:3000/api',
+    // 클라우드 서버 URL (API 키 사용)
+    BASE_URL: 'https://api.cloudtype.io/api',
     
-    // 프로덕션 환경에서는 실제 서버 URL로 변경
-    // BASE_URL: 'https://your-backend-server.com/api',
+    // API 키 (JWT 토큰)
+    API_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJtZHV5dmg2cDE1OGY3OTYzIiwiaWF0IjoxNzU0MTgzMDU5fQ.6qG_RQyQa4CaINZib7G3RCQD75PZ9x_i6jRgZZQ5ds0',
     
     // API 엔드포인트
     ENDPOINTS: {
@@ -68,16 +68,23 @@ const API_CONFIG = {
 class ApiService {
     constructor() {
         this.baseURL = API_CONFIG.BASE_URL;
-        this.headers = { ...API_CONFIG.HEADERS };
+        this.headers = { 
+            ...API_CONFIG.HEADERS,
+            'Authorization': `Bearer ${API_CONFIG.API_KEY}`
+        };
     }
     
-    // JWT 토큰 설정
+    // JWT 토큰 설정 (사용자 로그인용)
     setAuthToken(token) {
         if (token) {
-            this.headers['Authorization'] = `Bearer ${token}`;
+            // API 키와 사용자 토큰을 함께 사용
+            this.headers['Authorization'] = `Bearer ${API_CONFIG.API_KEY}`;
+            this.headers['X-User-Token'] = token;
             localStorage.setItem('authToken', token);
         } else {
-            delete this.headers['Authorization'];
+            // API 키만 유지
+            this.headers['Authorization'] = `Bearer ${API_CONFIG.API_KEY}`;
+            delete this.headers['X-User-Token'];
             localStorage.removeItem('authToken');
         }
     }
@@ -86,7 +93,12 @@ class ApiService {
     loadAuthToken() {
         const token = localStorage.getItem('authToken');
         if (token) {
-            this.headers['Authorization'] = `Bearer ${token}`;
+            // API 키와 사용자 토큰을 함께 사용
+            this.headers['Authorization'] = `Bearer ${API_CONFIG.API_KEY}`;
+            this.headers['X-User-Token'] = token;
+        } else {
+            // API 키만 유지
+            this.headers['Authorization'] = `Bearer ${API_CONFIG.API_KEY}`;
         }
         return token;
     }
