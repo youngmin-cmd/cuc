@@ -447,6 +447,12 @@
             .quote-preview h3 {
                 font-size: 1.1rem;
             }
+            
+            /* 모바일에서 제품 이미지 그리드 조정 */
+            .quote-preview .product-images-grid {
+                grid-template-columns: 1fr !important;
+                gap: 10px !important;
+            }
         }
 
         /* 반응형 레이아웃 - 작은 모바일 */
@@ -558,21 +564,7 @@
                 </div>
             </div>
 
-            <!-- 상품 이미지 업로드 -->
-            <div class="form-section">
-                <h3>🖼️ 상품 이미지 (선택사항)</h3>
-                <div class="form-group">
-                    <label for="productImage">상품 이미지</label>
-                    <input type="file" id="productImage" accept="image/*" style="padding: 8px; border: 2px dashed #dee2e6; background: #f8f9fa; border-radius: 8px; width: 100%;">
-                    <div id="imagePreview" style="margin-top: 10px; display: none;">
-                        <img id="previewImg" style="max-width: 200px; max-height: 150px; border-radius: 8px; border: 2px solid #dee2e6;">
-                        <div style="margin-top: 8px;">
-                            <button type="button" onclick="cropImage()" style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; margin-right: 8px;">이미지 편집</button>
-                            <button type="button" onclick="removeImage()" style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem;">이미지 제거</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
 
             <!-- PDF 다운로드 및 공유하기 버튼 -->
             <div id="actionButtons" style="text-align: center; padding: 20px; display: none;">
@@ -603,9 +595,10 @@
 
     <script>
         let productCounter = 0;
+        const MAX_PRODUCTS = 3; // 최대 3개 제품으로 제한
         
-        // 선택된 상품 이미지 URL
-        let selectedProductImage = null;
+        // 제품별 이미지 저장
+        let productImages = {};
         let cropper = null;
         
         // 공유용 견적서 데이터
@@ -615,9 +608,6 @@
         window.onload = function() {
             addProduct();
             setDefaultDates();
-            
-            // 이미지 업로드 이벤트 리스너
-            document.getElementById('productImage').addEventListener('change', handleImageUpload);
             
             // URL 파라미터 확인하여 공유된 견적서인지 체크
             const urlParams = new URLSearchParams(window.location.search);
@@ -644,6 +634,11 @@
          }
 
         function addProduct() {
+            if (productCounter >= MAX_PRODUCTS) {
+                alert('최대 3개 제품까지만 추가할 수 있습니다.');
+                return;
+            }
+            
             productCounter++;
             const productsList = document.getElementById('productsList');
             
@@ -686,14 +681,32 @@
                         <input type="number" id="productQuantity-${productCounter}" value="1" min="1">
                     </div>
                 </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productImage-${productCounter}">제품 이미지</label>
+                        <input type="file" id="productImage-${productCounter}" accept="image/*" style="padding: 8px; border: 2px dashed #dee2e6; background: #f8f9fa; border-radius: 8px; width: 100%;">
+                        <div id="imagePreview-${productCounter}" style="margin-top: 10px; display: none;">
+                            <img id="previewImg-${productCounter}" style="max-width: 150px; max-height: 100px; border-radius: 8px; border: 2px solid #dee2e6;">
+                            <div style="margin-top: 8px;">
+                                <button type="button" onclick="cropProductImage(${productCounter})" style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; margin-right: 8px;">이미지 편집</button>
+                                <button type="button" onclick="removeProductImage(${productCounter})" style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem;">이미지 제거</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             `;
             
             productsList.appendChild(productItem);
+            
+            // 이미지 업로드 이벤트 리스너 추가
+            document.getElementById(`productImage-${productCounter}`).addEventListener('change', (event) => handleProductImageUpload(event, productCounter));
         }
 
         function removeProduct(productId) {
             const productElement = document.getElementById(`product-${productId}`);
             if (productElement) {
+                // 제품 이미지도 함께 제거
+                delete productImages[productId];
                 productElement.remove();
                 // 제품 번호 재정렬
                 reorderProducts();
@@ -702,26 +715,67 @@
 
         function reorderProducts() {
             const productItems = document.querySelectorAll('.product-item');
+            const newProductImages = {};
+            
             productItems.forEach((item, index) => {
-                const productNumber = index + 1;
+                const oldProductNumber = parseInt(item.id.replace('product-', ''));
+                const newProductNumber = index + 1;
+                
+                // 제품 이미지 재정렬
+                if (productImages[oldProductNumber]) {
+                    newProductImages[newProductNumber] = productImages[oldProductNumber];
+                }
+                
                 const titleElement = item.querySelector('.product-title');
-                titleElement.textContent = `제품 ${productNumber}`;
+                titleElement.textContent = `제품 ${newProductNumber}`;
                 
                 // ID 업데이트
-                item.id = `product-${productNumber}`;
+                item.id = `product-${newProductNumber}`;
                 
                 // 입력 필드 ID 업데이트
                 const inputs = item.querySelectorAll('input');
                 inputs.forEach(input => {
                     const oldId = input.id;
-                    const newId = oldId.replace(/-\d+$/, `-${productNumber}`);
+                    const newId = oldId.replace(/-\d+$/, `-${newProductNumber}`);
                     input.id = newId;
                 });
                 
+                // 이미지 미리보기 ID 업데이트
+                const imagePreview = item.querySelector(`[id^="imagePreview-"]`);
+                if (imagePreview) {
+                    imagePreview.id = `imagePreview-${newProductNumber}`;
+                    const previewImg = imagePreview.querySelector(`[id^="previewImg-"]`);
+                    if (previewImg) {
+                        previewImg.id = `previewImg-${newProductNumber}`;
+                    }
+                }
+                
                 // 삭제 버튼 onclick 업데이트
                 const removeBtn = item.querySelector('.remove-product');
-                removeBtn.onclick = () => removeProduct(productNumber);
+                removeBtn.onclick = () => removeProduct(newProductNumber);
+                
+                // 이미지 편집/제거 버튼 onclick 업데이트
+                const cropBtn = item.querySelector('[onclick^="cropProductImage"]');
+                if (cropBtn) {
+                    cropBtn.onclick = () => cropProductImage(newProductNumber);
+                }
+                
+                const removeImgBtn = item.querySelector('[onclick^="removeProductImage"]');
+                if (removeImgBtn) {
+                    removeImgBtn.onclick = () => removeProductImage(newProductNumber);
+                }
+                
+                // 이미지 업로드 이벤트 리스너 재설정
+                const imageInput = item.querySelector('input[type="file"]');
+                if (imageInput) {
+                    imageInput.removeEventListener('change', imageInput._changeHandler);
+                    imageInput._changeHandler = (event) => handleProductImageUpload(event, newProductNumber);
+                    imageInput.addEventListener('change', imageInput._changeHandler);
+                }
             });
+            
+            // 제품 이미지 객체 업데이트
+            productImages = newProductImages;
         }
 
                  async function generateQuote() {
@@ -799,7 +853,7 @@
             }
 
             // 견적서 HTML 생성
-            const quoteHTML = generateQuoteHTML(customerName, quoteDate, validUntil, salesPerson, salesPhone, description, products, selectedProductImage);
+            const quoteHTML = generateQuoteHTML(customerName, quoteDate, validUntil, salesPerson, salesPhone, description, products, productImages);
 
             document.getElementById('quoteContent').innerHTML = quoteHTML;
             document.getElementById('quotePreview').style.display = 'block';
@@ -817,7 +871,7 @@
                 description,
                 products,
                 totalAmount,
-                productImage: selectedProductImage
+                productImages: productImages
             };
             
             // 견적서 미리보기로 스크롤
@@ -859,31 +913,33 @@
             });
         }
 
-        // 이미지 업로드 처리
-        function handleImageUpload(event) {
+        // 제품별 이미지 업로드 처리
+        function handleProductImageUpload(event, productNumber) {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    selectedProductImage = e.target.result;
-                    showImagePreview(selectedProductImage);
+                    productImages[productNumber] = e.target.result;
+                    showProductImagePreview(e.target.result, productNumber);
                 };
                 reader.readAsDataURL(file);
             }
         }
 
-        // 이미지 미리보기 표시
-        function showImagePreview(imageUrl) {
-            const preview = document.getElementById('imagePreview');
-            const previewImg = document.getElementById('previewImg');
+        // 제품별 이미지 미리보기 표시
+        function showProductImagePreview(imageUrl, productNumber) {
+            const preview = document.getElementById(`imagePreview-${productNumber}`);
+            const previewImg = document.getElementById(`previewImg-${productNumber}`);
             
-            previewImg.src = imageUrl;
-            preview.style.display = 'block';
+            if (preview && previewImg) {
+                previewImg.src = imageUrl;
+                preview.style.display = 'block';
+            }
         }
 
-        // 이미지 편집 (크롭)
-        function cropImage() {
-            if (!selectedProductImage) {
+        // 제품별 이미지 편집 (크롭)
+        function cropProductImage(productNumber) {
+            if (!productImages[productNumber]) {
                 alert('편집할 이미지가 없습니다.');
                 return;
             }
@@ -905,12 +961,12 @@
 
             modal.innerHTML = `
                 <div style="background: white; border-radius: 12px; padding: 20px; max-width: 90%; max-height: 90%;">
-                    <h3 style="margin: 0 0 20px 0; color: #2c3e50;">이미지 편집</h3>
+                    <h3 style="margin: 0 0 20px 0; color: #2c3e50;">제품 ${productNumber} 이미지 편집</h3>
                     <div style="max-width: 500px; max-height: 400px; overflow: hidden;">
-                        <img id="cropImage" src="${selectedProductImage}" style="max-width: 100%; max-height: 100%;">
+                        <img id="cropImage" src="${productImages[productNumber]}" style="max-width: 100%; max-height: 100%;">
                     </div>
                     <div style="margin-top: 20px; text-align: center;">
-                        <button onclick="applyCrop()" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; margin-right: 10px;">적용</button>
+                        <button onclick="applyProductCrop(${productNumber})" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; margin-right: 10px;">적용</button>
                         <button onclick="closeCropModal()" style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 4px;">취소</button>
                     </div>
                 </div>
@@ -935,12 +991,12 @@
             });
         }
 
-        // 크롭 적용
-        function applyCrop() {
+        // 제품별 크롭 적용
+        function applyProductCrop(productNumber) {
             if (cropper) {
                 const canvas = cropper.getCroppedCanvas();
-                selectedProductImage = canvas.toDataURL();
-                showImagePreview(selectedProductImage);
+                productImages[productNumber] = canvas.toDataURL();
+                showProductImagePreview(productImages[productNumber], productNumber);
                 closeCropModal();
             }
         }
@@ -957,11 +1013,18 @@
             }
         }
 
-        // 이미지 제거
-        function removeImage() {
-            selectedProductImage = null;
-            document.getElementById('imagePreview').style.display = 'none';
-            document.getElementById('productImage').value = '';
+        // 제품별 이미지 제거
+        function removeProductImage(productNumber) {
+            delete productImages[productNumber];
+            const preview = document.getElementById(`imagePreview-${productNumber}`);
+            const imageInput = document.getElementById(`productImage-${productNumber}`);
+            
+            if (preview) {
+                preview.style.display = 'none';
+            }
+            if (imageInput) {
+                imageInput.value = '';
+            }
         }
 
         // 견적서 공유 함수
@@ -1221,13 +1284,14 @@
             const products = [];
             const productItems = document.querySelectorAll('.product-item');
             
-            productItems.forEach(item => {
-                const name = item.querySelector('input[placeholder="제품명을 입력하세요"]').value;
-                const model = item.querySelector('input[placeholder="모델을 입력하세요"]').value;
-                const rentalFee = parseFloat(item.querySelector('input[placeholder="렌탈료를 입력하세요"]').value) || 0;
-                const quantity = parseInt(item.querySelector('input[placeholder="수량을 입력하세요"]').value) || 1;
-                const usagePeriod = parseInt(item.querySelector('input[placeholder="의무기간을 입력하세요"]').value) || 36;
-                const contractPeriod = parseInt(item.querySelector('input[placeholder="계약기간을 입력하세요"]').value) || usagePeriod;
+            productItems.forEach((item, index) => {
+                const productNumber = index + 1;
+                const name = document.getElementById(`productName-${productNumber}`).value;
+                const model = document.getElementById(`productModel-${productNumber}`).value;
+                const rentalFee = parseFloat(document.getElementById(`productRentalFee-${productNumber}`).value) || 0;
+                const quantity = parseInt(document.getElementById(`productQuantity-${productNumber}`).value) || 1;
+                const usagePeriod = parseInt(document.getElementById(`productUsagePeriod-${productNumber}`).value) || 36;
+                const contractPeriod = parseInt(document.getElementById(`productContractPeriod-${productNumber}`).value) || usagePeriod;
                 
                 const total = rentalFee * quantity;
                 
@@ -1246,12 +1310,44 @@
         }
 
         // 견적서 HTML 생성 함수
-        function generateQuoteHTML(customerName, quoteDate, validUntil, salesPerson, salesPhone, description, products, productImage) {
-            const imageSection = productImage ? `
-                <div style="margin-bottom: 25px; text-align: center;">
-                    <img src="${productImage}" style="max-width: 100%; max-height: 250px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" alt="상품 이미지">
-                </div>
-            ` : '';
+        function generateQuoteHTML(customerName, quoteDate, validUntil, salesPerson, salesPhone, description, products, productImages) {
+            // 제품 이미지 섹션 생성 (제품 개수에 따라 동적 배치)
+            let imageSection = '';
+            const imageKeys = Object.keys(productImages);
+            
+            if (imageKeys.length > 0) {
+                imageSection = '<div style="margin-bottom: 35px; padding: 20px; border: 2px solid #e1e8ed; border-radius: 12px; background: #fafbfc;">';
+                imageSection += '<h4 style="color: #1976d2; margin-bottom: 15px; text-align: center;">상품 이미지</h4>';
+                
+                // 제품 개수에 따라 그리드 컬럼 수 결정
+                let gridColumns = '1fr';
+                let maxWidth = '300px';
+                let justifyContent = 'center';
+                
+                if (imageKeys.length === 2) {
+                    gridColumns = 'repeat(2, 1fr)';
+                    maxWidth = '600px';
+                } else if (imageKeys.length >= 3) {
+                    gridColumns = 'repeat(3, 1fr)';
+                    maxWidth = '100%';
+                }
+                
+                imageSection += `<div class="product-images-grid" style="display: grid; grid-template-columns: ${gridColumns}; gap: 15px; max-width: ${maxWidth}; margin: 0 auto; justify-content: ${justifyContent};">`;
+                
+                imageKeys.forEach((productNumber, index) => {
+                    const product = products[parseInt(productNumber) - 1];
+                    const productName = product ? product.name : `제품 ${productNumber}`;
+                    
+                    imageSection += `
+                        <div style="text-align: center; padding: 10px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e1e8ed;">
+                            <img src="${productImages[productNumber]}" style="max-width: 100%; max-height: 150px; border-radius: 6px; margin-bottom: 8px;" alt="${productName}">
+                            <p style="margin: 0; font-size: 0.9rem; color: #495057; font-weight: 500;">${productName}</p>
+                        </div>
+                    `;
+                });
+                
+                imageSection += '</div></div>';
+            }
 
             return `
                 <div style="font-family: 'Malgun Gothic', sans-serif; max-width: 100%; margin: 0 auto; padding: 0;">
@@ -1335,7 +1431,7 @@
                 quoteData.salesPhone,
                 quoteData.description,
                 quoteData.products,
-                quoteData.productImage
+                quoteData.productImages || {}
             );
             
             document.getElementById('quoteContent').innerHTML = quoteHTML;
