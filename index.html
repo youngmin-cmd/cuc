@@ -1182,7 +1182,9 @@ button:active {
               <button class="tab-button" onclick="showProductInfo('제습기')">제습기</button>
               <button class="tab-button" onclick="showProductInfo('팻드라이룸')">펫드라이룸</button>
       <button class="tab-button" onclick="showProductInfo('인덕션레인지')">인덕션레인지</button>
-              <button class="tab-button" onclick="showProductInfo('기타제품')">기타제품</button>
+              <button class="tab-button" onclick="showProductInfo('기타제품')">기타/일시불</button>
+              <button class="tab-button" onclick="showProductInfo('구독상품')">구독상품</button>
+              <button class="tab-button" onclick="showProductInfo('판매활성화보기')">판매활성화보기</button>
     </div>
 
     <div class="product-content" id="productContent">
@@ -1628,6 +1630,7 @@ button:active {
           <select id="dehumidifierModel" onchange="showDehumidifierPrice()" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
             <option value="">모델을 선택하세요</option>
             <option value="Y16">Y16</option>
+            <option value="WF21">WF21</option>
           </select>
         </div>
         
@@ -1671,7 +1674,7 @@ button:active {
       </div>
 
       <div class="product-info" id="기타제품" style="display: none;">
-        <h4>📦 기타 제품</h4>
+        <h4>📦 기타/일시불</h4>
         <select id="otherProductModel" onchange="showOtherProductPrice()" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 16px;">
           <option value="">제품을 선택하세요</option>
           <option value="AO201W">AO201W 버블클렌저</option>
@@ -1681,8 +1684,57 @@ button:active {
           <option value="EFF20">음식물처리기 EFF20 (에코웨일)</option>
           <option value="CAE">커피머신 CAE</option>
           <option value="CAEW">커피머신 CAEW (밀크 스팀바)</option>
+          <option value="벽걸이에어컨">벽걸이에어컨</option>
+          <option value="AFFEM1430NW">무선청소기 AFFEM1430NW (스테이션 O)</option>
+          <option value="C151MODG">음식물처리기 C151MODG/NW</option>
+          <option value="써큘레이터">써큘레이터</option>
         </select>
         <div id="otherProductPriceDetails"></div>
+      </div>
+
+      <div class="product-info" id="구독상품" style="display: none;">
+        <h4>📦 구독상품</h4>
+        <select id="subscriptionModel" onchange="showSubscriptionPrice()" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 16px;">
+          <option value="">제품을 선택하세요</option>
+          <option value="CDF-D301">음식물처리기 CDF-D301(건조분쇄)</option>
+        </select>
+        <div id="subscriptionPriceDetails"></div>
+      </div>
+
+      <div class="product-info" id="판매활성화보기" style="display: none;">
+        <h4>판매활성화보기</h4>
+        
+        <!-- PDF 업로드 섹션 -->
+        <div style="margin-bottom: 20px; padding: 20px; background: #f8f9fa; border-radius: 8px; border: 2px dashed #dee2e6;">
+          <h5 style="margin-bottom: 15px; color: #333;">PDF 업로드</h5>
+          <div id="uploadArea" style="border: 2px dashed #ddd; border-radius: 8px; padding: 30px; text-align: center; cursor: pointer; transition: all 0.3s; background: white;" onclick="document.getElementById('pdfFile').click()">
+            <div style="font-size: 3rem; margin-bottom: 10px; color: #667eea;">📄</div>
+            <div style="font-size: 1.1rem; color: #333; margin-bottom: 8px;">PDF 파일을 클릭하거나 드래그하여 업로드</div>
+            <div style="font-size: 0.9rem; color: #666;">지원 형식: PDF 파일</div>
+            <input type="file" id="pdfFile" accept=".pdf" onchange="handlePdfUpload(this)" style="display: none;">
+          </div>
+          <div id="uploadProgress" style="margin-top: 15px; display: none;">
+            <div style="width: 100%; height: 20px; background: #e9ecef; border-radius: 10px; overflow: hidden;">
+              <div id="progressFill" style="height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); width: 0%; transition: width 0.3s;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 저장된 PDF 목록 -->
+        <div style="margin-bottom: 20px;">
+          <h5 style="margin-bottom: 15px; color: #333;">저장된 PDF</h5>
+          <div id="pdfList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px;">
+            <!-- PDF 파일들이 여기에 동적으로 추가됩니다 -->
+          </div>
+        </div>
+
+        <!-- PDF 뷰어 -->
+        <div>
+          <h5 style="margin-bottom: 15px; color: #333;">PDF 뷰어</h5>
+          <div id="pdfViewer" style="border: 1px solid #e9ecef; border-radius: 8px; background: #f8f9fa; min-height: 500px; display: flex; align-items: center; justify-content: center;">
+            <div style="text-align: center; color: #666; font-style: italic;">PDF를 선택하여 내용을 확인하세요</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1780,19 +1832,20 @@ button:active {
     
     const modelOptions = {
       "정수기": ["AMS","ABS","ABSC(바리스타)","AHS","AHSC(바리스타)","AJ","ACS","W","TS100","SS101","SS100","AAS","D","Q","AF"],
-      "공기청정기": ["브릭12R","브릭14R","17T","20T","25W","28W","35U","AA10","28AH","40AB"],
-      "비데": ["IS","L","K","QS","QSB","P"],
+      "공기청정기": ["AC-12,14R10FNW","AC-35U,28W,25W","AC-28AH","AC-40AB","AC-17T,20T"],
+      "비데": ["CBT-IS","CBT-L","CBT-K","CBT-QS1041RW","CBT-QSB1041W","CBT-P"],
       "음식물처리기": ["CFD-C"],
       "안마의자": ["D","E","F","G","H","J"],
-      "매트리스": ["단품","케어단품","세트","케어 세트"],
-      "제습기": ["Y16"],
+      "매트리스": ["단품","케어 단품","세트","케어 세트"],
+      "제습기": ["DH-X","DH-W"],
       "팻드라이룸": ["A0610"]
     };
 
     const extraRates = {      "정수기": {
         "AMS": {
           "60": { "신규": 350, "재랜탈": 300 },
-          "72": { "신규": 400, "재랜탈": 400 }
+          "72": { "신규": 400, "재랜탈": 400 },
+          "84": { "신규": 500, "재랜탈": 500 }
         },
         "ABS": {
           "60": { "신규": 200, "재랜탈": 150 },
@@ -1831,73 +1884,49 @@ button:active {
         }
       },
       "공기청정기": {
-        "브릭12R": {
-          "36": { "신규": 200, "재랜탈": 200 },
-          "60": { "신규": 200, "재랜탈": 200 }
+        "AC-12,14R10FNW": {
+          "60": { "신규": 100, "재랜탈": 100 }
         },
-        "브릭14R": {
-          "36": { "신규": 200, "재랜탈": 200 },
-          "60": { "신규": 200, "재랜탈": 200 }
+        "AC-35U,28W,25W": {
+          "60": { "신규": 200, "재랜탈": 100 }
         },
-        "17T": {
-          "36": { "신규": 200, "재랜탈": 200 },
-          "60": { "신규": 200, "재랜탈": 200 }
-        },
-        "20T": {
-          "36": { "신규": 200, "재랜탈": 200 },
-          "60": { "신규": 200, "재랜탈": 200 }
-        },
-        "25W": {
-          "36": { "신규": 200, "재랜탈": 200 },
-          "60": { "신규": 200, "재랜탈": 200 }
-        },
-        "28W": {
-          "36": { "신규": 200, "재랜탈": 200 },
-          "60": { "신규": 200, "재랜탈": 200 }
-        },
-        "35U": {
-          "36": { "신규": 200, "재랜탈": 200 },
-          "60": { "신규": 200, "재랜탈": 200 }
-        },
-        "AA10": {
-          "36": { "신규": 200, "재랜탈": 200 },
-          "60": { "신규": 200, "재랜탈": 200 }
-        },
-        "28AH": {
-          "36": { "신규": 200, "재랜탈": 200 },
+        "AC-28AH": {
           "60": { "신규": 200, "재랜탈": 200 },
-          "72": { "신규": 200, "재랜탈": 200 }
+          "72": { "신규": 300, "재랜탈": 300 }
         },
-        "40AB": {
-          "36": { "신규": 200, "재랜탈": 200 },
-          "60": { "신규": 200, "재랜탈": 200 },
-          "72": { "신규": 200, "재랜탈": 200 }
+        "AC-40AB": {
+          "36": { "신규": 300, "재랜탈": 300 },
+          "60": { "신규": 300, "재랜탈": 300 },
+          "72": { "신규": 300, "재랜탈": 300 }
+        },
+        "AC-17T,20T": {
+          "60": { "신규": 350, "재랜탈": 350 }
         }
       },
       "비데": {
-        "IS": {
-          "48": { "신규": 200, "재랜탈": 200 },
-          "60": { "신규": 300, "재랜탈": 400 }
+        "CBT-IS": {
+          "48": { "신규": 150, "재랜탈": 150 },
+          "60": { "신규": 250, "재랜탈": 350 }
         },
-        "L": {
+        "CBT-L": {
+          "48": { "신규": 50, "재랜탈": 50 },
+          "60": { "신규": 150, "재랜탈": 150 }
+        },
+        "CBT-K": {
+          "36": { "신규": 100, "재랜탈": 100 },
           "48": { "신규": 100, "재랜탈": 100 },
           "60": { "신규": 200, "재랜탈": 200 }
         },
-        "K": {
-          "36": { "신규": 150, "재랜탈": 150 },
-          "48": { "신규": 150, "재랜탈": 150 },
-          "60": { "신규": 250, "재랜탈": 250 }
-        },
-        "QS": {
-          "40": { "신규": 250, "재랜탈": 250 },
+        "CBT-QS1041RW": {
+          "48": { "신규": 250, "재랜탈": 250 },
           "60": { "신규": 350, "재랜탈": 350 }
         },
-        "QSB": {
+        "CBT-QSB1041W": {
           "36": { "신규": 250, "재랜탈": 250 },
           "48": { "신규": 250, "재랜탈": 250 },
           "60": { "신규": 350, "재랜탈": 350 }
         },
-        "P": {
+        "CBT-P": {
           "36": { "신규": 200, "재랜탈": 200 },
           "48": { "신규": 300, "재랜탈": 300 },
           "60": { "신규": 400, "재랜탈": 400 }
@@ -1905,8 +1934,8 @@ button:active {
       },
       "음식물처리기": {
         "CFD-C": {
-          "36": { "신규": 400, "재랜탈": 200 },
-          "48": { "신규": 400, "재랜탈": 200 }
+          "36": { "신규": 0, "재랜탈": 0 },
+          "48": { "신규": 0, "재랜탈": 0 }
         }
       },
       "안마의자": {
@@ -1940,7 +1969,7 @@ button:active {
           "60": { "신규": 200, "재랜탈": 0 },
           "72": { "신규": 200, "재랜탈": 0 }
         },
-        "케어단품": {
+        "케어 단품": {
           "60": { "신규": 300, "재랜탈": 0 },
           "72": { "신규": 300, "재랜탈": 0 }
         },
@@ -1954,9 +1983,13 @@ button:active {
         }
       },
       "제습기": {
-        "Y16": {
+        "DH-X": {
           "36": { "신규": 200, "재랜탈": 200 },
           "60": { "신규": 200, "재랜탈": 200 }
+        },
+        "DH-W": {
+          "60": { "신규": 250, "재랜탈": 250 },
+          "72": { "신규": 400, "재랜탈": 400 }
         }
       },
       "팻드라이룸": {
@@ -1969,13 +2002,13 @@ button:active {
     };
 
     const baseRateTable = {
-      36: [ { min: 900,  max: 15899,  rate: 100 }, { min: 15900, max: 21899,  rate: 150 }, { min: 21900, max: 24899,  rate: 200 },
+      36: [ { min: 0,  max: 15899,  rate: 100 }, { min: 15900, max: 21899,  rate: 150 }, { min: 21900, max: 24899,  rate: 200 },
             { min: 24900, max: 28899,  rate: 250 }, { min: 28900, max: 33899,  rate: 300 }, { min: 33900, max: 38899,  rate: 350 },
             { min: 38900, max: Infinity, rate: 400 } ],
-      60: [ { min: 900,  max: 15899,  rate: 200 }, { min: 15900, max: 21899,  rate: 250 }, { min: 21900, max: 24899,  rate: 400 },
+      60: [ { min: 0,  max: 15899,  rate: 200 }, { min: 15900, max: 21899,  rate: 250 }, { min: 21900, max: 24899,  rate: 400 },
             { min: 24900, max: 28899,  rate: 450 }, { min: 28900, max: 33899,  rate: 500 }, { min: 33900, max: 38899,  rate: 550 },
             { min: 38900, max: Infinity, rate: 600 } ],
-            72: [ { min: 900,  max: 15899,  rate: 300 }, { min: 15900, max: 21899,  rate: 350 }, { min: 21900, max: 24899,  rate: 500 },
+            72: [ { min: 0,  max: 15899,  rate: 300 }, { min: 15900, max: 21899,  rate: 350 }, { min: 21900, max: 24899,  rate: 500 },
             { min: 24900, max: 28899,  rate: 550 }, { min: 28900, max: 33899,  rate: 600 }, { min: 33900, max: 38899,  rate: 650 },
             { min: 38900, max: Infinity, rate: 700 } ]
     };
@@ -2088,6 +2121,11 @@ button:active {
       const selectedProduct = document.getElementById(category);
       if (selectedProduct) {
         selectedProduct.style.display = 'block';
+      }
+      
+      // 판매활성화보기 탭인 경우 초기화
+      if (category === '판매활성화보기') {
+        initPdfSection();
       }
       
       // 선택된 탭 버튼 활성화
@@ -3555,7 +3593,7 @@ button:active {
                  </thead>
                  <tbody>
                    <tr>
-                     <td rowspan="6" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle; background-color: #e8f4fd;">관리형</td>
+                     <td rowspan="8" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle; background-color: #e8f4fd;">관리형</td>
                      <td rowspan="2" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle;">36 / 6 반값 / 15%할인</td>
                      <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">패키지</td>
                      <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">16,955원</td>
@@ -3589,7 +3627,18 @@ button:active {
                      <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">27,960원</td>
                    </tr>
                    <tr>
-                     <td rowspan="6" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle; background-color: #f0f8ff;">셀프형</td>
+                     <td rowspan="2" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle;">84 / 12 반값 / 15%할인</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">패키지</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">13,130원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">26,260원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">재렌탈</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">13,130원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">26,260원</td>
+                   </tr>
+                   <tr>
+                     <td rowspan="8" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle; background-color: #f0f8ff;">셀프형</td>
                      <td rowspan="2" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle;">36 / 6 반값 / 15%할인</td>
                      <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">패키지</td>
                      <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">15,680원</td>
@@ -3621,13 +3670,24 @@ button:active {
                      <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">재랜탈</td>
                      <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">13,130원</td>
                      <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">26,260원</td>
+                   </tr>
+                   <tr>
+                     <td rowspan="2" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle;">84 / 12 반값 / 15%할인</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">패키지</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">12,280원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">24,560원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">재랜탈</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">12,280원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">24,560원</td>
                    </tr>
                  </tbody>
                </table>
              </div>
              <div style="margin-top: 8px; font-size: 0.8rem; color: #666;">
                <strong>📝 참고사항:</strong><br>
-               • 반값 기간: 36개월(6개월), 60개월(6개월), 72개월(12개월)<br>
+               • 반값 기간: 36개월(6개월), 60개월(6개월), 72개월(12개월), 84개월(12개월)<br>
                • 패키지와 재렌탈은 동일한 가격 적용<br>
                • 셀프형이 관리형보다 2,550원~1,700원 저렴<br>
                • 모든 가격에 15% 할인이 적용됨<br>
@@ -3652,7 +3712,7 @@ button:active {
                  </thead>
                  <tbody>
                    <tr>
-                     <td rowspan="9" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle; background-color: #e8f4fd;">관리형</td>
+                     <td rowspan="12" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle; background-color: #e8f4fd;">관리형</td>
                      <td rowspan="3" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle;">36 / 6 반값</td>
                      <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">신규</td>
                      <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">19,950원</td>
@@ -3701,7 +3761,23 @@ button:active {
                      <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">30,900원</td>
                    </tr>
                    <tr>
-                     <td rowspan="9" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle; background-color: #f0f8ff;">셀프형</td>
+                     <td rowspan="3" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle;">84 / 12 반값</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">신규</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">15,450원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">30,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">패키지</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">14,450원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">28,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">재렌탈</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">14,450원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">28,900원</td>
+                   </tr>
+                   <tr>
+                     <td rowspan="12" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle; background-color: #f0f8ff;">셀프형</td>
                      <td rowspan="3" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle;">36 / 6 반값</td>
                      <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">신규</td>
                      <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">18,450원</td>
@@ -3749,12 +3825,28 @@ button:active {
                      <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">14,450원</td>
                      <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">28,900원</td>
                    </tr>
+                   <tr>
+                     <td rowspan="3" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle;">84 / 12 반값</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">신규</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">14,450원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">28,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">패키지</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">13,450원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">26,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">재렌탈</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">13,450원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right;">26,900원</td>
+                   </tr>
                  </tbody>
                </table>
              </div>
              <div style="margin-top: 8px; font-size: 0.8rem; color: #666;">
                <strong>📝 참고사항:</strong><br>
-               • 반값 기간: 36개월(6개월), 60개월(6개월), 72개월(12개월)<br>
+               • 반값 기간: 36개월(6개월), 60개월(6개월), 72개월(12개월), 84개월(12개월)<br>
                • 신규가 패키지/재렌탈보다 1,000원 더 비쌈<br>
                • 패키지와 재렌탈은 동일한 가격 적용<br>
                • 셀프형이 관리형보다 3,000원 저렴<br>
@@ -7588,41 +7680,73 @@ button:active {
          priceDetails.innerHTML = `
            <div style="margin-top: 8px;">
              <div style="margin-bottom: 8px;"><strong>Y16</strong></div>
-             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 0.9rem;">
-               <div>
-                 <div style="margin-bottom: 8px;"><strong>관리형</strong></div>
-                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
-                   <div>
-                     <strong>36개월:</strong><br>
-                     신규: 15,900원<br>
-                     패키지: 13,900원<br>
-                     재렌탈: 13,900원
-                   </div>
-                   <div>
-                     <strong>60개월:</strong><br>
-                     신규: 13,900원<br>
-                     패키지: 11,900원<br>
-                     재렌탈: 11,900원
-                   </div>
-                 </div>
-               </div>
-               <div>
-                 <div style="margin-bottom: 8px;"><strong>셀프형</strong></div>
-                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
-                   <div>
-                     <strong>36개월:</strong><br>
-                     신규: 14,900원<br>
-                     패키지: 12,900원<br>
-                     재렌탈: 12,900원
-                   </div>
-                   <div>
-                     <strong>60개월:</strong><br>
-                     신규: 12,900원<br>
-                     패키지: 10,900원<br>
-                     재렌탈: 10,900원
-                   </div>
-                 </div>
-               </div>
+             <div style="overflow-x: auto;">
+               <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                 <thead>
+                   <tr style="background-color: #e3f2fd;">
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">타입</th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">의무기간</th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">구분</th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">렌탈료</th>
+                   </tr>
+                 </thead>
+                 <tbody>
+                   <tr>
+                     <td rowspan="6" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle; background-color: #e8f4fd;">관리형</td>
+                     <td rowspan="3" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle;">36개월</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">신규</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">15,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">패키지</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">13,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">재렌탈</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">13,900원</td>
+                   </tr>
+                   <tr>
+                     <td rowspan="3" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle;">60개월</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">신규</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">13,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">패키지</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">11,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">재렌탈</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">11,900원</td>
+                   </tr>
+                   <tr>
+                     <td rowspan="6" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle; background-color: #f0f8ff;">셀프형</td>
+                     <td rowspan="3" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle;">36개월</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">신규</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">14,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">패키지</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">12,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">재렌탈</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">12,900원</td>
+                   </tr>
+                   <tr>
+                     <td rowspan="3" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle;">60개월</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">신규</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">12,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">패키지</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">10,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">재렌탈</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">10,900원</td>
+                   </tr>
+                 </tbody>
+               </table>
              </div>
            </div>    
             <div style="margin-top: 16px; text-align: center;">
@@ -7634,9 +7758,133 @@ button:active {
                <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_039f86b1-c25e-4889-9af7-b3fb9f1b04d6.png" 
                     alt="Y 제습기" 
                     style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                          </div>
+ 
+ 
+         `;
+       } else if (selectedModel === 'AFFEM1430NW') {
+         priceDetails.innerHTML = `
+           <div style="margin-top: 8px;">
+             <div style="margin-bottom: 8px;"><strong>무선청소기 AFFEM1430NW (스테이션 O)</strong></div>
+             <div style="overflow-x: auto;">
+               <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                 <thead>
+                   <tr style="background-color: #e3f2fd;">
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">행사가</th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">수수료</th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">인정건수</th>
+                   </tr>
+                 </thead>
+                 <tbody>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">749,000원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">50,000원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center; font-weight: bold;">1건</td>
+                   </tr>
+                 </tbody>
+               </table>
+             </div>
+           </div>
+            <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_0779e0fb-158e-4a18-8901-25d6d2a6642d.jpg" 
+                    alt="AFFEM1430NW" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
              </div>
  
-       
+ 
+         `;
+       } else if (selectedModel === 'WF21') {
+         priceDetails.innerHTML = `
+           <div style="margin-top: 8px;">
+             <div style="margin-bottom: 8px;"><strong>WF21</strong></div>
+             <div style="overflow-x: auto;">
+               <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                 <thead>
+                   <tr style="background-color: #e3f2fd;">
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">타입</th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">의무기간</th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">구분</th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">렌탈료</th>
+                   </tr>
+                 </thead>
+                 <tbody>
+                   <tr>
+                     <td rowspan="6" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle; background-color: #e8f4fd;">관리형</td>
+                     <td rowspan="3" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle;">36개월</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">신규</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">25,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">패키지</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">23,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">재렌탈</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">23,900원</td>
+                   </tr>
+                   <tr>
+                     <td rowspan="3" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle;">60개월</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">신규</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">21,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">패키지</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">19,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">재렌탈</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">19,900원</td>
+                   </tr>
+                   <tr>
+                     <td rowspan="6" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle; background-color: #f0f8ff;">셀프형</td>
+                     <td rowspan="3" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle;">36개월</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">신규</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">23,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">패키지</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">21,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">재렌탈</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">21,900원</td>
+                   </tr>
+                   <tr>
+                     <td rowspan="3" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle;">60개월</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">신규</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">19,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">패키지</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">17,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">재렌탈</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">17,900원</td>
+                   </tr>
+                 </tbody>
+               </table>
+             </div>
+
+            <div style="margin-top: 16px; text-align: center;">
+               <img src="http://resource.cuckoo.co.kr/_GlobalResourceUpload/4541/thumbnail/40653/576b103ef9294c74925f3905adcdc6b2.png" 
+                    alt="WF21" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+
+                  <div style="margin-top: 16px; text-align: center;">
+               <img src="http://resource.cuckoo.co.kr/_GlobalResourceUpload/4541/thumbnail/40654/00730e6ba9fd4fa497e319358d7a07f1.png" 
+                    alt="WF21" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+          <div style="margin-top: 16px; text-align: center;">
+               <img src="http://resource.cuckoo.co.kr/_GlobalResourceUpload/4541/thumbnail/40657/3c635967089943ef85df64e39d0932d7.png" 
+                    alt="WF21" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+             
+             </div>
+
          `;
        }
      }
@@ -7817,44 +8065,107 @@ button:active {
          priceDetails.innerHTML = `
            <div style="margin-top: 8px;">
              <div style="margin-bottom: 8px;"><strong>CFD-C 렌탈료</strong></div>
-             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 0.9rem;">
-               <div>
-                 <div style="margin-bottom: 8px;"><strong>관리형</strong></div>
-                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
-                   <div>
-                     <strong>36개월:</strong><br>
-                     신규: 34,900원<br>
-                     패키지: 32,900원<br>
-                     재렌탈: 32,900원
-                   </div>
-                   <div>
-                     <strong>48개월:</strong><br>
-                     신규: 28,900원<br>
-                     패키지: 26,900원<br>
-                     재렌탈: 26,900원
-                   </div>
-                 </div>
-               </div>
-               <div>
-                 <div style="margin-bottom: 8px;"><strong>셀프형</strong></div>
-                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
-                   <div>
-                     <strong>36개월:</strong><br>
-                     신규: 32,900원<br>
-                     패키지: 30,900원<br>
-                     재렌탈: 30,900원
-                   </div>
-                   <div>
-                     <strong>48개월:</strong><br>
-                     신규: 26,900원<br>
-                     패키지: 24,900원<br>
-                     재렌탈: 24,900원
-                   </div>
-                 </div>
-               </div>
+             <div style="overflow-x: auto;">
+               <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                 <thead>
+                   <tr style="background-color: #e3f2fd;">
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">타입</th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">의무기간</th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">구분</th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">렌탈료</th>
+                   </tr>
+                 </thead>
+                 <tbody>
+                   <tr>
+                     <td rowspan="9" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle; background-color: #e8f4fd;">관리형</td>
+                     <td rowspan="3" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle;">36개월</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">신규</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">30,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">패키지</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">28,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">재렌탈</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">28,900원</td>
+                   </tr>
+                   <tr>
+                     <td rowspan="3" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle;">48개월</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">신규</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">24,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">패키지</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">22,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">재렌탈</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">22,900원</td>
+                   </tr>
+                   <tr>
+                     <td rowspan="3" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle;">60개월</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">신규</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">18,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">패키지</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">16,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">재렌탈</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">16,900원</td>
+                   </tr>
+                   <tr>
+                     <td rowspan="9" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle; background-color: #f0f8ff;">셀프형</td>
+                     <td rowspan="3" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle;">36개월</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">신규</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">28,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">패키지</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">26,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">재렌탈</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">26,900원</td>
+                   </tr>
+                   <tr>
+                     <td rowspan="3" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle;">48개월</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">신규</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">22,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">패키지</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">20,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">재렌탈</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">20,900원</td>
+                   </tr>
+                   <tr>
+                     <td rowspan="3" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle;">60개월</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">신규</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">16,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">패키지</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">14,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">재렌탈</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">14,900원</td>
+                   </tr>
+                 </tbody>
+               </table>
              </div>
              <div style="margin-top: 16px; text-align: center;">
                <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_f095d96a-88bd-4545-9598-33555724a89a.jpg" 
+                    alt="CFD-C 음식물처리기" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+             <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_f96dd981-534c-470a-be00-209c479a8929.jpg" 
                     alt="CFD-C 음식물처리기" 
                     style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
              </div>
@@ -8392,6 +8703,336 @@ button:active {
  
  
          `;
+       } else if (selectedModel === '벽걸이에어컨') {
+         priceDetails.innerHTML = `
+           <div style="margin-top: 8px;">
+             <div style="margin-bottom: 8px;"><strong>벽걸이에어컨</strong></div>
+             <div style="overflow-x: auto;">
+               <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                 <thead>
+                   <tr style="background-color: #e3f2fd;">
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">벽걸이에어컨</th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">모델명</th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">행사가</th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">건</th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">수수료</th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">ERP 접수</th>
+                   </tr>
+                 </thead>
+                 <tbody>
+                   <tr>
+                     <td rowspan="4" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle; font-weight: bold;">벽걸이에어컨</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">CA-CRC0610W (본품)</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">490,000원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">0.5 건</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">15,000원</td>
+                     <td rowspan="4" style="border: 1px solid #dee2e6; padding: 8px; text-align: center; vertical-align: middle;">ERP 접수</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">CAD-CRC0610 (실외기)</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">159,000원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">0.5 건</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">15,000원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">CA-CRC1010W (본품)</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">636,000원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">0.5 건</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">15,000원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">CAD-CRC1010 (실외기)</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">213,000원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">0.5 건</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">15,000원</td>
+                   </tr>
+                 </tbody>
+               </table>
+             </div>
+           </div>
+            <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_34da60d7-6f82-4945-9179-be0467861ddd.jpg" 
+                    alt="벽걸이에어컨" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+ <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_9c0efd3a-44d7-4c95-bd53-0215543034d7.jpg" 
+                    alt="벽걸이에어컨" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+ 
+         `;
+       } else if (selectedModel === 'AFFEM1430NW') {
+         priceDetails.innerHTML = `
+           <div style="margin-top: 8px;">
+             <div style="margin-bottom: 8px;"><strong>무선청소기 AFFEM1430NW (스테이션 O)</strong></div>
+             <div style="overflow-x: auto;">
+               <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                 <thead>
+                   <tr style="background-color: #e3f2fd;">
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">행사가</th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">수수료</th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">인정건수</th>
+                   </tr>
+                 </thead>
+                 <tbody>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">749,000원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">50,000원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center; font-weight: bold;">1건</td>
+                   </tr>
+                 </tbody>
+               </table>
+             </div>
+           </div>
+            <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_0779e0fb-158e-4a18-8901-25d6d2a6642d.jpg" 
+                    alt="AFFEM1430NW" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+ 
+ 
+         `;
+       } else if (selectedModel === 'C151MODG') {
+         priceDetails.innerHTML = `
+           <div style="margin-top: 8px;">
+             <div style="margin-bottom: 8px;"><strong>음식물처리기 C151MODG/NW</strong></div>
+             <div style="overflow-x: auto;">
+               <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                 <thead>
+                   <tr style="background-color: #e3f2fd;">
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">행사가</th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">수수료</th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">인정건수</th>
+                   </tr>
+                 </thead>
+                 <tbody>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">799,000원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">50,000원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center; font-weight: bold;">1건</td>
+                   </tr>
+                 </tbody>
+               </table>
+             </div>
+           </div>
+            <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_f095d96a-88bd-4545-9598-33555724a89a.jpg" 
+                    alt="C151MODG" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+ 
+ 
+         `;
+       } else if (selectedModel === '써큘레이터') {
+         priceDetails.innerHTML = `
+           <div style="margin-top: 8px;">
+             <div style="margin-bottom: 8px;"><strong>써큘레이터</strong></div>
+             <div style="overflow-x: auto;">
+               <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                 <thead>
+                   <tr style="background-color: #e3f2fd;">
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">모델명</th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">행사가</th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">건</th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">수수료</th>
+                   </tr>
+                 </thead>
+                 <tbody>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">CF-EFCL1010NW(10인치 무선, 폴딩)</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">150,000원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">0.5 건</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">0원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">CF-1420NW(14인치)</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">150,000원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">0.5 건</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">0원</td>
+                   </tr>
+                 </tbody>
+               </table>
+             </div>
+           </div>
+            <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_fbfb1599-d911-49ed-bcb4-6724fe1ff295.png" 
+                    alt="써큘레이터" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+              <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_2dc2feaf-ac2f-461b-8bd2-c86993d48203.jpg" 
+                    alt="써큘레이터" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+ 
+ 
+         `;
+       }
+     }
+
+     function showSubscriptionPrice() {
+       const selectedModel = document.getElementById('subscriptionModel').value;
+       const priceDetails = document.getElementById('subscriptionPriceDetails');
+       
+       if (!selectedModel) {
+         priceDetails.innerHTML = '';
+         return;
+       }
+       
+       if (selectedModel === 'CDF-D301') {
+         priceDetails.innerHTML = `
+           <div style="margin-top: 8px;">
+             <div style="margin-bottom: 8px;"><strong>음식물처리기 CDF-D301(건조분쇄)</strong></div>
+             <div style="overflow-x: auto;">
+               <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                 <thead>
+                   <tr style="background-color: #e3f2fd;">
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">상품명</th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">의무기간</th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">교체주기</th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">방문주기</th>
+                     <th colspan="3" style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">렌탈료</th>
+                   </tr>
+                   <tr style="background-color: #e3f2fd;">
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;"></th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;"></th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;"></th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;"></th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">1~36(39M)</th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">37~48M</th>
+                     <th style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">49~60(72M)</th>
+                   </tr>
+                 </thead>
+                 <tbody>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">CFD-D301DCNW/G(E/36M/12C)</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">36M</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">4C</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">12C</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">29,900원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">-</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">-</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">CFD-D301DCNW/G(P/36M/12C)</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">36M</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">4C</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">12C</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">27,900원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">-</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">-</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">CFD-D301DCNW/G(R/36M/12C)</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">36M</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">4C</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">12C</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">27,900원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">-</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">-</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">CFD-D301DCNW/G(E/48M/12C)</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">48M</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">4C</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">12C</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">23,900원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">23,900원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">-</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">CFD-D301DCNW/G(P/48M/12C)</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">48M</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">4C</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">12C</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">21,900원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">21,900원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">-</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">CFD-D301DCNW/G(R/48M/12C)</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">48M</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">4C</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">12C</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">21,900원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">21,900원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">-</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">CFD-D301DCNW/G(E/60M/12C)</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">60M</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">4C</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">12C</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">19,900원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">19,900원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">19,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">CFD-D301DCNW/G(P/60M/12C)</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">60M</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">4C</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">12C</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">17,900원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">17,900원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">17,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">CFD-D301DCNW/G(R/60M/12C)</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">60M</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">4C</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">12C</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">17,900원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">17,900원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">17,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">CFD-D301DCNW/G(E/72M/12C)</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">72M</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">4C</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">12C</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">17,900원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">17,900원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">17,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">CFD-D301DCNW/G(P/72M/12C)</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">72M</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">4C</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">12C</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">15,900원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">15,900원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">15,900원</td>
+                   </tr>
+                   <tr>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">CFD-D301DCNW/G(R/72M/12C)</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">72M</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">4C</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: center;">12C</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">15,900원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">15,900원</td>
+                     <td style="border: 1px solid #dee2e6; padding: 8px; text-align: right; font-weight: bold;">15,900원</td>
+                   </tr>
+                 </tbody>
+               </table>
+             </div>
+           </div>
+            <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_9345313a-633f-492e-87b3-51bad51bf447.jpg" 
+                    alt="CDF-D301" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+  <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_f94613ba-19ed-4415-88c7-d91561403ecf.jpg" 
+                    alt="CDF-D301" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+ <div style="margin-top: 16px; text-align: center;">
+               <img src="https://cdn.cuckoo.co.kr/upload_cuckoo/_bo_mall/product/file_9fa7cf7b-23fb-4668-bed6-1bb03d6f87f9.gif" 
+                    alt="CDF-D301" 
+                    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+             </div>
+         `;
        }
      }
 
@@ -8531,6 +9172,174 @@ button:active {
       } catch (error) {
         console.error('Firebase 업데이트 오류:', error);
       }
+    }
+
+    // PDF 관련 함수들
+    let savedPdfs = JSON.parse(localStorage.getItem('savedPdfs')) || [];
+    let currentPdf = null;
+
+    // PDF 업로드 처리
+    function handlePdfUpload(input) {
+      const file = input.files[0];
+      if (!file) return;
+
+      if (!file.type.includes('pdf')) {
+        alert('PDF 파일만 업로드 가능합니다.');
+        return;
+      }
+
+      // 업로드 진행률 표시
+      const progressDiv = document.getElementById('uploadProgress');
+      const progressFill = document.getElementById('progressFill');
+      progressDiv.style.display = 'block';
+
+      // 파일 읽기
+      const reader = new FileReader();
+      
+      reader.onprogress = function(e) {
+        if (e.lengthComputable) {
+          const percentComplete = (e.loaded / e.total) * 100;
+          progressFill.style.width = percentComplete + '%';
+        }
+      };
+
+      reader.onload = function(e) {
+        // PDF 파일 정보 저장
+        const pdfData = {
+          id: Date.now(),
+          name: file.name,
+          size: file.size,
+          uploadDate: new Date().toLocaleDateString(),
+          data: e.target.result
+        };
+
+        savedPdfs.push(pdfData);
+        localStorage.setItem('savedPdfs', JSON.stringify(savedPdfs));
+
+        // 파일 목록 업데이트
+        renderPdfList();
+
+        // 업로드 완료
+        progressDiv.style.display = 'none';
+        progressFill.style.width = '0%';
+        input.value = '';
+
+        alert('PDF 파일이 성공적으로 업로드되었습니다!');
+      };
+
+      reader.readAsDataURL(file);
+    }
+
+    // PDF 목록 렌더링
+    function renderPdfList() {
+      const pdfList = document.getElementById('pdfList');
+      pdfList.innerHTML = '';
+
+      if (savedPdfs.length === 0) {
+        pdfList.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #666; padding: 20px;">저장된 PDF가 없습니다.</div>';
+        return;
+      }
+
+      savedPdfs.forEach(pdf => {
+        const pdfCard = document.createElement('div');
+        pdfCard.className = 'pdf-card';
+        pdfCard.style.cssText = 'border: 2px solid #e9ecef; border-radius: 8px; padding: 15px; background: #f8f9fa; cursor: pointer; transition: all 0.3s; text-align: center;';
+        pdfCard.onclick = () => viewPdf(pdf.id);
+
+        pdfCard.innerHTML = `
+          <div style="font-size: 2.5rem; margin-bottom: 10px; color: #dc3545;">📄</div>
+          <div style="font-size: 1rem; font-weight: 500; color: #333; margin-bottom: 8px; word-break: break-all;">${pdf.name}</div>
+          <div style="font-size: 0.8rem; color: #666; margin-bottom: 5px;">크기: ${formatFileSize(pdf.size)}</div>
+          <div style="font-size: 0.8rem; color: #666; margin-bottom: 10px;">업로드: ${pdf.uploadDate}</div>
+          <div style="display: flex; gap: 8px; justify-content: center;">
+            <button onclick="event.stopPropagation(); viewPdf(${pdf.id})" style="padding: 4px 8px; border: none; border-radius: 4px; background: #28a745; color: white; cursor: pointer; font-size: 0.8rem;">보기</button>
+            <button onclick="event.stopPropagation(); deletePdf(${pdf.id})" style="padding: 4px 8px; border: none; border-radius: 4px; background: #dc3545; color: white; cursor: pointer; font-size: 0.8rem;">삭제</button>
+          </div>
+        `;
+
+        pdfList.appendChild(pdfCard);
+      });
+    }
+
+    // PDF 보기
+    function viewPdf(pdfId) {
+      const pdf = savedPdfs.find(p => p.id === pdfId);
+      if (!pdf) return;
+
+      currentPdf = pdfId;
+
+      // PDF 카드 활성화 상태 변경
+      document.querySelectorAll('.pdf-card').forEach(card => {
+        card.style.borderColor = '#e9ecef';
+        card.style.background = '#f8f9fa';
+      });
+      event.currentTarget.style.borderColor = '#667eea';
+      event.currentTarget.style.background = '#e8f4fd';
+
+      // PDF 뷰어에 표시
+      const pdfViewer = document.getElementById('pdfViewer');
+      pdfViewer.innerHTML = `<iframe src="${pdf.data}" title="${pdf.name}" style="width: 100%; height: 500px; border: none; border-radius: 8px;"></iframe>`;
+    }
+
+    // PDF 삭제
+    function deletePdf(pdfId) {
+      if (!confirm('이 PDF 파일을 삭제하시겠습니까?')) return;
+
+      savedPdfs = savedPdfs.filter(p => p.id !== pdfId);
+      localStorage.setItem('savedPdfs', JSON.stringify(savedPdfs));
+
+      if (currentPdf === pdfId) {
+        currentPdf = null;
+        document.getElementById('pdfViewer').innerHTML = '<div style="text-align: center; color: #666; font-style: italic;">PDF를 선택하여 내용을 확인하세요</div>';
+      }
+
+      renderPdfList();
+    }
+
+    // 파일 크기 포맷팅
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // 드래그 앤 드롭 기능
+    function setupPdfDragAndDrop() {
+      const uploadArea = document.getElementById('uploadArea');
+      const fileInput = document.getElementById('pdfFile');
+
+      if (!uploadArea || !fileInput) return;
+
+      uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#667eea';
+        uploadArea.style.background = '#e8f4fd';
+      });
+
+      uploadArea.addEventListener('dragleave', () => {
+        uploadArea.style.borderColor = '#ddd';
+        uploadArea.style.background = 'white';
+      });
+
+      uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#ddd';
+        uploadArea.style.background = 'white';
+
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          fileInput.files = files;
+          handlePdfUpload(fileInput);
+        }
+      });
+    }
+
+    // 판매활성화보기 탭이 활성화될 때 초기화
+    function initPdfSection() {
+      renderPdfList();
+      setupPdfDragAndDrop();
     }
   </script>
 </body>

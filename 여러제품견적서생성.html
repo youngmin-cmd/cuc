@@ -57,7 +57,7 @@
         }
 
         .main-container {
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 20px auto;
             background: white;
             border-radius: 20px;
@@ -70,13 +70,13 @@
         .page-header {
             text-align: center;
             margin-bottom: 25px;
-            padding: 40px 20px;
+            padding: 30px 20px;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             border-radius: 15px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             position: relative;
             overflow: hidden;
-            min-height: 200px;
+            min-height: 140px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -114,8 +114,8 @@
         }
 
         .header-icon {
-            width: 900px;
-            height: 270px;
+            width: 600px;
+            height: 180px;
             margin-bottom: 15px;
             display: block;
             animation: float 3s ease-in-out infinite;
@@ -479,8 +479,8 @@
             }
             
             .header-icon {
-                width: 300px;
-                height: 90px;
+                width: 250px;
+                height: 75px;
             }
 
             .quote-preview {
@@ -887,24 +887,14 @@
             
             const quoteContent = document.getElementById('quoteContent');
             
-            // A4 크기 고정 옵션 확인 (체크박스가 있으면 확인, 없으면 기본값 true)
-            const a4FixedSizeCheckbox = document.getElementById('a4FixedSize');
-            const a4FixedSize = a4FixedSizeCheckbox ? a4FixedSizeCheckbox.checked : true;
-            
             // A4 고정 레이아웃으로 PDF 생성
-            const captureOptions = {
+            html2canvas(quoteContent, {
                 scale: 2,
                 useCORS: true,
-                allowTaint: true
-            };
-            
-            // A4 크기 고정이 적용된 경우
-            if (a4FixedSize) {
-                captureOptions.width = 210 * 2.83465; // A4 너비를 픽셀로 변환 (72 DPI 기준)
-                captureOptions.height = 297 * 2.83465; // A4 높이를 픽셀로 변환 (72 DPI 기준)
-            }
-            
-            html2canvas(quoteContent, captureOptions).then(canvas => {
+                allowTaint: true,
+                width: 210 * 2.83465, // A4 너비를 픽셀로 변환 (72 DPI 기준)
+                height: 297 * 2.83465  // A4 높이를 픽셀로 변환 (72 DPI 기준)
+            }).then(canvas => {
                 const imgData = canvas.toDataURL('image/png');
                 const imgWidth = 210; // A4 너비 (mm)
                 const imgHeight = 297; // A4 높이 (mm)
@@ -1068,18 +1058,23 @@
                     
                     <div style="margin-bottom: 24px;">
                         <p style="margin: 0 0 16px 0; color: #495057; font-size: 1rem;">견적서를 공유할 방법을 선택하세요:</p>
-                        
-                        <div style="margin-bottom: 16px; padding: 12px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #1976d2;">
-                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem; color: #495057;">
-                                <input type="checkbox" id="a4FixedSize" checked style="width: 16px; height: 16px;">
-                                <span style="font-weight: 600; color: #1976d2;">📄 A4 크기 고정</span>
-                                <span style="font-size: 0.8rem; color: #6c757d;">(210mm × 297mm)</span>
-                            </label>
-                            <p style="margin: 8px 0 0 0; font-size: 0.8rem; color: #6c757d;">공유 시 A4 용지 크기로 고정하여 일관된 레이아웃을 유지합니다.</p>
-                        </div>
                     </div>
                     
-
+                    <!-- 폼 크기 고정 옵션 -->
+                    <div style="margin-bottom: 20px; padding: 16px; background: #f8f9fa; border-radius: 8px; border-left: 3px solid #007bff;">
+                        <h4 style="margin: 0 0 12px 0; color: #2c3e50; font-size: 1rem;">📏 폼 크기 설정</h4>
+                        <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="radio" name="formSize" value="auto" checked style="margin: 0;">
+                                <span style="font-size: 0.9rem;">자동 크기</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="radio" name="formSize" value="fixed" style="margin: 0;">
+                                <span style="font-size: 0.9rem;">고정 크기 (A4)</span>
+                            </label>
+                        </div>
+                        <p style="margin: 8px 0 0 0; font-size: 0.8rem; color: #6c757d;">고정 크기로 설정하면 견적서가 A4 용지 크기에 맞춰 표시됩니다.</p>
+                    </div>
                     
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 16px; margin-bottom: 24px;">
                         <button onclick="shareViaKakao()" style="padding: 16px; background: #FEE500; color: #000; border: none; border-radius: 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px;">
@@ -1157,40 +1152,67 @@
             }
         }
 
-        // 카카오톡 공유 (이미지 캡처 방식) - A4 크기 고정 옵션 포함
+        // 카카오톡 공유 (이미지 캡처 방식)
         function shareViaKakao() {
+            const formSize = document.querySelector('input[name="formSize"]:checked').value;
+            
+            // 폼 크기 설정 적용
+            if (formSize === 'fixed') {
+                document.getElementById('quotePreview').style.width = '210mm';
+                document.getElementById('quotePreview').style.height = '297mm';
+                document.getElementById('quotePreview').style.margin = '0';
+                document.getElementById('quotePreview').style.padding = '20px';
+            } else {
+                document.getElementById('quotePreview').style.width = '';
+                document.getElementById('quotePreview').style.height = '';
+                document.getElementById('quotePreview').style.margin = '';
+                document.getElementById('quotePreview').style.padding = '';
+            }
+
+            // 견적서 미리보기를 이미지로 캡처
             const quotePreview = document.getElementById('quotePreview');
-            const a4FixedSize = document.getElementById('a4FixedSize').checked;
             
-            // A4 크기 고정 옵션에 따른 캡처 설정
-            const captureOptions = {
-                scale: 2,
-                useCORS: true,
-                allowTaint: true,
-                backgroundColor: '#ffffff',
-                logging: false
-            };
-            
-            // A4 크기 고정이 체크된 경우 A4 크기로 캡처
-            if (a4FixedSize) {
-                // A4 크기 (210mm × 297mm)를 픽셀로 변환 (96 DPI 기준)
-                const a4Width = 210 * 3.779527559;  // 210mm to px
-                const a4Height = 297 * 3.779527559; // 297mm to px
-                
-                captureOptions.width = a4Width;
-                captureOptions.height = a4Height;
-                captureOptions.x = 0;
-                captureOptions.y = 0;
+            // 캡처 전에 스타일 보장
+            if (formSize === 'fixed') {
+                quotePreview.style.width = '210mm';
+                quotePreview.style.height = '297mm';
+                quotePreview.style.margin = '0';
+                quotePreview.style.padding = '20px';
+                quotePreview.style.boxSizing = 'border-box';
+                quotePreview.style.backgroundColor = '#ffffff';
+                quotePreview.style.position = 'relative';
+                quotePreview.style.overflow = 'hidden';
+            } else {
+                quotePreview.style.width = '100%';
+                quotePreview.style.height = 'auto';
+                quotePreview.style.margin = '20px auto';
+                quotePreview.style.padding = '20px';
+                quotePreview.style.boxSizing = 'border-box';
+                quotePreview.style.backgroundColor = '#ffffff';
+                quotePreview.style.position = 'relative';
+                quotePreview.style.overflow = 'visible';
             }
             
-            // A4 크기 고정 캡처
-            html2canvas(quotePreview, captureOptions).then(canvas => {
+            // 잠시 대기 후 캡처 (스타일 적용을 위해)
+            setTimeout(() => {
+                html2canvas(quotePreview, {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff',
+                    width: formSize === 'fixed' ? 210 * 2.83465 : quotePreview.offsetWidth * 2,
+                    height: formSize === 'fixed' ? 297 * 2.83465 : quotePreview.offsetHeight * 2,
+                    scrollX: 0,
+                    scrollY: 0,
+                    windowWidth: formSize === 'fixed' ? 210 * 2.83465 : quotePreview.offsetWidth * 2,
+                    windowHeight: formSize === 'fixed' ? 297 * 2.83465 : quotePreview.offsetHeight * 2
+                }).then(canvas => {
                 // 모바일에서 카카오톡 공유
                 if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
                     // Web Share API로 이미지 공유
                     if (navigator.share) {
                         canvas.toBlob(blob => {
-                            const file = new File([blob], 'CUCKOO_견적서.png', { type: 'image/png' });
+                            const file = new File([blob], '견적서.png', { type: 'image/png' });
                             navigator.share({
                                 title: 'CUCKOO 견적서',
                                 text: '견적서를 확인해보세요!',
@@ -1218,12 +1240,34 @@
                     alert('견적서 이미지가 다운로드되었습니다.\n카카오톡에서 이미지를 첨부하여 공유하세요.');
                 }
                 
+                // 캡처 후 원래 스타일로 복원
+                quotePreview.style.width = '';
+                quotePreview.style.height = '';
+                quotePreview.style.margin = '';
+                quotePreview.style.padding = '';
+                quotePreview.style.boxSizing = '';
+                quotePreview.style.backgroundColor = '';
+                quotePreview.style.position = '';
+                quotePreview.style.overflow = '';
+                
                 closeShareModal();
             }).catch(error => {
                 console.error('이미지 캡처 실패:', error);
+                
+                // 에러 발생 시에도 스타일 복원
+                quotePreview.style.width = '';
+                quotePreview.style.height = '';
+                quotePreview.style.margin = '';
+                quotePreview.style.padding = '';
+                quotePreview.style.boxSizing = '';
+                quotePreview.style.backgroundColor = '';
+                quotePreview.style.position = '';
+                quotePreview.style.overflow = '';
+                
                 alert('이미지 캡처에 실패했습니다. 텍스트로 공유합니다.');
                 shareViaText();
             });
+            }, 100);
         }
 
         // 문자 공유
@@ -1319,8 +1363,8 @@
             const imageKeys = Object.keys(productImages);
             
             if (imageKeys.length > 0) {
-                imageSection = '<div style="margin: 0 30px 25px -10px; width: calc(100% - 20px);">';
-                imageSection += '<h4 style="color: #1976d2; margin-bottom: 15px; text-align: center; font-size: 15px;">제품 이미지</h4>';
+                imageSection = '<div style="margin-bottom: 20px; padding: 15px; border: 2px solid #1976d2; border-radius: 8px; background: #fafbfc;">';
+                imageSection += '<h4 style="color: #1976d2; margin-bottom: 15px; text-align: center; font-size: 14px; font-weight: 600;">제품 이미지</h4>';
                 
                 // 제품 개수에 따라 그리드 컬럼 수 결정 (A4 고정 레이아웃)
                 let gridColumns = '1fr';
@@ -1335,15 +1379,15 @@
                     maxWidth = '170mm';
                 }
                 
-                imageSection += `<div class="product-images-grid" style="display: grid; grid-template-columns: ${gridColumns}; gap: 8px; max-width: ${maxWidth}; margin: 0 auto; justify-content: ${justifyContent}; align-items: center;">`;
+                imageSection += `<div class="product-images-grid" style="display: grid; grid-template-columns: ${gridColumns}; gap: 10px; max-width: ${maxWidth}; margin: 0 auto; justify-content: ${justifyContent}; align-items: center;">`;
                 
                 imageKeys.forEach((productNumber, index) => {
                     const product = products[parseInt(productNumber) - 1];
                     const productName = product ? product.name : `제품 ${productNumber}`;
                     
                     imageSection += `
-                        <div style="text-align: center; padding: 6px; background: #f8f9fa; border-radius: 4px; border: 1px solid #e1e8ed;">
-                            <img src="${productImages[productNumber]}" style="max-width: 100%; max-height: 80px; border-radius: 4px; margin-bottom: 4px; display: block; margin-left: auto; margin-right: auto;" alt="${productName}">
+                        <div style="text-align: center; padding: 8px; background: #f8f9fa; border-radius: 6px; border: 1px solid #e1e8ed; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <img src="${productImages[productNumber]}" style="max-width: 100%; max-height: 80px; border-radius: 4px; margin-bottom: 6px; display: block; margin-left: auto; margin-right: auto;" alt="${productName}">
                             <p style="margin: 0; font-size: 10px; color: #495057; font-weight: 500;">${productName}</p>
                         </div>
                     `;
@@ -1353,23 +1397,14 @@
             }
 
             return `
-                <div style="font-family: 'Malgun Gothic', sans-serif; width: 210mm; height: 297mm; margin: 0 auto; padding: 20mm; box-sizing: border-box; background: linear-gradient(135deg, #f8f9fa 0%, #e3f2fd 100%); border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); page-break-after: always;">
-                    <div style="text-align: center; margin-bottom: 30px;">
-                        <svg style="width: 240px; height: 72px; margin-bottom: 15px; margin-left: -15px;" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
-                            <defs>
-                                <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                    <stop offset="0%" style="stop-color:#0066cc;stop-opacity:1" />
-                                    <stop offset="100%" style="stop-color:#003366;stop-opacity:1" />
-                                </linearGradient>
-                            </defs>
-                            <text x="100" y="35" font-family="Arial, sans-serif" font-size="37" font-weight="bold" text-anchor="middle" fill="url(#logoGradient)">CUCKOO</text>
-                        </svg>
-                        <h1 style="color: #1976d2; font-size: 28px; margin-bottom: 12px; margin-top: 0; font-weight: 600; margin-left: -30px;">견적서</h1>
-                        <p style="color: #666; font-size: 16px; margin: 0; margin-left: -30px;">${customerName} 고객님을 위한 맞춤 견적서입니다</p>
+                <div style="font-family: 'Malgun Gothic', sans-serif; width: 210mm; height: 297mm; margin: 0 auto; padding: 20mm; box-sizing: border-box; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); page-break-after: always;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h1 style="color: #1976d2; font-size: 24px; margin-bottom: 8px; margin-top: 0;">CUCKOO 견적서</h1>
+                        <p style="color: #666; font-size: 14px; margin: 0;">${customerName} 고객님을 위한 맞춤 견적서입니다</p>
                     </div>
 
-                    <div style="background: white; padding: 15px; border-radius: 8px; margin: 0 30px 25px -10px; border: 1px solid #e1e8ed; box-shadow: 0 2px 4px rgba(0,0,0,0.05); width: calc(100% - 20px);">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 14px;">
+                    <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #e1e8ed;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px;">
                             <div><strong>견적일자:</strong> ${quoteDate}</div>
                             <div><strong>견적유효기간:</strong> ${validUntil}</div>
                             <div><strong>담당자:</strong> ${salesPerson}</div>
@@ -1379,49 +1414,49 @@
 
                     ${imageSection}
 
-                    <div style="margin: 0 30px 25px -10px; width: calc(100% - 20px);">
-                        <p style="background: white; padding: 12px; border-radius: 8px; line-height: 1.5; font-size: 14px; margin: 0; border: 1px solid #e1e8ed; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: center;">${description}</p>
+                    <div style="margin-bottom: 20px;">
+                        <p style="background: #f8f9fa; padding: 10px; border-radius: 6px; line-height: 1.4; font-size: 13px; margin: 0; border: 1px solid #e1e8ed;">${description}</p>
                     </div>
 
-                    <div style="margin: 0 30px 25px -10px; width: calc(100% - 20px);">
-                        <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-size: 13px;">
+                    <div style="margin-bottom: 20px;">
+                        <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-size: 12px;">
                             <thead>
                                 <tr style="background: linear-gradient(135deg, #1976d2, #64b5f6); color: white;">
-                                    <th style="padding: 10px; text-align: left; font-weight: 600; font-size: 12px;">제품군</th>
-                                    <th style="padding: 10px; text-align: left; font-weight: 600; font-size: 12px;">모델</th>
-                                    <th style="padding: 10px; text-align: right; font-weight: 600; font-size: 12px;">렌탈료</th>
-                                    <th style="padding: 10px; text-align: center; font-weight: 600; font-size: 12px;">수량</th>
-                                    <th style="padding: 10px; text-align: center; font-weight: 600; font-size: 12px;">의무기간</th>
-                                    <th style="padding: 10px; text-align: center; font-weight: 600; font-size: 12px;">계약기간</th>
-                                    <th style="padding: 10px; text-align: right; font-weight: 600; font-size: 12px;">소계</th>
+                                    <th style="padding: 8px; text-align: left; font-weight: 600; font-size: 11px;">제품군</th>
+                                    <th style="padding: 8px; text-align: left; font-weight: 600; font-size: 11px;">모델</th>
+                                    <th style="padding: 8px; text-align: right; font-weight: 600; font-size: 11px;">렌탈료</th>
+                                    <th style="padding: 8px; text-align: center; font-weight: 600; font-size: 11px;">수량</th>
+                                    <th style="padding: 8px; text-align: center; font-weight: 600; font-size: 11px;">의무기간</th>
+                                    <th style="padding: 8px; text-align: center; font-weight: 600; font-size: 11px;">계약기간</th>
+                                    <th style="padding: 8px; text-align: right; font-weight: 600; font-size: 11px;">소계</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 ${products.map(product => `
                                     <tr style="border-bottom: 1px solid #e1e8ed;">
-                                        <td style="padding: 10px; font-weight: 500; font-size: 12px;">${product.name}</td>
-                                        <td style="padding: 10px; font-size: 12px;">${product.model}</td>
-                                        <td style="padding: 10px; text-align: right; font-size: 12px;">${product.rentalFee.toLocaleString()}원</td>
-                                        <td style="padding: 10px; text-align: center; font-size: 12px;">${product.quantity}개</td>
-                                        <td style="padding: 10px; text-align: center; font-size: 12px;">${product.usagePeriod}개월</td>
-                                        <td style="padding: 10px; text-align: center; font-size: 12px;">${product.contractPeriod}개월</td>
-                                        <td style="padding: 10px; text-align: right; font-weight: 600; font-size: 12px;">${product.total.toLocaleString()}원</td>
+                                        <td style="padding: 8px; font-weight: 500; font-size: 11px;">${product.name}</td>
+                                        <td style="padding: 8px; font-size: 11px;">${product.model}</td>
+                                        <td style="padding: 8px; text-align: right; font-size: 11px;">${product.rentalFee.toLocaleString()}원</td>
+                                        <td style="padding: 8px; text-align: center; font-size: 11px;">${product.quantity}개</td>
+                                        <td style="padding: 8px; text-align: center; font-size: 11px;">${product.usagePeriod}개월</td>
+                                        <td style="padding: 8px; text-align: center; font-size: 11px;">${product.contractPeriod}개월</td>
+                                        <td style="padding: 8px; text-align: right; font-weight: 600; font-size: 11px;">${product.total.toLocaleString()}원</td>
                                     </tr>
                                 `).join('')}
                                 <tr style="background: linear-gradient(135deg, #f8f9fa, #e9ecef); border-top: 2px solid #1976d2;">
-                                    <td colspan="6" style="padding: 10px; text-align: right; font-weight: 700; color: #1976d2; font-size: 12px;">총 합계:</td>
-                                    <td style="padding: 10px; text-align: right; font-weight: 700; color: #1976d2; font-size: 13px;">${products.reduce((sum, product) => sum + product.total, 0).toLocaleString()}원</td>
+                                    <td colspan="6" style="padding: 8px; text-align: right; font-weight: 700; color: #1976d2; font-size: 11px;">총 합계:</td>
+                                    <td style="padding: 8px; text-align: right; font-weight: 700; color: #1976d2; font-size: 12px;">${products.reduce((sum, product) => sum + product.total, 0).toLocaleString()}원</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
 
-                    <div style="margin: 25px 30px 0 -10px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #1976d2; border: 1px solid #e1e8ed; box-shadow: 0 2px 4px rgba(0,0,0,0.05); width: calc(100% - 20px);">
-                        <h4 style="color: #1976d2; margin-bottom: 10px; font-size: 15px; margin-top: 0;">📋 견적서 안내사항</h4>
-                        <ul style="margin: 0; padding-left: 18px; line-height: 1.5; font-size: 13px;">
+                    <div style="margin-top: 20px; padding: 12px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #1976d2; border: 1px solid #e1e8ed;">
+                        <h4 style="color: #1976d2; margin-bottom: 8px; font-size: 14px; margin-top: 0;">📋 견적서 안내사항</h4>
+                        <ul style="margin: 0; padding-left: 16px; line-height: 1.4; font-size: 12px;">
                             <li>본 견적서는 ${validUntil}까지 유효합니다.</li>
-                            <li>렌탈료 합계 금액은 VAT포함된 금액 입니다.</li>
-                            <li>설치비 및 렌탈 등록비 무상 입니다.</li>
+                            <li>계약 시 추가 할인 혜택이 적용될 수 있습니다.</li>
+                            <li>설치비 및 렌탈등록비 무상 입니다.</li>
                             <li>자세한 문의사항은 담당자에게 연락해 주시기 바랍니다.</li>
                         </ul>
                     </div>
