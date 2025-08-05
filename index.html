@@ -9356,14 +9356,16 @@ button:active {
     // GitHub PDF 로드 함수
     function loadGitHubPdf(type = 'main') {
       const pdfViewer = document.getElementById('pdfViewer');
-      let githubPdfUrl, title;
+      let githubPdfUrl, title, pdfName;
       
       if (type === 'main') {
         githubPdfUrl = 'https://raw.githubusercontent.com/youngmin-cmd/cuc/main/지국_판매활성화(2025.08).pdf';
         title = '지국 판매활성화 기준 (2025.08)';
+        pdfName = '지국_판매활성화(2025.08).pdf';
       } else if (type === 'appendix') {
         githubPdfUrl = 'https://raw.githubusercontent.com/youngmin-cmd/cuc/main/지국_판매활성화(2025.08)_별첨.pdf';
         title = '지국 판매활성화 기준 (2025.08) - 별첨';
+        pdfName = '지국_판매활성화(2025.08)_별첨.pdf';
       }
       
       // 로딩 표시
@@ -9375,21 +9377,88 @@ button:active {
         </div>
       `;
       
-      // PDF iframe으로 표시
+      // PDF 표시 (여러 방법 제공)
       setTimeout(() => {
         pdfViewer.innerHTML = `
           <div style="margin-bottom: 15px; padding: 10px 15px; background: #e8f4fd; border-radius: 6px; border-left: 4px solid #667eea;">
             <div style="font-weight: 500; color: #333;">📖 현재 보고 있는 문서: ${title}</div>
           </div>
-          <iframe 
-            src="${githubPdfUrl}" 
-            title="${title}" 
-            style="width: 100%; height: 600px; border: none; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"
-            onload="console.log('PDF 로드 완료: ${title}')"
-            onerror="handlePdfError('${type}')"
-          ></iframe>
+          
+          <!-- PDF 뷰어 -->
+          <div style="margin-bottom: 20px;">
+            <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+              <button onclick="showPdfViewer('iframe', '${githubPdfUrl}', '${title}')" 
+                      style="padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">
+                📄 브라우저 뷰어
+              </button>
+              <button onclick="showPdfViewer('google', '${githubPdfUrl}', '${title}')" 
+                      style="padding: 8px 16px; background: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">
+                📄 Google 뷰어
+              </button>
+              <a href="${githubPdfUrl}" target="_blank" 
+                 style="padding: 8px 16px; background: #ffc107; color: #333; text-decoration: none; border-radius: 4px; font-size: 0.9rem;">
+                📖 새 탭에서 열기
+              </a>
+              <a href="${githubPdfUrl}" download="${pdfName}"
+                 style="padding: 8px 16px; background: #6c757d; color: white; text-decoration: none; border-radius: 4px; font-size: 0.9rem;">
+                💾 다운로드
+              </a>
+            </div>
+            
+            <div id="pdfDisplay" style="border: 1px solid #e9ecef; border-radius: 8px; min-height: 500px; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
+              <div style="text-align: center; color: #666;">
+                <div style="font-size: 2rem; margin-bottom: 10px;">📄</div>
+                <div>위의 버튼 중 하나를 클릭하여 PDF를 확인하세요</div>
+              </div>
+            </div>
+          </div>
         `;
       }, 500);
+    }
+    
+    // PDF 뷰어 표시 함수
+    function showPdfViewer(type, url, title) {
+      const pdfDisplay = document.getElementById('pdfDisplay');
+      
+      if (type === 'iframe') {
+        pdfDisplay.innerHTML = `
+          <iframe 
+            src="${url}" 
+            title="${title}" 
+            style="width: 100%; height: 500px; border: none; border-radius: 8px;"
+            onload="console.log('iframe 로드 완료')"
+            onerror="showPdfError()"
+          ></iframe>
+        `;
+      } else if (type === 'google') {
+        pdfDisplay.innerHTML = `
+          <iframe 
+            src="https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true" 
+            title="${title} - Google Docs 뷰어" 
+            style="width: 100%; height: 500px; border: none; border-radius: 8px;"
+            onload="console.log('Google 뷰어 로드 완료')"
+            onerror="showPdfError()"
+          ></iframe>
+        `;
+      }
+    }
+    
+    // PDF 에러 표시
+    function showPdfError() {
+      const pdfDisplay = document.getElementById('pdfDisplay');
+      pdfDisplay.innerHTML = `
+        <div style="text-align: center; color: #dc3545;">
+          <div style="font-size: 2rem; margin-bottom: 10px;">❌</div>
+          <div>PDF 로드에 실패했습니다.</div>
+          <div style="font-size: 0.9rem; margin-top: 10px;">
+            <a href="https://raw.githubusercontent.com/youngmin-cmd/cuc/main/지국_판매활성화(2025.08).pdf" 
+               target="_blank" 
+               style="color: #667eea; text-decoration: none;">
+              새 탭에서 열기
+            </a>
+          </div>
+        </div>
+      `;
     }
     
     // PDF 로드 에러 처리
