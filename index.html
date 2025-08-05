@@ -1185,6 +1185,7 @@ button:active {
               <button class="tab-button" onclick="showProductInfo('기타제품')">기타/일시불</button>
               <button class="tab-button" onclick="showProductInfo('구독상품')">구독상품</button>
               <button class="tab-button" onclick="showProductInfo('판매활성화보기')">판매활성화보기</button>
+              <button class="tab-button" onclick="showAffiliateCard()">제휴카드</button>
     </div>
 
     <div class="product-content" id="productContent">
@@ -1753,6 +1754,272 @@ button:active {
           </div>
         </div>
       </div>
+
+      <div class="product-info" id="제휴카드" style="display: none;">
+        <h4>💳 제휴카드</h4>
+        
+        <div style="text-align: center; padding: 20px;">
+          
+          <div style="max-width: 800px; margin: 0 auto;">
+            <img src="https://gi.esmplus.com/cuckoohs/cuckoomall/card.jpg" 
+                 alt="쿠쿠 제휴카드" 
+                 style="width: 100%; height: auto; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15);"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <div style="display: none; padding: 20px; background: #f8f9fa; border-radius: 8px; color: #666;">
+              <p>이미지를 불러올 수 없습니다.</p>
+              <p>이미지 URL: https://gi.esmplus.com/cuckoohs/cuckoomall/card.jpg</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2025년 8월 무이자 행사 표 -->
+        <div style="max-width: 1200px; margin: 20px auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+          <h5 style="background-color: #f0f0f0; padding: 15px; margin: 0; text-align: center; font-size: 1.1em; color: #333;">2025년 8월 무이자 행사</h5>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.85em; min-width: 800px;">
+              <thead>
+                <tr style="background-color: #e9e9e9;">
+                  <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">카드사명</th>
+                  <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">할부 개월</th>
+                  <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">수수료부담</th>
+                  <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">신청방법</th>
+                  <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">대상금액</th>
+                  <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">종료일</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td rowspan="3" style="padding: 8px; border: 1px solid #ddd; text-align: center;">현대카드</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">2~3개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">무이자</td>
+                  <td rowspan="3" style="padding: 8px; border: 1px solid #ddd; text-align: center;">-</td>
+                  <td rowspan="3" style="padding: 8px; border: 1px solid #ddd; text-align: center;">5만원 이상</td>
+                  <td rowspan="3" style="padding: 8px; border: 1px solid #ddd; text-align: center;">8월 31일</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">10개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~5회차 고객부담</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">12개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~6회차 고객부담</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">롯데카드</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">2~5개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">무이자</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">-</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">5만원 이상</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">8월 31일</td>
+                </tr>
+                <tr>
+                  <td rowspan="4" style="padding: 8px; border: 1px solid #ddd; text-align: center;">삼성카드</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">2~3개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">무이자</td>
+                  <td rowspan="4" style="padding: 8px; border: 1px solid #ddd; text-align: center;">-</td>
+                  <td rowspan="4" style="padding: 8px; border: 1px solid #ddd; text-align: center;">5만원 이상</td>
+                  <td rowspan="4" style="padding: 8px; border: 1px solid #ddd; text-align: center;">8월 31일</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">7개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~3회차 고객부담</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">11개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~5회차 고객부담</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">23개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~10회차 고객부담</td>
+                </tr>
+                <tr>
+                  <td rowspan="5" style="padding: 8px; border: 1px solid #ddd; text-align: center;">하나카드</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">2~3개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">무이자</td>
+                  <td rowspan="5" style="padding: 8px; border: 1px solid #ddd; text-align: center;">-</td>
+                  <td rowspan="5" style="padding: 8px; border: 1px solid #ddd; text-align: center;">5만원 이상</td>
+                  <td rowspan="5" style="padding: 8px; border: 1px solid #ddd; text-align: center;">8월 31일</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">6개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~3회차 고객부담</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">10개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~4회차 고객부담</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">12개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~5회차 고객부담</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">18개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~8회차 고객부담</td>
+                </tr>
+                <tr>
+                  <td rowspan="3" style="padding: 8px; border: 1px solid #ddd; text-align: center;">KB국민카드</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">2~3개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">무이자</td>
+                  <td rowspan="3" style="padding: 8px; border: 1px solid #ddd; text-align: center;">-</td>
+                  <td rowspan="3" style="padding: 8px; border: 1px solid #ddd; text-align: center;">5만원 이상</td>
+                  <td rowspan="3" style="padding: 8px; border: 1px solid #ddd; text-align: center;">8월 31일</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">6개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~3회차 고객부담</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">10개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~5회차 고객부담</td>
+                </tr>
+                <tr>
+                  <td rowspan="5" style="padding: 8px; border: 1px solid #ddd; text-align: center;">신한카드</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">2~5개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">무이자</td>
+                  <td rowspan="5" style="padding: 8px; border: 1px solid #ddd; text-align: center;">-</td>
+                  <td rowspan="5" style="padding: 8px; border: 1px solid #ddd; text-align: center;">5만원 이상</td>
+                  <td rowspan="5" style="padding: 8px; border: 1px solid #ddd; text-align: center;">8월 31일</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">7개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~3회차 고객부담</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">9개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~4회차 고객부담</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">11개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~5회차 고객부담</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">23개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~10회차 고객부담</td>
+                </tr>
+                <tr>
+                  <td rowspan="6" style="padding: 8px; border: 1px solid #ddd; text-align: center;">비씨카드</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">2~5개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">무이자</td>
+                  <td rowspan="6" style="padding: 8px; border: 1px solid #ddd; text-align: center;">*비씨카드 Light 할부<br>APP 및 ARS(☎1899-5772)<br>사전 신청 고객에 한함</td>
+                  <td rowspan="6" style="padding: 8px; border: 1px solid #ddd; text-align: center;">5만원 이상</td>
+                  <td rowspan="6" style="padding: 8px; border: 1px solid #ddd; text-align: center;">8월 31일</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">10개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~4회차 고객부담</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">12개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~5회차 고객부담</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">4~6개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~2회차 고객부담</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">7~10개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~3회차 고객부담</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">11~12개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~4회차 고객부담</td>
+                </tr>
+                <tr>
+                  <td rowspan="9" style="padding: 8px; border: 1px solid #ddd; text-align: center;">NH농협카드</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">2~6개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">무이자</td>
+                  <td rowspan="5" style="padding: 8px; border: 1px solid #ddd; text-align: center;">-</td>
+                  <td rowspan="5" style="padding: 8px; border: 1px solid #ddd; text-align: center;">5만원 이상</td>
+                  <td rowspan="9" style="padding: 8px; border: 1px solid #ddd; text-align: center;">8월 31일</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">7~10개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~3회차 고객부담</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">12개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~4회차 고객부담</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">18개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~5회차 고객부담</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">24개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~6회차 고객부담</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">7~10개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~2회차 고객부담</td>
+                  <td rowspan="4" style="padding: 8px; border: 1px solid #ddd; text-align: center;">*NH농협카드 스마트할부<br>APP 및 ARS(1644-2009)<br>사전 신청 고객에 한함</td>
+                  <td rowspan="2" style="padding: 8px; border: 1px solid #ddd; text-align: center;">30만원 이상</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">11~12개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~3회차 고객부담</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">7~10개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~2회차 고객부담</td>
+                  <td rowspan="2" style="padding: 8px; border: 1px solid #ddd; text-align: center;">100만원 이상</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">11~12개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~3회차 고객부담</td>
+                </tr>
+                <tr>
+                  <td rowspan="3" style="padding: 8px; border: 1px solid #ddd; text-align: center;">우리카드</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">2~4개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">무이자</td>
+                  <td rowspan="3" style="padding: 8px; border: 1px solid #ddd; text-align: center;">-</td>
+                  <td rowspan="3" style="padding: 8px; border: 1px solid #ddd; text-align: center;">5만원 이상</td>
+                  <td rowspan="3" style="padding: 8px; border: 1px solid #ddd; text-align: center;">8월 31일</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">10개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~4회차 고객부담</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">12개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~5회차 고객부담</td>
+                </tr>
+                <tr>
+                  <td rowspan="3" style="padding: 8px; border: 1px solid #ddd; text-align: center;">전북카드</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">2~3개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">무이자</td>
+                  <td rowspan="3" style="padding: 8px; border: 1px solid #ddd; text-align: center;">-</td>
+                  <td rowspan="3" style="padding: 8px; border: 1px solid #ddd; text-align: center;">5만원 이상</td>
+                  <td rowspan="3" style="padding: 8px; border: 1px solid #ddd; text-align: center;">8월 31일</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">4~9개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1회차 고객부담</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">10~12개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1~2회차 고객부담</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">광주카드</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">2~7개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">무이자</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">-</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">5만원 이상</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">8월 31일</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">수협카드</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">2~5개월</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">무이자</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">-</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">5만원 이상</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">8월 31일</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -2146,6 +2413,30 @@ button:active {
       }
       
       // 선택된 탭 버튼 활성화
+      const selectedTab = event.target;
+      selectedTab.classList.add('active');
+    }
+
+    function showAffiliateCard() {
+      // 모든 제품 정보 숨기기
+      const allProducts = document.querySelectorAll('.product-info');
+      allProducts.forEach(product => {
+        product.style.display = 'none';
+      });
+      
+      // 모든 탭 버튼 비활성화
+      const allTabs = document.querySelectorAll('.tab-button');
+      allTabs.forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      // 제휴카드 정보 보이기
+      const affiliateCard = document.getElementById('제휴카드');
+      if (affiliateCard) {
+        affiliateCard.style.display = 'block';
+      }
+      
+      // 제휴카드 탭 버튼 활성화
       const selectedTab = event.target;
       selectedTab.classList.add('active');
     }
