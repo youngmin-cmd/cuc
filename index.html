@@ -1704,35 +1704,52 @@ button:active {
       <div class="product-info" id="판매활성화보기" style="display: none;">
         <h4>판매활성화보기</h4>
         
-        <!-- PDF 업로드 섹션 -->
-        <div style="margin-bottom: 20px; padding: 20px; background: #f8f9fa; border-radius: 8px; border: 2px dashed #dee2e6;">
-          <h5 style="margin-bottom: 15px; color: #333;">PDF 업로드</h5>
-          <div id="uploadArea" style="border: 2px dashed #ddd; border-radius: 8px; padding: 30px; text-align: center; cursor: pointer; transition: all 0.3s; background: white;" onclick="document.getElementById('pdfFile').click()">
-            <div style="font-size: 3rem; margin-bottom: 10px; color: #667eea;">📄</div>
-            <div style="font-size: 1.1rem; color: #333; margin-bottom: 8px;">PDF 파일을 클릭하거나 드래그하여 업로드</div>
-            <div style="font-size: 0.9rem; color: #666;">지원 형식: PDF 파일</div>
-            <input type="file" id="pdfFile" accept=".pdf" onchange="handlePdfUpload(this)" style="display: none;">
-          </div>
-          <div id="uploadProgress" style="margin-top: 15px; display: none;">
-            <div style="width: 100%; height: 20px; background: #e9ecef; border-radius: 10px; overflow: hidden;">
-              <div id="progressFill" style="height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); width: 0%; transition: width 0.3s;"></div>
+        <!-- GitHub PDF 바로보기 섹션 -->
+        <div style="margin-bottom: 20px;">
+          <h5 style="margin-bottom: 15px; color: #333;">📋 지국 판매활성화 기준 (2025.08)</h5>
+          
+          <!-- 메인 PDF -->
+          <div style="margin-bottom: 15px; padding: 20px; background: #f8f9fa; border-radius: 8px; border: 2px solid #28a745;">
+            <div style="background: white; border-radius: 8px; padding: 20px; border: 1px solid #e9ecef;">
+              <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                <div style="font-size: 2rem; margin-right: 15px; color: #dc3545;">📄</div>
+                <div>
+                  <div style="font-weight: 500; color: #333; margin-bottom: 5px;">지국_판매활성화(2025.08).pdf</div>
+                  <div style="font-size: 0.9rem; color: #666;">GitHub 저장소에서 바로 로드</div>
+                </div>
+              </div>
+              <button onclick="loadGitHubPdf('main')" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; transition: all 0.3s;" onmouseover="this.style.background='#218838'" onmouseout="this.style.background='#28a745'">
+                📖 메인 PDF 바로보기
+              </button>
             </div>
           </div>
-        </div>
-
-        <!-- 저장된 PDF 목록 -->
-        <div style="margin-bottom: 20px;">
-          <h5 style="margin-bottom: 15px; color: #333;">저장된 PDF</h5>
-          <div id="pdfList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px;">
-            <!-- PDF 파일들이 여기에 동적으로 추가됩니다 -->
+          
+          <!-- 별첨 PDF -->
+          <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; border: 2px solid #ffc107;">
+            <div style="background: white; border-radius: 8px; padding: 20px; border: 1px solid #e9ecef;">
+              <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                <div style="font-size: 2rem; margin-right: 15px; color: #ffc107;">📋</div>
+                <div>
+                  <div style="font-weight: 500; color: #333; margin-bottom: 5px;">지국_판매활성화(2025.08)_별첨.pdf</div>
+                  <div style="font-size: 0.9rem; color: #666;">GitHub 저장소에서 바로 로드</div>
+                </div>
+              </div>
+              <button onclick="loadGitHubPdf('appendix')" style="padding: 10px 20px; background: #ffc107; color: #333; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; transition: all 0.3s;" onmouseover="this.style.background='#e0a800'" onmouseout="this.style.background='#ffc107'">
+                📖 별첨 PDF 바로보기
+              </button>
+            </div>
           </div>
         </div>
 
         <!-- PDF 뷰어 -->
         <div>
           <h5 style="margin-bottom: 15px; color: #333;">PDF 뷰어</h5>
-          <div id="pdfViewer" style="border: 1px solid #e9ecef; border-radius: 8px; background: #f8f9fa; min-height: 500px; display: flex; align-items: center; justify-content: center;">
-            <div style="text-align: center; color: #666; font-style: italic;">PDF를 선택하여 내용을 확인하세요</div>
+          <div id="pdfViewer" style="border: 1px solid #e9ecef; border-radius: 8px; background: #f8f9fa; min-height: 600px; display: flex; align-items: center; justify-content: center;">
+            <div style="text-align: center; color: #666; font-style: italic;">
+              <div style="font-size: 3rem; margin-bottom: 15px; color: #667eea;">📄</div>
+              <div>위의 "PDF 바로보기" 버튼을 클릭하여</div>
+              <div>지국 판매활성화 기준을 확인하세요</div>
+            </div>
           </div>
         </div>
       </div>
@@ -9336,10 +9353,78 @@ button:active {
       });
     }
 
+    // GitHub PDF 로드 함수
+    function loadGitHubPdf(type = 'main') {
+      const pdfViewer = document.getElementById('pdfViewer');
+      let githubPdfUrl, title;
+      
+      if (type === 'main') {
+        githubPdfUrl = 'https://raw.githubusercontent.com/youngmin-cmd/cuc/main/지국_판매활성화(2025.08).pdf';
+        title = '지국 판매활성화 기준 (2025.08)';
+      } else if (type === 'appendix') {
+        githubPdfUrl = 'https://raw.githubusercontent.com/youngmin-cmd/cuc/main/지국_판매활성화(2025.08)_별첨.pdf';
+        title = '지국 판매활성화 기준 (2025.08) - 별첨';
+      }
+      
+      // 로딩 표시
+      pdfViewer.innerHTML = `
+        <div style="text-align: center; color: #666; font-style: italic;">
+          <div style="font-size: 2rem; margin-bottom: 15px; color: #667eea;">⏳</div>
+          <div>PDF를 불러오는 중...</div>
+          <div style="font-size: 0.9rem; margin-top: 5px; color: #999;">${title}</div>
+        </div>
+      `;
+      
+      // PDF iframe으로 표시
+      setTimeout(() => {
+        pdfViewer.innerHTML = `
+          <div style="margin-bottom: 15px; padding: 10px 15px; background: #e8f4fd; border-radius: 6px; border-left: 4px solid #667eea;">
+            <div style="font-weight: 500; color: #333;">📖 현재 보고 있는 문서: ${title}</div>
+          </div>
+          <iframe 
+            src="${githubPdfUrl}" 
+            title="${title}" 
+            style="width: 100%; height: 600px; border: none; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"
+            onload="console.log('PDF 로드 완료: ${title}')"
+            onerror="handlePdfError('${type}')"
+          ></iframe>
+        `;
+      }, 500);
+    }
+    
+    // PDF 로드 에러 처리
+    function handlePdfError(type = 'main') {
+      const pdfViewer = document.getElementById('pdfViewer');
+      let pdfUrl, pdfName;
+      
+      if (type === 'main') {
+        pdfUrl = 'https://raw.githubusercontent.com/youngmin-cmd/cuc/main/지국_판매활성화(2025.08).pdf';
+        pdfName = '지국_판매활성화(2025.08).pdf';
+      } else if (type === 'appendix') {
+        pdfUrl = 'https://raw.githubusercontent.com/youngmin-cmd/cuc/main/지국_판매활성화(2025.08)_별첨.pdf';
+        pdfName = '지국_판매활성화(2025.08)_별첨.pdf';
+      }
+      
+      pdfViewer.innerHTML = `
+        <div style="text-align: center; color: #dc3545; font-style: italic;">
+          <div style="font-size: 2rem; margin-bottom: 15px;">❌</div>
+          <div>PDF 로드에 실패했습니다.</div>
+          <div style="font-size: 0.9rem; margin-top: 5px; color: #999;">${pdfName}</div>
+          <div style="font-size: 0.9rem; margin-top: 10px;">
+            <a href="${pdfUrl}" 
+               target="_blank" 
+               style="color: #667eea; text-decoration: none;">
+              새 탭에서 열기
+            </a>
+          </div>
+        </div>
+      `;
+    }
+
     // 판매활성화보기 탭이 활성화될 때 초기화
     function initPdfSection() {
-      renderPdfList();
-      setupPdfDragAndDrop();
+      // GitHub PDF 자동 로드 (선택사항)
+      // loadGitHubPdf();
     }
   </script>
 </body>
