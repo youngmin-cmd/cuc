@@ -13,6 +13,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+    import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: process.env.FIREBASE_API_KEY || "AIzaSyBaOntDx7egYhApd8ep4nZmTpL0CWeZEy0",
@@ -27,6 +28,7 @@
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
     const db = getFirestore(app);
+    const auth = getAuth(app);
 
     let firebaseConnected = false;
     
@@ -45,6 +47,35 @@
       }
     }
 
+    // Firebase 로그아웃 함수
+    async function signOutUser() {
+      try {
+        await signOut(auth);
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('username');
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('userPhoto');
+        localStorage.removeItem('authProvider');
+        
+        // 로그인 페이지로 이동
+        window.location.href = '로그인.html';
+        
+      } catch (error) {
+        console.error('Firebase 로그아웃 실패:', error);
+      }
+    }
+
+    // 사용자 상태 변경 감지
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // 사용자가 로그인된 상태
+        console.log('Firebase 사용자 로그인됨:', user.displayName);
+      } else {
+        // 사용자가 로그아웃된 상태
+        console.log('Firebase 사용자 로그아웃됨');
+      }
+    });
+
     window.firebaseDB = {
       db: db,
       collection: collection,
@@ -59,6 +90,9 @@
       isConnected: () => firebaseConnected,
       testConnection: testFirebaseConnection
     };
+
+    // 전역 함수로 노출
+    window.signOutUser = signOutUser;
   </script>
   
   <!-- Google Analytics -->
@@ -1123,7 +1157,7 @@ button:active {
       </div>
 
       <div class="input-group">
-        <label for="period">의무사용기간</label>
+        <label for="period">의무사용기간 (의무 48은 36으로 계산됩니다. 판매활성화 참고) </label>
         <select id="period">
           <option value="36">36개월</option>
           <option value="48">48개월</option>
@@ -2063,12 +2097,23 @@ button:active {
 
     
     // 로그아웃 함수
-    function logout() {
-      localStorage.removeItem('isLoggedIn');
-      localStorage.removeItem('username');
-      localStorage.removeItem('userName');
-      localStorage.removeItem('isAdmin');
-      window.location.href = '로그인.html';
+    async function logout() {
+      const authProvider = localStorage.getItem('authProvider');
+      
+      if (authProvider === 'google') {
+        // Firebase 로그아웃
+        await signOutUser();
+      } else {
+        // 기존 로그아웃
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('username');
+        localStorage.removeItem('userName');
+        localStorage.removeItem('isAdmin');
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('userPhoto');
+        localStorage.removeItem('authProvider');
+        window.location.href = '로그인.html';
+      }
     }
     
     // PWA Service Worker 등록
@@ -2289,10 +2334,13 @@ button:active {
       36: [ { min: 0,  max: 15899,  rate: 100 }, { min: 15900, max: 21899,  rate: 150 }, { min: 21900, max: 24899,  rate: 200 },
             { min: 24900, max: 28899,  rate: 250 }, { min: 28900, max: 33899,  rate: 300 }, { min: 33900, max: 38899,  rate: 350 },
             { min: 38900, max: Infinity, rate: 400 } ],
+      48: [ { min: 0,  max: 15899,  rate: 100 }, { min: 15900, max: 21899,  rate: 150 }, { min: 21900, max: 24899,  rate: 200 },
+            { min: 24900, max: 28899,  rate: 250 }, { min: 28900, max: 33899,  rate: 300 }, { min: 33900, max: 38899,  rate: 350 },
+            { min: 38900, max: Infinity, rate: 400 } ],
       60: [ { min: 0,  max: 15899,  rate: 200 }, { min: 15900, max: 21899,  rate: 250 }, { min: 21900, max: 24899,  rate: 400 },
             { min: 24900, max: 28899,  rate: 450 }, { min: 28900, max: 33899,  rate: 500 }, { min: 33900, max: 38899,  rate: 550 },
             { min: 38900, max: Infinity, rate: 600 } ],
-            72: [ { min: 0,  max: 15899,  rate: 300 }, { min: 15900, max: 21899,  rate: 350 }, { min: 21900, max: 24899,  rate: 500 },
+      72: [ { min: 0,  max: 15899,  rate: 300 }, { min: 15900, max: 21899,  rate: 350 }, { min: 21900, max: 24899,  rate: 500 },
             { min: 24900, max: 28899,  rate: 550 }, { min: 28900, max: 33899,  rate: 600 }, { min: 33900, max: 38899,  rate: 650 },
             { min: 38900, max: Infinity, rate: 700 } ]
     };

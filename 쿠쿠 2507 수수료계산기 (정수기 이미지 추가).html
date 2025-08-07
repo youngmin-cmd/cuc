@@ -1035,7 +1035,7 @@ button:active {
       </div>
 
       <div class="input-group">
-        <label for="period">의무사용기간</label>
+        <label for="period">의무사용기간(의무 48은 36으로 계산됩니다.)</label>
         <select id="period">
           <option value="36">36개월</option>
           <option value="48">48개월</option>
@@ -1810,10 +1810,13 @@ button:active {
       36: [ { min: 0,  max: 15899,  rate: 100 }, { min: 15900, max: 21899,  rate: 150 }, { min: 21900, max: 24899,  rate: 200 },
             { min: 24900, max: 28899,  rate: 250 }, { min: 28900, max: 33899,  rate: 300 }, { min: 33900, max: 38899,  rate: 350 },
             { min: 38900, max: Infinity, rate: 400 } ],
+      48: [ { min: 0,  max: 15899,  rate: 100 }, { min: 15900, max: 21899,  rate: 150 }, { min: 21900, max: 24899,  rate: 200 },
+            { min: 24900, max: 28899,  rate: 250 }, { min: 28900, max: 33899,  rate: 300 }, { min: 33900, max: 38899,  rate: 350 },
+            { min: 38900, max: Infinity, rate: 400 } ],
       60: [ { min: 0,  max: 15899,  rate: 200 }, { min: 15900, max: 21899,  rate: 250 }, { min: 21900, max: 24899,  rate: 400 },
             { min: 24900, max: 28899,  rate: 450 }, { min: 28900, max: 33899,  rate: 500 }, { min: 33900, max: 38899,  rate: 550 },
             { min: 38900, max: Infinity, rate: 600 } ],
-            72: [ { min: 0,  max: 15899,  rate: 300 }, { min: 15900, max: 21899,  rate: 350 }, { min: 21900, max: 24899,  rate: 500 },
+      72: [ { min: 0,  max: 15899,  rate: 300 }, { min: 15900, max: 21899,  rate: 350 }, { min: 21900, max: 24899,  rate: 500 },
             { min: 24900, max: 28899,  rate: 550 }, { min: 28900, max: 33899,  rate: 600 }, { min: 33900, max: 38899,  rate: 650 },
             { min: 38900, max: Infinity, rate: 700 } ]
     };
