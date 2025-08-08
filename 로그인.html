@@ -13,7 +13,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
-    import { getAuth, signInWithPopup, signInWithRedirect, GoogleAuthProvider, signOut, onAuthStateChanged, getRedirectResult } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
 
     const firebaseConfig = {
       apiKey: process.env.FIREBASE_API_KEY || "AIzaSyBaOntDx7egYhApd8ep4nZmTpL0CWeZEy0",
@@ -28,8 +28,6 @@
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
     const db = getFirestore(app);
-    const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
 
     let firebaseConnected = false;
     
@@ -58,171 +56,7 @@
       return isMobile || isTablet;
     }
 
-    // Google 로그인 함수
-    async function signInWithGoogle() {
-      try {
-        // 로딩 상태 표시
-        const googleBtn = document.querySelector('.google-login-btn');
-        const originalText = googleBtn.innerHTML;
-        googleBtn.innerHTML = '<img src="https://developers.google.com/identity/images/g-logo.png" alt="Google"> 로그인 중...';
-        googleBtn.disabled = true;
-        
-        let result;
-        
-        // 모바일에서는 리다이렉트 방식, 데스크톱에서는 팝업 방식 사용
-        if (isMobileDevice()) {
-          console.log('모바일 기기 감지 - 리다이렉트 방식 사용');
-          await signInWithRedirect(auth, provider);
-          return; // 리다이렉트되므로 여기서 함수 종료
-        } else {
-          console.log('데스크톱 기기 감지 - 팝업 방식 사용');
-          
-          // PC에서 팝업 차단 시 리다이렉트로 폴백
-          try {
-            result = await signInWithPopup(auth, provider);
-          } catch (popupError) {
-            console.log('팝업 실패, 리다이렉트로 시도:', popupError);
-            if (popupError.code === 'auth/popup-blocked' || popupError.code === 'auth/popup-closed-by-user') {
-              await signInWithRedirect(auth, provider);
-              return;
-            }
-            throw popupError;
-          }
-        }
-        
-        // 데스크톱에서 팝업 방식 사용 시에만 실행
-        if (result && result.user) {
-          await handleGoogleLoginSuccess(result.user);
-        }
-        
-      } catch (error) {
-        console.error('Google 로그인 실패:', error);
-        
-        // 버튼 상태 복원
-        const googleBtn = document.querySelector('.google-login-btn');
-        googleBtn.innerHTML = '<img src="https://developers.google.com/identity/images/g-logo.png" alt="Google"> Google로 로그인';
-        googleBtn.disabled = false;
-        
-        // 오류 메시지 표시
-        let errorMessage = 'Google 로그인에 실패했습니다.';
-        
-        if (error.code === 'auth/popup-blocked') {
-          errorMessage = '팝업이 차단되었습니다. 브라우저 설정에서 팝업을 허용해주세요.';
-        } else if (error.code === 'auth/popup-closed-by-user') {
-          errorMessage = '로그인 창이 닫혔습니다. 다시 시도해주세요.';
-        } else if (error.code === 'auth/network-request-failed') {
-          errorMessage = '네트워크 연결을 확인해주세요.';
-        } else if (error.code === 'auth/unauthorized-domain') {
-          errorMessage = '현재 도메인에서 Google 로그인이 허용되지 않습니다.';
-        } else if (error.code === 'auth/cancelled-popup-request') {
-          errorMessage = '로그인 요청이 취소되었습니다. 다시 시도해주세요.';
-        } else if (error.code === 'auth/account-exists-with-different-credential') {
-          errorMessage = '이미 다른 방법으로 가입된 계정입니다.';
-        } else if (error.code === 'auth/invalid-credential') {
-          errorMessage = '유효하지 않은 인증 정보입니다.';
-        } else {
-          errorMessage += ' (' + error.message + ')';
-        }
-        
-        showMessage(errorMessage, 'error');
-      }
-    }
 
-    // Google 로그인 성공 처리 함수
-    async function handleGoogleLoginSuccess(user) {
-      try {
-        // 로그인 성공 처리
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('username', user.displayName);
-        localStorage.setItem('userEmail', user.email);
-        localStorage.setItem('userPhoto', user.photoURL);
-        localStorage.setItem('authProvider', 'google');
-        
-        // 사용자 정보를 Firestore에 저장 (실패해도 로그인은 계속 진행)
-        try {
-          await saveUserToFirestore(user);
-        } catch (firestoreError) {
-          console.error('Firestore 저장 실패 (로그인은 계속 진행):', firestoreError);
-        }
-        
-        // 접속 로그 기록
-        logUserAccess(user.displayName, 'Google 로그인 성공');
-        
-        // 성공 메시지 표시
-        showMessage('Google 로그인 성공!', 'success');
-        
-        // 잠시 후 메인 페이지로 이동
-        setTimeout(() => {
-          window.location.href = 'index.html';
-        }, 1000);
-        
-      } catch (error) {
-        console.error('Google 로그인 후처리 실패:', error);
-        showMessage('로그인은 성공했지만 추가 처리 중 오류가 발생했습니다.', 'error');
-      }
-    }
-
-    // 로그아웃 함수
-    async function signOutUser() {
-      try {
-        await signOut(auth);
-        localStorage.removeItem('isLoggedIn');
-        localStorage.removeItem('username');
-        localStorage.removeItem('userEmail');
-        localStorage.removeItem('userPhoto');
-        localStorage.removeItem('authProvider');
-        
-        // 로그인 페이지로 이동
-        window.location.href = '로그인.html';
-        
-      } catch (error) {
-        console.error('로그아웃 실패:', error);
-      }
-    }
-
-    // Firestore에 사용자 정보 저장
-    async function saveUserToFirestore(user) {
-      try {
-        // Firebase 연결 상태 확인
-        if (!firebaseConnected) {
-          console.log('Firebase 연결되지 않음 - 사용자 정보 저장 건너뜀');
-          return;
-        }
-        
-        const userData = {
-          uid: user.uid,
-          username: user.displayName,
-          email: user.email,
-          photoURL: user.photoURL,
-          provider: 'google',
-          lastLogin: new Date().toISOString(),
-          isActive: true,
-          createdAt: new Date().toISOString(),
-          region: 'Google 로그인',
-          position: 'Google 사용자'
-        };
-
-        // Firestore에 사용자 정보 저장
-        await setDoc(doc(db, 'users', user.uid), userData);
-
-        console.log('사용자 정보가 Firestore에 저장되었습니다:', user.displayName);
-        
-      } catch (error) {
-        console.error('Firestore 저장 실패:', error);
-        throw error; // 상위 함수에서 처리하도록 에러 전파
-      }
-    }
-
-    // 사용자 상태 변경 감지
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // 사용자가 로그인된 상태
-        console.log('Firebase 사용자 로그인됨:', user.displayName);
-      } else {
-        // 사용자가 로그아웃된 상태
-        console.log('Firebase 사용자 로그아웃됨');
-      }
-    });
 
     window.firebaseDB = {
       db: db,
@@ -256,10 +90,7 @@
     }
 
     // 전역 함수로 노출
-    window.signInWithGoogle = signInWithGoogle;
-    window.signOutUser = signOutUser;
     window.checkFirebaseConnection = checkFirebaseConnection;
-    window.handleGoogleLoginSuccess = handleGoogleLoginSuccess;
   </script>
   
   <style>
@@ -570,51 +401,7 @@ body::before {
   font-weight: 500;
 }
 
-.google-login-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  padding: 16px 20px;
-  background: white;
-  border: 2px solid #ecf0f1;
-  border-radius: 12px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 600;
-  color: #2c3e50;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-}
 
-.google-login-btn:hover:not(:disabled) {
-  background-color: #f8f9fa;
-  border-color: #667eea;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.google-login-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.google-login-btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.google-login-btn img {
-  width: 20px;
-  height: 20px;
-  margin-right: 12px;
-}
 
 .demo-credentials {
   margin: 25px 0;
@@ -737,16 +524,7 @@ body::before {
       <div class="success-message" id="successMessage">로그인 성공!</div>
     </form>
 
-    <!-- 소셜 로그인 섹션 -->
-    <div class="social-login">
-      <div class="divider">
-        <span>또는</span>
-      </div>
-      <button class="google-login-btn" onclick="signInWithGoogle()" type="button">
-        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google">
-        Google로 로그인
-      </button>
-    </div>
+
 
     <div class="signup-link">
       계정이 없으신가요? <a href="회원가입.html">회원가입하기</a>
@@ -948,17 +726,7 @@ body::before {
         // Firebase 연결 상태 확인
         await checkFirebaseConnection();
         
-        // 리다이렉트 결과 확인 (Google 로그인 후)
-        try {
-          const result = await getRedirectResult(auth);
-          if (result) {
-            console.log('리다이렉트 로그인 성공:', result.user.displayName);
-            await handleGoogleLoginSuccess(result.user);
-            return;
-          }
-        } catch (error) {
-          console.error('리다이렉트 결과 확인 실패:', error);
-        }
+
         
         // Firebase에서 최신 데이터 동기화
         await syncFromFirebase();
